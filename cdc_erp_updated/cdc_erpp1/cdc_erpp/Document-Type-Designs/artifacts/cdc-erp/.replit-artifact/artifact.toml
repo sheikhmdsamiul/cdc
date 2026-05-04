@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "CDC ERP System"
+version = "1.0.0"
+id = "artifacts/cdc-erp"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25146
+
+[services.development]
+run = "pnpm --filter @workspace/cdc-erp run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cdc-erp", "run", "build" ]
+publicDir = "artifacts/cdc-erp/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25146"
+BASE_PATH = "/"

@@ -1,0 +1,219 @@
+🧠 1️⃣ ORGANIZATIONAL STRUCTURE (MASTER DATA MODEL)
+
+We must standardize this first.
+
+🏢 Centers (Create as DocType: Center)
+Center Name	Type	Location
+Child Development Center (Boys) Tongi	Boys	Tongi
+Child Development Center (Girls) Konabari	Girls	Konabari
+Child Development Center (Boys) Fulerhat, Jashore	Boys	Jashore
+🏢 HQ
+Name
+DSS Head Office Agargaon, Dhaka
+🔗 Hierarchy Design
+
+You should NOT hardcode roles — instead:
+
+Create DocType: Administrative Unit
+Field	Type
+unit_name	Data
+unit_type	Select (HQ / Division / District / Center)
+parent_unit	Link (Administrative Unit)
+linked_center	Link (Center)
+Example Structure
+HQ (DSS Head Office)
+ ├── Division A
+ │     ├── District X
+ │     │     └── Center: Tongi
+ │     ├── District Y
+ │           └── Center: Konabari
+ └── Division B
+       └── District Z
+             └── Center: Jashore
+🔐 2️⃣ ROLE-BASED ACCESS CONTROL (VERY IMPORTANT)
+
+We implement 2-layer security:
+
+Layer 1: Role Permission
+Layer 2: User Permission (Data Filtering)
+🎭 Roles & Access Mapping
+Role	Scope	Access Type
+Head Office	All Centers	Global
+DD Division	Division	Filtered
+DD District	District	Filtered
+Superintendent	Center	Full + Approval
+Probation Officer	Center	Review
+Case Worker	Center	Review
+House Parent	Center	Draft
+Worker	Center	Draft
+Center Admin	Center	Full Control
+Super Admin	All	Full Control
+🔑 User Permission Setup (CRITICAL)
+
+In ERPNext:
+
+👉 Use User Permission
+
+Role	Apply Filter On
+DD Division	Administrative Unit (Division)
+DD District	Administrative Unit (District)
+Center Roles	Center
+Head Office	No restriction
+⚙️ Data Link Rule
+
+Every DocType MUST include:
+
+center (Link)
+administrative_unit (Link)
+
+This ensures filtering works everywhere.
+
+🔄 3️⃣ WORKFLOW HIERARCHY (ACTUAL FLOW)
+
+This is your core approval chain:
+
+Worker
+   ↓
+House Parent
+   ↓
+Case Worker
+   ↓
+Probation Officer
+   ↓
+Superintendent (FINAL APPROVAL)
+🧩 Workflow Example (ALL FORMS)
+
+States:
+
+Draft (Worker / House Parent)
+→ Reviewed by Case Worker
+→ Reviewed by Probation Officer
+→ Approved by Superintendent
+🎯 Workflow Permissions
+Stage	Role
+Draft	Worker / House Parent
+Review 1	Case Worker
+Review 2	Probation Officer
+Final Approval	Superintendent
+📊 4️⃣ ROLE-BASED DASHBOARD DESIGN
+
+Now the most important part.
+
+🏢 4.1 HEAD OFFICE DASHBOARD
+
+🔑 Full national-level visibility
+
+KPIs:
+Total Residents (All Centers)
+Active Cases
+High Risk Cases
+Monthly Admission vs Release
+Center-wise comparison
+Charts:
+Center Comparison Bar Chart
+Risk Distribution Pie Chart
+Case Trend Line (Monthly)
+🏢 4.2 DD DIVISION DASHBOARD
+
+🔑 Only their division
+
+KPIs:
+Residents in Division
+Active Cases
+Pending Approvals
+High Risk Count
+Filter:
+administrative_unit = Division
+🏢 4.3 DD DISTRICT DASHBOARD
+
+🔑 District-level control
+
+KPIs:
+Center performance in district
+Pending workflow approvals
+Risk alerts
+🏠 4.4 SUPERINTENDENT DASHBOARD
+
+🔑 Decision-maker dashboard
+
+KPIs:
+Pending Approvals (CRITICAL)
+High Risk Residents
+Cases awaiting closure
+Overdue cases
+Alerts:
+Cases pending > 7 days
+High risk without action
+🧾 4.5 PROBATION OFFICER DASHBOARD
+KPIs:
+Pending reviews
+Cases forwarded from Case Worker
+Assessment pending
+📋 4.6 CASE WORKER DASHBOARD
+KPIs:
+Drafts from House Parent
+Interviews pending
+Assessments pending
+🏡 4.7 HOUSE PARENT DASHBOARD
+KPIs:
+Draft forms created
+Pending submissions
+Assigned residents
+👷 4.8 WORKER DASHBOARD
+KPIs:
+Draft entries
+Assigned residents
+Tasks
+🛠 4.9 CENTER ADMIN DASHBOARD
+KPIs:
+Full center stats
+User activity
+Workflow bottlenecks
+🧠 4.10 SUPER ADMIN DASHBOARD
+KPIs:
+System-wide analytics
+User logs
+Errors / failures
+Data sync status (Prospect)
+🧩 5️⃣ ERPNext IMPLEMENTATION (ACTUAL)
+✅ Create Workspaces
+
+You will create:
+
+Head Office Workspace
+Division Workspace
+District Workspace
+Center Workspace (shared template)
+✅ Use Components
+Component	Use
+Number Card	KPI
+Dashboard Chart	Visualization
+Report	Drill-down
+Shortcut	Quick actions
+✅ Example Number Card
+
+Active Residents
+
+DocType: Resident Profile
+Filter:
+status = Active
+🧠 Center Filtering Trick
+
+Use:
+
+center = user_default_center
+
+or
+
+Use User Permission
+
+🌐 6️⃣ PROSPECT INTEGRATION (ADVANCED)
+
+You will NOT sync everything.
+
+Only send:
+
+Data	Purpose
+Monthly KPIs	Trend prediction
+Risk Levels	Risk forecasting
+Case duration	Efficiency prediction

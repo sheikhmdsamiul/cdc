@@ -1,0 +1,55 @@
+
+> @workspace/api-server@0.0.0 dev /home/user/Downloads/cdc_erp_updated/cdc_erp_updated/cdc_erpp1/cdc_erpp/Document-Type-Designs/artifacts/api-server
+> set -a; [ -f ./.env ] && . ./.env; set +a; export NODE_ENV=${NODE_ENV:-development}; npm run build && pnpm run start
+
+npm warn Unknown env config "catalog". This will stop working in the next major version of npm.
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
+npm warn Unknown env config "minimum-release-age". This will stop working in the next major version of npm.
+npm warn Unknown env config "npm-globalconfig". This will stop working in the next major version of npm.
+npm warn Unknown env config "overrides". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm.
+
+> @workspace/api-server@0.0.0 build
+> node ./build.mjs
+
+
+  dist/index.mjs                       3.0mb ⚠️
+  dist/seed-admin.mjs                934.7kb
+  dist/seed-demo.mjs                 873.5kb
+  dist/seed-auth.mjs                 871.6kb
+  dist/pino-worker.mjs               153.5kb
+  dist/pino-file.mjs                 142.1kb
+  dist/pino-pretty.mjs               114.6kb
+  dist/thread-stream-worker.mjs        7.3kb
+  dist/index.mjs.map                   5.2mb
+  dist/seed-admin.mjs.map              1.7mb
+  dist/seed-auth.mjs.map               1.7mb
+  dist/seed-demo.mjs.map               1.7mb
+  dist/pino-worker.mjs.map           256.9kb
+  dist/pino-file.mjs.map             229.1kb
+  dist/pino-pretty.mjs.map           204.0kb
+  dist/thread-stream-worker.mjs.map   12.0kb
+
+⚡ Done in 831ms
+
+> @workspace/api-server@0.0.0 start /home/user/Downloads/cdc_erp_updated/cdc_erp_updated/cdc_erpp1/cdc_erpp/Document-Type-Designs/artifacts/api-server
+> set -a; [ -f ./.env ] && . ./.env; set +a; node --enable-source-maps ./dist/index.mjs
+
+[16:04:33.108] [32mINFO[39m (270851): [36mServer listening[39m
+    [35mport[39m: 8080
+[16:04:57.744] [32mINFO[39m (270851): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "GET",
+      "url": "/api/case-types"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 66
+ ELIFECYCLE  Command failed.
+Terminated
+/home/user/Downloads/cdc_erp_updated/cdc_erp_updated/cdc_erpp1/cdc_erpp/Document-Type-Designs/artifacts/api-server:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/api-server@0.0.0 dev: `set -a; [ -f ./.env ] && . ./.env; set +a; export NODE_ENV=${NODE_ENV:-development}; npm run build && pnpm run start`
+Exit status 143

@@ -1,0 +1,57 @@
+{
+  "divisions": [
+    {
+      "name": "Dhaka",
+      "nameBn": "ঢাকা",
+      "districts": [
+        {
+          "name": "Dhaka",
+          "nameBn": "ঢাকা",
+          "upazilas": [
+            { "name": "Dhamrai", "nameBn": "ধামরাই" },
+            { "name": "Dohar", "nameBn": "দোহার" },
+            { "name": "Keraniganj", "nameBn": "কেরানীগঞ্জ" },
+            { "name": "Nawabganj", "nameBn": "নবাবগঞ্জ" },
+            { "name": "Savar", "nameBn": "সাভার" }
+          ]
+        },
+        {
+          "name": "Faridpur",
+          "nameBn": "ফরিদপুর",
+          "upazilas": [
+            { "name": "Alfadanga", "nameBn": "আলফাডাঙ্গা" },
+            { "name": "Bhanga", "nameBn": "ভাঙ্গা" },
+            { "name": "Boalmari", "nameBn": "বোয়ালমারী" },
+            { "name": "Charbhadrasan", "nameBn": "চরভদ্রাসন" },
+            { "name": "Faridpur Sadar", "nameBn": "ফরিদপুর সদর" },
+            { "name": "Madhukhali", "nameBn": "মধুখালী" },
+            { "name": "Nagarkanda", "nameBn": "নগরকান্দা" },
+            { "name": "Sadarpur", "nameBn": "সদরপুর" },
+            { "name": "Saltha", "nameBn": "সালথা" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Khulna",
+      "nameBn": "খুলনা",
+      "districts": [
+        {
+          "name": "Khulna",
+          "nameBn": "খুলনা",
+          "upazilas": [
+            { "name": "Batiaghata", "nameBn": "বটিয়াঘাটা" },
+            { "name": "Dacope", "nameBn": "দাকোপ" },
+            { "name": "Dumuria", "nameBn": "ডুমুরিয়া" },
+            { "name": "Koyra", "nameBn": "কয়রা" },
+            { "name": "Paikgachha", "nameBn": "পাইকগাছা" },
+            { "name": "Phultala", "nameBn": "ফুলতলা" },
+            { "name": "Rupsha", "nameBn": "রূপসা" },
+            { "name": "Terokhada", "nameBn": "তেরখাদা" },
+            { "name": "Dighalia", "nameBn": "দিঘলিয়া" }
+          ]
+        }
+      ]
+    }
+  ]
+}

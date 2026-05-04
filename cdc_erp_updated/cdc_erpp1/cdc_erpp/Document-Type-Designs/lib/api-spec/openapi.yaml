@@ -1,0 +1,2590 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: CDC ERP System API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: children
+    description: Child profile management
+  - name: cases
+    description: Case file management
+  - name: health-assessments
+    description: Health assessment records
+  - name: counseling
+    description: Counseling session records
+  - name: guardians
+    description: Guardian master records
+  - name: guardian-visits
+    description: Guardian visit logs
+  - name: court-cases
+    description: Court case management
+  - name: police-acquisitions
+    description: Police acquisition forms
+  - name: education
+    description: Education & skill plans
+  - name: release-records
+    description: Release documentation
+  - name: follow-ups
+    description: Follow-up logs
+  - name: admissions
+    description: Admission records
+  - name: offences
+    description: Offence details
+  - name: court-references
+    description: Court references
+  - name: allocations
+    description: Center/unit/bed allocations
+  - name: transfers
+    description: Inter-center transfers
+  - name: risk-assessments
+    description: Risk & vulnerability assessments
+  - name: dashboard
+    description: Dashboard statistics
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # Dashboard
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent activity feed
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /dashboard/children-by-status:
+    get:
+      operationId: getChildrenByStatus
+      tags: [dashboard]
+      summary: Get children grouped by status
+      responses:
+        "200":
+          description: Children grouped by status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StatusCount"
+
+  # Children
+  /children:
+    get:
+      operationId: listChildren
+      tags: [children]
+      summary: List all children
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of children
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChildListResponse"
+    post:
+      operationId: createChild
+      tags: [children]
+      summary: Create a new child profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateChildBody"
+      responses:
+        "201":
+          description: Created child
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+
+  /children/{id}:
+    get:
+      operationId: getChild
+      tags: [children]
+      summary: Get a child profile by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Child profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateChild
+      tags: [children]
+      summary: Update a child profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateChildBody"
+      responses:
+        "200":
+          description: Updated child
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+    delete:
+      operationId: deleteChild
+      tags: [children]
+      summary: Delete a child profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Cases
+  /cases:
+    get:
+      operationId: listCases
+      tags: [cases]
+      summary: List all case files
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseFile"
+    post:
+      operationId: createCase
+      tags: [cases]
+      summary: Create a new case file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCaseBody"
+      responses:
+        "201":
+          description: Created case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseFile"
+
+  /cases/{id}:
+    get:
+      operationId: getCase
+      tags: [cases]
+      summary: Get a case file by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Case file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseFile"
+    put:
+      operationId: updateCase
+      tags: [cases]
+      summary: Update a case file
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCaseBody"
+      responses:
+        "200":
+          description: Updated case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseFile"
+
+  # Health Assessments
+  /health-assessments:
+    get:
+      operationId: listHealthAssessments
+      tags: [health-assessments]
+      summary: List health assessments
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of health assessments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HealthAssessment"
+    post:
+      operationId: createHealthAssessment
+      tags: [health-assessments]
+      summary: Create a health assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHealthAssessmentBody"
+      responses:
+        "201":
+          description: Created health assessment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthAssessment"
+
+  /health-assessments/{id}:
+    get:
+      operationId: getHealthAssessment
+      tags: [health-assessments]
+      summary: Get a health assessment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Health assessment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthAssessment"
+    put:
+      operationId: updateHealthAssessment
+      tags: [health-assessments]
+      summary: Update a health assessment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHealthAssessmentBody"
+      responses:
+        "200":
+          description: Updated health assessment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthAssessment"
+
+  # Counseling Sessions
+  /counseling-sessions:
+    get:
+      operationId: listCounselingSessions
+      tags: [counseling]
+      summary: List counseling sessions
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CounselingSession"
+    post:
+      operationId: createCounselingSession
+      tags: [counseling]
+      summary: Create a counseling session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCounselingSessionBody"
+      responses:
+        "201":
+          description: Created session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CounselingSession"
+
+  /counseling-sessions/{id}:
+    get:
+      operationId: getCounselingSession
+      tags: [counseling]
+      summary: Get a counseling session by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Counseling session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CounselingSession"
+    put:
+      operationId: updateCounselingSession
+      tags: [counseling]
+      summary: Update a counseling session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCounselingSessionBody"
+      responses:
+        "200":
+          description: Updated session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CounselingSession"
+
+  # Guardians
+  /guardians:
+    get:
+      operationId: listGuardians
+      tags: [guardians]
+      summary: List guardians
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of guardians
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Guardian"
+    post:
+      operationId: createGuardian
+      tags: [guardians]
+      summary: Create a guardian
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGuardianBody"
+      responses:
+        "201":
+          description: Created guardian
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+
+  /guardians/{id}:
+    get:
+      operationId: getGuardian
+      tags: [guardians]
+      summary: Get a guardian by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Guardian
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+    put:
+      operationId: updateGuardian
+      tags: [guardians]
+      summary: Update a guardian
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGuardianBody"
+      responses:
+        "200":
+          description: Updated guardian
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+
+  # Guardian Visit Logs
+  /guardian-visits:
+    get:
+      operationId: listGuardianVisits
+      tags: [guardian-visits]
+      summary: List guardian visit logs
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+        - name: guardianId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of guardian visit logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GuardianVisit"
+    post:
+      operationId: createGuardianVisit
+      tags: [guardian-visits]
+      summary: Create a guardian visit log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGuardianVisitBody"
+      responses:
+        "201":
+          description: Created visit log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuardianVisit"
+
+  /guardian-visits/{id}:
+    get:
+      operationId: getGuardianVisit
+      tags: [guardian-visits]
+      summary: Get a guardian visit log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Guardian visit log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuardianVisit"
+
+  # Court Cases
+  /court-cases:
+    get:
+      operationId: listCourtCases
+      tags: [court-cases]
+      summary: List court cases
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of court cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourtCase"
+    post:
+      operationId: createCourtCase
+      tags: [court-cases]
+      summary: Create a court case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourtCaseBody"
+      responses:
+        "201":
+          description: Created court case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourtCase"
+
+  /court-cases/{id}:
+    get:
+      operationId: getCourtCase
+      tags: [court-cases]
+      summary: Get a court case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Court case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourtCase"
+    put:
+      operationId: updateCourtCase
+      tags: [court-cases]
+      summary: Update a court case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourtCaseBody"
+      responses:
+        "200":
+          description: Updated court case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourtCase"
+
+  /court-cases/bulk-import:
+    post:
+      operationId: bulkImportCourtCases
+      tags: [court-cases]
+      summary: Bulk import court cases from CSV
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file containing court case data
+      responses:
+        "200":
+          description: Bulk import results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    description: Number of successfully imported records
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    description: List of error messages for failed imports
+                  total:
+                    type: integer
+                    description: Total number of records processed
+
+  # Police Acquisitions
+  /police-acquisitions:
+    get:
+      operationId: listPoliceAcquisitions
+      tags: [police-acquisitions]
+      summary: List police acquisition forms
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of police acquisitions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PoliceAcquisition"
+    post:
+      operationId: createPoliceAcquisition
+      tags: [police-acquisitions]
+      summary: Create a police acquisition form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePoliceAcquisitionBody"
+      responses:
+        "201":
+          description: Created police acquisition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PoliceAcquisition"
+
+  /police-acquisitions/{id}:
+    get:
+      operationId: getPoliceAcquisition
+      tags: [police-acquisitions]
+      summary: Get a police acquisition form
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Police acquisition form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PoliceAcquisition"
+
+  # Education Plans
+  /education-plans:
+    get:
+      operationId: listEducationPlans
+      tags: [education]
+      summary: List education & skill plans
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of education plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EducationPlan"
+    post:
+      operationId: createEducationPlan
+      tags: [education]
+      summary: Create an education & skill plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEducationPlanBody"
+      responses:
+        "201":
+          description: Created education plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EducationPlan"
+
+  /education-plans/{id}:
+    get:
+      operationId: getEducationPlan
+      tags: [education]
+      summary: Get an education plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Education plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EducationPlan"
+    put:
+      operationId: updateEducationPlan
+      tags: [education]
+      summary: Update an education plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEducationPlanBody"
+      responses:
+        "200":
+          description: Updated education plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EducationPlan"
+    delete:
+      operationId: deleteEducationPlan
+      tags: [education]
+      summary: Delete an education plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted education plan
+
+  # Release Records
+  /release-records:
+    get:
+      operationId: listReleaseRecords
+      tags: [release-records]
+      summary: List release records
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of release records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReleaseRecord"
+    post:
+      operationId: createReleaseRecord
+      tags: [release-records]
+      summary: Create a release record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReleaseRecordBody"
+      responses:
+        "201":
+          description: Created release record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseRecord"
+
+  /release-records/{id}:
+    get:
+      operationId: getReleaseRecord
+      tags: [release-records]
+      summary: Get a release record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Release record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseRecord"
+
+  # Follow-up Logs
+  /follow-ups:
+    get:
+      operationId: listFollowUps
+      tags: [follow-ups]
+      summary: List follow-up logs
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of follow-up logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FollowUp"
+    post:
+      operationId: createFollowUp
+      tags: [follow-ups]
+      summary: Create a follow-up log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFollowUpBody"
+      responses:
+        "201":
+          description: Created follow-up log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowUp"
+
+  /follow-ups/{id}:
+    get:
+      operationId: getFollowUp
+      tags: [follow-ups]
+      summary: Get a follow-up log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Follow-up log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowUp"
+
+  # Admissions
+  /admissions:
+    get:
+      operationId: listAdmissions
+      tags: [admissions]
+      summary: List admission records
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of admissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Admission"
+    post:
+      operationId: createAdmission
+      tags: [admissions]
+      summary: Create an admission record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdmissionBody"
+      responses:
+        "201":
+          description: Created admission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admission"
+
+  /admissions/{id}:
+    get:
+      operationId: getAdmission
+      tags: [admissions]
+      summary: Get an admission record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admission record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admission"
+    put:
+      operationId: updateAdmission
+      tags: [admissions]
+      summary: Update an admission record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdmissionBody"
+      responses:
+        "200":
+          description: Updated admission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admission"
+
+
+  /risk-assessments:
+    get:
+      operationId: listRiskAssessments
+      tags: [risk-assessments]
+      summary: List risk assessments
+      parameters:
+        - name: childId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of risk assessments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RiskAssessment"
+    post:
+      operationId: createRiskAssessment
+      tags: [risk-assessments]
+      summary: Create a risk assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRiskAssessmentBody"
+      responses:
+        "201":
+          description: Created risk assessment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskAssessment"
+
+  /risk-assessments/{id}:
+    get:
+      operationId: getRiskAssessment
+      tags: [risk-assessments]
+      summary: Get a risk assessment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Risk assessment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskAssessment"
+    put:
+      operationId: updateRiskAssessment
+      tags: [risk-assessments]
+      summary: Update a risk assessment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRiskAssessmentBody"
+      responses:
+        "200":
+          description: Updated risk assessment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskAssessment"
+
+  /admin-units/tree:
+    get:
+      operationId: getAdministrativeTree
+      tags: [admin]
+      summary: Get the nested tree of administrative units
+      responses:
+        "200":
+          description: Tree of administrative units
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DivisionNode"
+  /admin-units:
+    post:
+      operationId: createAdministrativeUnit
+      tags: [admin]
+      summary: Create an administrative unit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdminUnitBody"
+      responses:
+        "201":
+          description: Created unit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdministrativeUnit"
+
+components:
+  schemas:
+    AdministrativeUnit:
+      type: object
+      required:
+        - id
+        - unitName
+        - unitType
+      properties:
+        id:
+          type: integer
+        unitName:
+          type: string
+        unitNameBn:
+          type: string
+        unitNameEn:
+          type: string
+        unitType:
+          type: string
+        parentUnitId:
+          type: integer
+        linkedCenterId:
+          type: integer
+    CreateAdminUnitBody:
+      type: object
+      required:
+        - unitName
+        - unitType
+      properties:
+        unitName:
+          type: string
+        unitNameBn:
+          type: string
+        unitNameEn:
+          type: string
+        unitType:
+          type: string
+        parentUnitId:
+          type: integer
+        linkedCenterId:
+          type: integer
+    UpazilaNode:
+      type: object
+      required:
+        - id
+        - bn
+        - en
+      properties:
+        id:
+          type: integer
+        bn:
+          type: string
+        en:
+          type: string
+    DistrictNode:
+      type: object
+      required:
+        - id
+        - bn
+        - en
+        - upazilas
+      properties:
+        id:
+          type: integer
+        bn:
+          type: string
+        en:
+          type: string
+        upazilas:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpazilaNode"
+    DivisionNode:
+      type: object
+      required:
+        - id
+        - bn
+        - en
+        - districts
+      properties:
+        id:
+          type: integer
+        bn:
+          type: string
+        en:
+          type: string
+        districts:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistrictNode"
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    DashboardStats:
+      type: object
+      properties:
+        totalChildren:
+          type: integer
+        admittedChildren:
+          type: integer
+        releasedChildren:
+          type: integer
+        openCases:
+          type: integer
+        upcomingHearings:
+          type: integer
+        recentAdmissions:
+          type: integer
+        highRiskChildren:
+          type: integer
+        pendingFollowUps:
+          type: integer
+      required:
+        - totalChildren
+        - admittedChildren
+        - releasedChildren
+        - openCases
+        - upcomingHearings
+        - recentAdmissions
+        - highRiskChildren
+        - pendingFollowUps
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+        childName:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - description
+        - timestamp
+
+    StatusCount:
+      type: object
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+      required:
+        - status
+        - count
+
+    Child:
+      type: object
+      properties:
+        id:
+          type: integer
+        childId:
+          type: string
+        fullName:
+          type: string
+        motherName:
+          type: string
+        fatherName:
+          type: string
+        gender:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        age:
+          type: integer
+        verifiedDob:
+          type: string
+          format: date
+        verifiedAge:
+          type: integer
+        verifiedAgeDate:
+          type: string
+          format: date
+        birthRegistrationNo:
+          type: string
+        birthCertificateFileName:
+          type: string
+        birthCertificateFileDataUrl:
+          type: string
+        profileImageFileName:
+          type: string
+        profileImageDataUrl:
+          type: string
+        religion:
+          type: string
+        nationality:
+          type: string
+        presentDivision:
+          type: string
+        presentDistrict:
+          type: string
+        presentUpazila:
+          type: string
+        presentVillage:
+          type: string
+        presentThana:
+          type: string
+        presentAddress:
+          type: string
+        permanentVillage:
+          type: string
+        permanentThana:
+          type: string
+        permanentDistrict:
+          type: string
+        permanentAddress:
+          type: string
+        admissionDate:
+          type: string
+          format: date
+        arrivalDistrict:
+          type: string
+        admissionSource:
+          type: string
+          enum: [Court, Police, Guardian]
+        legalContext:
+          type: string
+        judicialStatus:
+          type: string
+        educationLevel:
+          type: string
+        skills:
+          type: string
+        futureGoal:
+          type: string
+        childRisk:
+          type: string
+        parentsEducation:
+          type: string
+        parentsOccupation:
+          type: string
+        parentsMonthlyIncome:
+          type: integer
+        socioeconomicStatus:
+          type: string
+        parentsContactNumber:
+          type: string
+        childRelationshipWithParents:
+          type: string
+        siblingsCountAndOrder:
+          type: string
+        isMarried:
+          type: boolean
+        childrenCount:
+          type: integer
+        familyType:
+          type: string
+        parentsMaritalStatus:
+          type: string
+        guardianType:
+          type: string
+        isOrphan:
+          type: boolean
+        familyMemberSubstanceAbuse:
+          type: boolean
+        familyCriminalInvolvement:
+          type: boolean
+        peerCircleInfo:
+          type: string
+        basicNeedsFulfilled:
+          type: boolean
+        basicNeedsNote:
+          type: string
+        safetyEnsured:
+          type: boolean
+        safetyEnsuredNote:
+          type: string
+        initialHealthCheckCompleted:
+          type: boolean
+        initialHealthCheckNote:
+          type: string
+        courtReferenceNo:
+          type: string
+        caseType:
+          type: string
+        currentStatus:
+          type: string
+          enum: [Admitted, Under Care, Released, Transferred]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - childId
+        - fullName
+        - admissionDate
+        - admissionSource
+        - currentStatus
+        - createdAt
+        - updatedAt
+
+    CreateChildBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        motherName:
+          type: string
+        fatherName:
+          type: string
+        gender:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        ageAtAdmission:
+          type: integer
+        verifiedDob:
+          type: string
+          format: date
+        verifiedAge:
+          type: integer
+        verifiedAgeDate:
+          type: string
+          format: date
+        birthRegistrationNo:
+          type: string
+        birthCertificateFileName:
+          type: string
+        birthCertificateFileDataUrl:
+          type: string
+        profileImageFileName:
+          type: string
+        profileImageDataUrl:
+          type: string
+        religion:
+          type: string
+        nationality:
+          type: string
+        presentDivision:
+          type: string
+        presentDistrict:
+          type: string
+        presentUpazila:
+          type: string
+        presentVillage:
+          type: string
+        presentThana:
+          type: string
+        presentAddress:
+          type: string
+        permanentVillage:
+          type: string
+        permanentThana:
+          type: string
+        permanentDistrict:
+          type: string
+        permanentAddress:
+          type: string
+        admissionDate:
+          type: string
+          format: date
+        arrivalDistrict:
+          type: string
+        admissionSource:
+          type: string
+          enum: [Court, Police, Guardian]
+        legalContext:
+          type: string
+        judicialStatus:
+          type: string
+        educationLevel:
+          type: string
+        skills:
+          type: string
+        futureGoal:
+          type: string
+        childRisk:
+          type: string
+        parentsEducation:
+          type: string
+        parentsOccupation:
+          type: string
+        parentsMonthlyIncome:
+          type: integer
+        socioeconomicStatus:
+          type: string
+        parentsContactNumber:
+          type: string
+        childRelationshipWithParents:
+          type: string
+        siblingsCountAndOrder:
+          type: string
+        isMarried:
+          type: boolean
+        childrenCount:
+          type: integer
+        familyType:
+          type: string
+        parentsMaritalStatus:
+          type: string
+        guardianType:
+          type: string
+        isOrphan:
+          type: boolean
+        familyMemberSubstanceAbuse:
+          type: boolean
+        familyCriminalInvolvement:
+          type: boolean
+        peerCircleInfo:
+          type: string
+        basicNeedsFulfilled:
+          type: boolean
+        basicNeedsNote:
+          type: string
+        safetyEnsured:
+          type: boolean
+        safetyEnsuredNote:
+          type: string
+        initialHealthCheckCompleted:
+          type: boolean
+        initialHealthCheckNote:
+          type: string
+        courtReferenceNo:
+          type: string
+        caseType:
+          type: string
+        currentStatus:
+          type: string
+          enum: [Admitted, Under Care, Released, Transferred]
+      required:
+        - fullName
+        - admissionDate
+        - admissionSource
+        - currentStatus
+
+    ChildListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Child"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+
+    CaseFile:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        caseOpeningDate:
+          type: string
+          format: date
+        assignedCaseWorker:
+          type: string
+        riskLevel:
+          type: string
+          enum: [Low, Medium, High]
+        caseStatus:
+          type: string
+          enum: [Open, Active, Review, Closed]
+        caseSummary:
+          type: string
+        investigationNotes:
+          type: string
+        recommendation:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - childId
+        - caseStatus
+        - createdAt
+        - updatedAt
+
+    CreateCaseBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        caseOpeningDate:
+          type: string
+          format: date
+        assignedCaseWorker:
+          type: string
+        riskLevel:
+          type: string
+          enum: [Low, Medium, High]
+        caseStatus:
+          type: string
+          enum: [Open, Active, Review, Closed]
+        caseSummary:
+          type: string
+        investigationNotes:
+          type: string
+        recommendation:
+          type: string
+      required:
+        - childId
+        - caseStatus
+
+    HealthAssessment:
+      type: object
+      properties:
+        id:
+          type: integer
+        assessmentId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        assessmentDate:
+          type: string
+          format: date
+        height:
+          type: number
+        weight:
+          type: number
+        bmi:
+          type: number
+        physicalCondition:
+          type: string
+          enum: [Normal, Weak, Critical]
+        mentalCondition:
+          type: string
+        doctorName:
+          type: string
+        visibleInjury:
+          type: boolean
+        injuryDescription:
+          type: string
+        chronicDisease:
+          type: string
+        congenitalDiseaseInfo:
+          type: string
+        hasHereditaryDiseaseHistory:
+          type: boolean
+        hereditaryDiseaseDetails:
+          type: string
+        hasDisability:
+          type: boolean
+        disability:
+          type: string
+        substanceAbuse:
+          type: boolean
+        gbvSurvivor:
+          type: boolean
+        ongoingMedication:
+          type: string
+        immeditateTreatmentRequired:
+          type: boolean
+        hospitalReferralNeeded:
+          type: boolean
+        recommendation:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - assessmentId
+        - childId
+        - assessmentDate
+        - createdAt
+
+    CreateHealthAssessmentBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        assessmentDate:
+          type: string
+          format: date
+        height:
+          type: number
+        weight:
+          type: number
+        physicalCondition:
+          type: string
+          enum: [Normal, Weak, Critical]
+        mentalCondition:
+          type: string
+        doctorName:
+          type: string
+        visibleInjury:
+          type: boolean
+        injuryDescription:
+          type: string
+        chronicDisease:
+          type: string
+        congenitalDiseaseInfo:
+          type: string
+        hasHereditaryDiseaseHistory:
+          type: boolean
+        hereditaryDiseaseDetails:
+          type: string
+        hasDisability:
+          type: boolean
+        disability:
+          type: string
+        substanceAbuse:
+          type: boolean
+        gbvSurvivor:
+          type: boolean
+        ongoingMedication:
+          type: string
+        immeditateTreatmentRequired:
+          type: boolean
+        hospitalReferralNeeded:
+          type: boolean
+        recommendation:
+          type: string
+      required:
+        - childId
+        - assessmentDate
+
+    CounselingSession:
+      type: object
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        sessionDate:
+          type: string
+          format: date
+        counselor:
+          type: string
+        sessionType:
+          type: string
+          enum: [Individual, Group, Family]
+        issuesDiscussed:
+          type: string
+        observations:
+          type: string
+        outcome:
+          type: string
+          enum: [Positive, Neutral, Negative]
+        nextSessionDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - sessionId
+        - childId
+        - sessionDate
+        - sessionType
+        - createdAt
+
+    CreateCounselingSessionBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        sessionDate:
+          type: string
+          format: date
+        counselor:
+          type: string
+        sessionType:
+          type: string
+          enum: [Individual, Group, Family]
+        issuesDiscussed:
+          type: string
+        observations:
+          type: string
+        outcome:
+          type: string
+          enum: [Positive, Neutral, Negative]
+        nextSessionDate:
+          type: string
+          format: date
+      required:
+        - childId
+        - sessionDate
+        - sessionType
+
+    Guardian:
+      type: object
+      properties:
+        id:
+          type: integer
+        childId:
+          type: integer
+          nullable: true
+        guardianId:
+          type: string
+        guardianName:
+          type: string
+        relationship:
+          type: string
+        nidNo:
+          type: string
+        contactNumber:
+          type: string
+        address:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - guardianId
+        - guardianName
+        - relationship
+        - createdAt
+
+    CreateGuardianBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+          nullable: true
+        guardianName:
+          type: string
+        relationship:
+          type: string
+        nidNo:
+          type: string
+        contactNumber:
+          type: string
+        address:
+          type: string
+      required:
+        - guardianName
+        - relationship
+
+    GuardianVisit:
+      type: object
+      properties:
+        id:
+          type: integer
+        visitId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        guardianId:
+          type: integer
+        guardianName:
+          type: string
+        visitDate:
+          type: string
+          format: date
+        purposeOfVisit:
+          type: string
+        observations:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - visitId
+        - childId
+        - guardianId
+        - visitDate
+        - createdAt
+
+    CreateGuardianVisitBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        guardianId:
+          type: integer
+        visitDate:
+          type: string
+          format: date
+        purposeOfVisit:
+          type: string
+        observations:
+          type: string
+      required:
+        - childId
+        - guardianId
+        - visitDate
+
+    CourtCase:
+      type: object
+      properties:
+        id:
+          type: integer
+        courtCaseId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        courtName:
+          type: string
+        policeStationName:
+          type: string
+        grNumber:
+          type: string
+        caseNo:
+          type: string
+        legalSection:
+          type: string
+        legalAidType:
+          type: string
+        hearingDate:
+          type: string
+          format: date
+        lastHearingDate:
+          type: string
+          format: date
+        lawyerName:
+          type: string
+        childCaseType:
+          type: string
+        previousCaseInvolvement:
+          type: boolean
+        outcome:
+          type: string
+        nextHearingDate:
+          type: string
+          format: date
+        firNumber:
+          type: string
+        firDate:
+          type: string
+          format: date
+        currentCaseStatus:
+          type: string
+        courtAttendanceDetails:
+          type: string
+        courtAttendanceDates:
+          type: string
+        guardianCommunication:
+          type: string
+        educationTraining:
+          type: string
+        centerFacilities:
+          type: string
+        caseComments:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - courtCaseId
+        - childId
+        - courtName
+        - caseNo
+        - createdAt
+
+    CreateCourtCaseBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        courtName:
+          type: string
+        policeStationName:
+          type: string
+        grNumber:
+          type: string
+        caseNo:
+          type: string
+        legalSection:
+          type: string
+        legalAidType:
+          type: string
+        hearingDate:
+          type: string
+          format: date
+        lastHearingDate:
+          type: string
+          format: date
+        lawyerName:
+          type: string
+        childCaseType:
+          type: string
+        previousCaseInvolvement:
+          type: boolean
+        outcome:
+          type: string
+        nextHearingDate:
+          type: string
+          format: date
+        firNumber:
+          type: string
+        firDate:
+          type: string
+          format: date
+        currentCaseStatus:
+          type: string
+        courtAttendanceDetails:
+          type: string
+        courtAttendanceDates:
+          type: string
+        guardianCommunication:
+          type: string
+        educationTraining:
+          type: string
+        centerFacilities:
+          type: string
+        caseComments:
+          type: string
+      required:
+        - childId
+        - courtName
+        - caseNo
+
+    PoliceAcquisition:
+      type: object
+      properties:
+        id:
+          type: integer
+        acquisitionId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        reasonForTransfer:
+          type: string
+        receivingAuthority:
+          type: string
+        transferDate:
+          type: string
+          format: date
+        policeOfficerName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - acquisitionId
+        - childId
+        - transferDate
+        - createdAt
+
+    CreatePoliceAcquisitionBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        reasonForTransfer:
+          type: string
+        receivingAuthority:
+          type: string
+        transferDate:
+          type: string
+          format: date
+        policeOfficerName:
+          type: string
+      required:
+        - childId
+        - transferDate
+
+    EducationPlan:
+      type: object
+      properties:
+        id:
+          type: integer
+        planId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        programType:
+          type: string
+          enum: [Education, Vocational, Skills Assessment]
+        recordTitle:
+          type: string
+        status:
+          type: string
+        institutionName:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        educationLevel:
+          type: string
+        boardOrCurriculum:
+          type: string
+        learningGoals:
+          type: string
+        tradeName:
+          type: string
+        certificationName:
+          type: string
+        weeklyHours:
+          type: integer
+        assessmentDate:
+          type: string
+          format: date
+        assessorName:
+          type: string
+        literacyLevel:
+          type: string
+        numeracyLevel:
+          type: string
+        digitalLiteracyLevel:
+          type: string
+        interestAreas:
+          type: string
+        strengths:
+          type: string
+        supportNeeds:
+          type: string
+        progressNotes:
+          type: string
+        recommendations:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - planId
+        - childId
+        - programType
+        - startDate
+        - createdAt
+
+    CreateEducationPlanBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        programType:
+          type: string
+          enum: [Education, Vocational, Skills Assessment]
+        recordTitle:
+          type: string
+        status:
+          type: string
+        institutionName:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        educationLevel:
+          type: string
+        boardOrCurriculum:
+          type: string
+        learningGoals:
+          type: string
+        tradeName:
+          type: string
+        certificationName:
+          type: string
+        weeklyHours:
+          type: integer
+        assessmentDate:
+          type: string
+          format: date
+        assessorName:
+          type: string
+        literacyLevel:
+          type: string
+        numeracyLevel:
+          type: string
+        digitalLiteracyLevel:
+          type: string
+        interestAreas:
+          type: string
+        strengths:
+          type: string
+        supportNeeds:
+          type: string
+        progressNotes:
+          type: string
+        recommendations:
+          type: string
+      required:
+        - childId
+        - programType
+        - startDate
+
+    ReleaseRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        releaseId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        releaseDate:
+          type: string
+          format: date
+        releaseType:
+          type: string
+        handedOverTo:
+          type: string
+        authorityApproval:
+          type: boolean
+        remarks:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - releaseId
+        - childId
+        - releaseDate
+        - releaseType
+        - createdAt
+
+    CreateReleaseRecordBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        releaseDate:
+          type: string
+          format: date
+        releaseType:
+          type: string
+        handedOverTo:
+          type: string
+        authorityApproval:
+          type: boolean
+        remarks:
+          type: string
+      required:
+        - childId
+        - releaseDate
+        - releaseType
+
+    FollowUp:
+      type: object
+      properties:
+        id:
+          type: integer
+        followUpId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        followUpDate:
+          type: string
+          format: date
+        visitType:
+          type: string
+          enum: [Home, Phone]
+        observation:
+          type: string
+        nextAction:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - followUpId
+        - childId
+        - followUpDate
+        - visitType
+        - createdAt
+
+    CreateFollowUpBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        followUpDate:
+          type: string
+          format: date
+        visitType:
+          type: string
+          enum: [Home, Phone]
+        observation:
+          type: string
+        nextAction:
+          type: string
+      required:
+        - childId
+        - followUpDate
+        - visitType
+
+    Admission:
+      type: object
+      properties:
+        id:
+          type: integer
+        admissionId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        admissionDate:
+          type: string
+          format: date
+        admissionTime:
+          type: string
+        admissionSource:
+          type: string
+          enum: [Court, Police, Probation, Guardian]
+        centerId:
+          type: integer
+        centerName:
+          type: string
+        centerNameBn:
+          type: string
+        receivingOfficer:
+          type: string
+        documentsVerified:
+          type: boolean
+        verifiedBy:
+          type: string
+        verificationDate:
+          type: string
+          format: date
+        approvalStatus:
+          type: string
+          enum: [Draft, Verified, Approved, Admitted, Rejected]
+        authorityRemarks:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - admissionId
+        - childId
+        - admissionDate
+        - admissionSource
+        - approvalStatus
+        - createdAt
+
+    CreateAdmissionBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        admissionDate:
+          type: string
+          format: date
+        admissionTime:
+          type: string
+        admissionSource:
+          type: string
+          enum: [Court, Police, Probation, Guardian]
+        centerId:
+          type: integer
+        receivingOfficer:
+          type: string
+        documentsVerified:
+          type: boolean
+        verifiedBy:
+          type: string
+        verificationDate:
+          type: string
+          format: date
+        approvalStatus:
+          type: string
+          enum: [Draft, Verified, Approved, Admitted, Rejected]
+        authorityRemarks:
+          type: string
+      required:
+        - childId
+        - centerId
+        - admissionDate
+        - admissionSource
+        - approvalStatus
+
+    RiskAssessment:
+      type: object
+      properties:
+        id:
+          type: integer
+        riskId:
+          type: string
+        childId:
+          type: integer
+        childName:
+          type: string
+        assessmentDate:
+          type: string
+          format: date
+        assessedBy:
+          type: string
+        abuseRisk:
+          type: string
+          enum: [Low, Medium, High]
+        traffickingRisk:
+          type: string
+          enum: [Low, Medium, High]
+        reoffendingRisk:
+          type: string
+          enum: [Low, Medium, High]
+        selfHarmRisk:
+          type: string
+          enum: [Low, Medium, High]
+        overallRiskLevel:
+          type: string
+          enum: [Low, Medium, High]
+        immediateActionRequired:
+          type: boolean
+        protectionMeasures:
+          type: string
+        status:
+          type: string
+          enum: [Draft, Reviewed, Approved]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - riskId
+        - childId
+        - assessmentDate
+        - overallRiskLevel
+        - createdAt
+
+    CreateRiskAssessmentBody:
+      type: object
+      properties:
+        childId:
+          type: integer
+        assessmentDate:
+          type: string
+          format: date
+        assessedBy:
+          type: string
+        abuseRisk:
+          type: string
+          enum: [Low, Medium, High]
+        traffickingRisk:
+          type: string
+          enum: [Low, Medium, High]
+        reoffendingRisk:
+          type: string
+          enum: [Low, Medium, High]
+        selfHarmRisk:
+          type: string
+          enum: [Low, Medium, High]
+        overallRiskLevel:
+          type: string
+          enum: [Low, Medium, High]
+        immediateActionRequired:
+          type: boolean
+        protectionMeasures:
+          type: string
+        status:
+          type: string
+          enum: [Draft, Reviewed, Approved]
+      required:
+        - childId
+        - assessmentDate
+        - overallRiskLevel
