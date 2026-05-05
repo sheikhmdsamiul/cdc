@@ -1,10 +1,12 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { guardiansTable, guardianVisitsTable, childrenTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
-import { checkManageAccess } from "../middlewares/auth";
+import { eq, desc, or, isNull } from "drizzle-orm";
+import { checkManageAccess, getCurrentUser, moduleGuard } from "../middlewares/auth";
 
 const router: IRouter = Router();
+
+router.use(moduleGuard("guardians"));
 
 function generateGuardianId(): string {
   const year = new Date().getFullYear();
@@ -15,8 +17,31 @@ function generateGuardianId(): string {
 router.get("/", async (req, res) => {
   try {
     const { search } = req.query as Record<string, string>;
-    let rows = await db.select().from(guardiansTable).orderBy(desc(guardiansTable.createdAt));
-    if (search) rows = rows.filter(r => r.guardianName.toLowerCase().includes(search.toLowerCase()));
+
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    const userCenterId = user.centerId;
+
+    if (!isGlobal && !userCenterId) return res.json([]);
+
+    let query = db.select({ guardian: guardiansTable }).from(guardiansTable)
+      .leftJoin(childrenTable, eq(guardiansTable.childId, childrenTable.id));
+
+    if (!isGlobal) {
+      query = query.where(
+        or(
+          eq(childrenTable.centerId, userCenterId!),
+          isNull(guardiansTable.childId)
+        )
+      ) as any;
+    }
+
+    const rowsRaw = await query.orderBy(desc(guardiansTable.createdAt));
+    let rows = rowsRaw.map((r: any) => r.guardian);
+
+    if (search) rows = rows.filter((r: any) => r.guardianName.toLowerCase().includes(search.toLowerCase()));
     res.json(rows);
   } catch (err) {
     req.log.error({ err }, "Failed to list guardians");

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const WELLBEING_COLORS: Record<string, string> = {
@@ -44,7 +44,10 @@ export default function SurveysList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canView   = usePermission("surveys", "view");
+  const canCreate = usePermission("surveys", "create");
+  const canEdit   = usePermission("surveys", "edit");
+  const canDelete = usePermission("surveys", "delete");
 
   const [deleting, setDeleting] = useState<Survey | null>(null);
   const [editing, setEditing] = useState<Survey | null>(null);
@@ -102,9 +105,11 @@ export default function SurveysList() {
           <h1 className="text-2xl font-bold text-foreground">{t("surveys.title")}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{t("surveys.subtitle")}</p>
         </div>
-        <Link href="/surveys/new">
-          <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" />{t("surveys.newSurvey")}</Button>
-        </Link>
+        {canCreate && (
+          <Link href="/surveys/new">
+            <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" />{t("surveys.newSurvey")}</Button>
+          </Link>
+        )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -124,16 +129,23 @@ export default function SurveysList() {
         exportTitle="Measurement Surveys" exportTitleBn="পরিমাপ জরিপের তালিকা"
         emptyText="No surveys found." emptyTextBn="কোনো জরিপ পাওয়া যায়নি।"
         onRowClick={r => navigate(`/surveys/${r.id}`)}
-        actions={canManage ? r => (
+        actions={r => (
           <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {canEdit && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Link href={`/surveys/${r.id}`}><Button variant="ghost" size="sm">{t("common.view")}</Button></Link>
+            )}
           </div>
-        ) : r => <Link href={`/surveys/${r.id}`}><Button variant="ghost" size="sm">{t("common.view")}</Button></Link>}
+        )}
         searchPlaceholder="Search by ID, child, enumerator..."
         searchPlaceholderBn="আইডি, শিশু বা গণনাকারী দিয়ে অনুসন্ধান..."
       />

@@ -18,7 +18,7 @@ import {
   CalendarDays, Globe, FileText,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, usePermission } from "@/contexts/AuthContext";
 import { MonthlyReport } from "./monthly-report";
 import { Chok01Report } from "./chok01-report";
 
@@ -54,7 +54,7 @@ function useReport(path: string, centerId?: number | null) {
   }, staleTime: 60_000 });
 }
 
-const HQ_ROLES = ["Super Admin", "Head Office", "DD Division", "DD District"];
+// Removed hardcoded HQ_ROLES in favor of dynamic permission checks and role properties.
 
 /* ─── Print helper ─────────────────────────────────────────────────────────── */
 function usePrint(ref: React.RefObject<HTMLDivElement | null>) {
@@ -783,11 +783,12 @@ const ALL_REPORTS: {
 ];
 
 export default function ReportsPage() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const isBn = i18n.language === "bn";
 
-  const isHQ = HQ_ROLES.includes(user?.roleName ?? "");
+  const canView = usePermission("reports", "view");
+  const isHQ = canView && (user?.roleName === "Super Admin" || user?.roleName === "Head Office" || user?.roleScope === "Head Office");
 
   // Center users: fixed to their center; HQ users: optional filter (null = all)
   const userCenterId = user?.centerId ?? null;
@@ -833,6 +834,10 @@ export default function ReportsPage() {
   const monthlyDefaultCenterId = isHQ
     ? (selectedCenterId ?? monthlyCenters[0]?.id ?? null)
     : (userCenterId ?? monthlyCenters[0]?.id ?? null);
+
+  if (!canView) {
+    return <div className="p-8 text-center text-muted-foreground">{isBn ? "আপনার এই মডিউলটি দেখার অনুমতি নেই।" : "You do not have permission to view this module."}</div>;
+  }
 
   return (
     <div className="space-y-6">

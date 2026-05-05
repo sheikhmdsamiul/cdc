@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { usersTable, rolesTable, centersTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
+import { usersTable, rolesTable, centersTable, rolePermissionsTable } from "@workspace/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {
@@ -37,12 +37,47 @@ export async function getCurrentUser(req: Request) {
 }
 
 /**
+ * Middleware factory that enforces module-level permissions based on HTTP method:
+ * GET → canView, POST → canCreate, PUT/PATCH → canEdit, DELETE → canDelete
+ * Super Admin and Head Office always bypass.
+ */
+export function moduleGuard(module: string) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    // Super Admin & Head Office bypass all module checks
+    if (user.roleName === "Super Admin" || user.roleName === "Head Office") return next();
+
+    if (!user.roleId) return res.status(403).json({ error: "Forbidden: no role assigned" });
+
+    const [perm] = await db
+      .select()
+      .from(rolePermissionsTable)
+      .where(and(eq(rolePermissionsTable.roleId, user.roleId), eq(rolePermissionsTable.module, module)))
+      .limit(1);
+
+    if (!perm) return res.status(403).json({ error: `Access denied for module: ${module}` });
+
+    const method = req.method.toUpperCase();
+    const denied =
+      (method === "GET"                    && !perm.canView)   ||
+      (method === "POST"                   && !perm.canCreate) ||
+      ((method === "PUT" || method === "PATCH") && !perm.canEdit) ||
+      (method === "DELETE"                 && !perm.canDelete);
+
+    if (denied) {
+      const action = method === "GET" ? "view" : method === "POST" ? "create" : method === "DELETE" ? "delete" : "edit";
+      return res.status(403).json({ error: `Forbidden: no ${action} permission for module "${module}"` });
+    }
+
+    next();
+  };
+}
+
+/**
  * Check if the current user can manage (create/update/delete) a record
  * belonging to the given centerId.
- * - Super Admin: always allowed
- * - Center Admin: only allowed for their own center (or if centerId is null)
- * - Others: forbidden
- * Returns true if allowed, false if not (response already sent).
  */
 export async function checkManageAccess(req: Request, res: Response, recordCenterId: number | null): Promise<boolean> {
   const user = await getCurrentUser(req);

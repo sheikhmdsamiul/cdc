@@ -1,4 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 export type CurrentUser = {
   id: number;
@@ -15,19 +17,32 @@ export type CurrentUser = {
   isActive: boolean | null;
 };
 
+export type ModulePermission = {
+  canView: boolean;
+  canCreate: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+};
+
+export type PermissionMatrix = Record<string, ModulePermission>;
+
 type AuthState = {
   user: CurrentUser | null;
   loading: boolean;
+  permissions: PermissionMatrix;
+  allowedCenterIds: number[]; // empty = all centers
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshPermissions: () => Promise<void>;
 };
+
+// ─── Context ─────────────────────────────────────────────────────────────────
 
 const AuthContext = createContext<AuthState | null>(null);
 
 async function readJsonSafely<T>(res: Response): Promise<T | null> {
   const text = await res.text();
   if (!text.trim()) return null;
-
   try {
     return JSON.parse(text) as T;
   } catch {
@@ -35,17 +50,41 @@ async function readJsonSafely<T>(res: Response): Promise<T | null> {
   }
 }
 
+// ─── Provider ────────────────────────────────────────────────────────────────
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [permissions, setPermissions] = useState<PermissionMatrix>({});
+  const [allowedCenterIds, setAllowedCenterIds] = useState<number[]>([]);
+
+  const fetchPermissions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/permissions/my-permissions", { credentials: "include" });
+      if (!res.ok) return;
+      const data = await readJsonSafely<{ matrix: PermissionMatrix; centerIds: number[] }>(res);
+      if (data) {
+        setPermissions(data.matrix ?? {});
+        setAllowedCenterIds(data.centerIds ?? []);
+      }
+    } catch {
+      // silently fail — permissions stay empty
+    }
+  }, []);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
       .then(async (r) => (r.ok ? readJsonSafely<{ user?: CurrentUser }>(r) : null))
-      .then((data) => setUser(data?.user ?? null))
+      .then(async (data) => {
+        const u = data?.user ?? null;
+        if (u) {
+          await fetchPermissions();
+        }
+        setUser(u);
+      })
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [fetchPermissions]);
 
   const login = async (username: string, password: string) => {
     const res = await fetch("/api/auth/login", {
@@ -61,32 +100,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data?.error ?? `Login failed (${res.status})`);
     }
 
-    if (data?.user) {
-      setUser(data.user);
-      return;
+    let loggedInUser = data?.user ?? null;
+
+    if (!loggedInUser) {
+      const meRes = await fetch("/api/auth/me", { credentials: "include" });
+      const meData = await readJsonSafely<{ user?: CurrentUser; error?: string }>(meRes);
+      if (!meRes.ok || !meData?.user) {
+        throw new Error(meData?.error ?? "Login succeeded but user session could not be loaded");
+      }
+      loggedInUser = meData.user;
     }
 
-    // Some proxies may forward the session cookie correctly but still yield an
-    // empty login response body. Fall back to `/auth/me` in that case.
-    const meRes = await fetch("/api/auth/me", { credentials: "include" });
-    const meData = await readJsonSafely<{ user?: CurrentUser; error?: string }>(meRes);
-    if (!meRes.ok || !meData?.user) {
-      throw new Error(meData?.error ?? "Login succeeded but user session could not be loaded");
-    }
-    setUser(meData.user);
+    await fetchPermissions();
+    setUser(loggedInUser);
   };
 
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     setUser(null);
+    setPermissions({});
+    setAllowedCenterIds([]);
+  };
+
+  const refreshPermissions = async () => {
+    await fetchPermissions();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, permissions, allowedCenterIds, login, logout, refreshPermissions }}>
       {children}
     </AuthContext.Provider>
   );
 }
+
+// ─── Hooks ───────────────────────────────────────────────────────────────────
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
@@ -94,18 +141,39 @@ export function useAuth() {
   return ctx;
 }
 
+/**
+ * Check if the current user has a specific permission for a module.
+ * @param module  e.g. "admissions", "children"
+ * @param action  "view" | "create" | "edit" | "delete"
+ */
+export function usePermission(module: string, action: "view" | "create" | "edit" | "delete"): boolean {
+  const { user, permissions } = useAuth();
+  if (!user) return false;
+  // Super Admin & Head Office always have full access
+  if (user.roleName === "Super Admin" || user.roleName === "Head Office") return true;
+  const modPerms = permissions[module];
+  if (!modPerms) return false;
+  switch (action) {
+    case "view":   return modPerms.canView;
+    case "create": return modPerms.canCreate;
+    case "edit":   return modPerms.canEdit;
+    case "delete": return modPerms.canDelete;
+    default:       return false;
+  }
+}
+
+// ─── Legacy helpers (kept for backward compatibility) ─────────────────────────
+
 export function hasRole(user: CurrentUser | null, ...roles: string[]) {
   const roleName = user?.roleName;
   if (!roleName) return false;
   if (roles.includes(roleName)) return true;
-
   if (
     roleName === "Head Office" &&
     (roles.includes("Super Admin") || roles.includes("Center Admin"))
   ) {
     return true;
   }
-
   return false;
 }
 

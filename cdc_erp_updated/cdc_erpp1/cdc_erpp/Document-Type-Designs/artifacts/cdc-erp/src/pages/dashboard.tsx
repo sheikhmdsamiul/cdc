@@ -17,7 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { format } from "date-fns";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { getRoleLabel } from "@/i18n/labels";
 import { useQuery } from "@tanstack/react-query";
@@ -252,9 +252,10 @@ function MathematicalTable({ isBn }: { isBn: boolean }) {
   const [centerFilter, setCenterFilter] = useState("__all");
   const [districtFilter, setDistrictFilter] = useState("__all");
   const [caseTypeFilter, setCaseTypeFilter] = useState("__all");
+  const [ageFilter, setAgeFilter] = useState("__all");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["dashboard-mathematical-table"],
+    queryKey: ["dashboard-mathematical-table", ageFilter],
     queryFn: async () => {
       const fetchJson = (url: string) => fetch(url, { credentials: "include" }).then((r) => r.json());
       const [centersRes, courtCases] = await Promise.all([
@@ -262,13 +263,14 @@ function MathematicalTable({ isBn }: { isBn: boolean }) {
         fetchJson("/api/court-cases"),
       ]);
       const pageSize = 1000;
-      const firstChildrenPage = await fetchJson(`/api/children?page=1&limit=${pageSize}`);
+      const ageParam = ageFilter !== "__all" ? `&ageRange=${ageFilter}` : "";
+      const firstChildrenPage = await fetchJson(`/api/children?page=1&limit=${pageSize}${ageParam}`);
       const allChildren: any[] = [...(firstChildrenPage?.data ?? [])];
       const totalChildren = Number(firstChildrenPage?.total ?? allChildren.length);
       const totalPages = Math.max(1, Math.ceil(totalChildren / pageSize));
       if (totalPages > 1) {
         const pageResponses = await Promise.all(
-          Array.from({ length: totalPages - 1 }, (_, i) => fetchJson(`/api/children?page=${i + 2}&limit=${pageSize}`)),
+          Array.from({ length: totalPages - 1 }, (_, i) => fetchJson(`/api/children?page=${i + 2}&limit=${pageSize}${ageParam}`)),
         );
         pageResponses.forEach((p: any) => allChildren.push(...(p?.data ?? [])));
       }
@@ -337,12 +339,26 @@ function MathematicalTable({ isBn }: { isBn: boolean }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid gap-2 md:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-5">
           <Input
             placeholder={isBn ? "নাম/আইডি/জেলা/মামলা লিখে খুঁজুন..." : "Search by name/ID/district/case..."}
+            className="md:col-span-1"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <Select value={ageFilter} onValueChange={setAgeFilter}>
+            <SelectTrigger><SelectValue placeholder={isBn ? "বয়স" : "Age"} /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all">{isBn ? "সব বয়স" : "All Ages"}</SelectItem>
+              <SelectItem value="0-8">{isBn ? "৯ বছরের নিচে" : "Below 9"}</SelectItem>
+              <SelectItem value="9-10">{isBn ? "৯–১০ বছর" : "9–10 years"}</SelectItem>
+              <SelectItem value="11-12">{isBn ? "১০–১২ বছর" : "10–12 years"}</SelectItem>
+              <SelectItem value="13-15">{isBn ? "১২–১৬ বছর" : "12–16 years"}</SelectItem>
+              <SelectItem value="16-17">{isBn ? "১৬–১৮ বছর" : "16–18 years"}</SelectItem>
+              <SelectItem value="18+">{isBn ? "১৮ বছরের ঊর্ধ্বে" : "Above 18"}</SelectItem>
+              <SelectItem value="none">{isBn ? "বয়স উল্লেখ নেই" : "Not Specified"}</SelectItem>
+            </SelectContent>
+          </Select>
           <Select value={centerFilter} onValueChange={setCenterFilter}>
             <SelectTrigger><SelectValue placeholder={isBn ? "কেন্দ্র" : "Center"} /></SelectTrigger>
             <SelectContent>
@@ -969,11 +985,12 @@ function PendingApprovalTable({ isBn }: { isBn: boolean }) {
 
   const allCases: any[] = Array.isArray(data) ? data : [];
 
-  const isSuperintendent = hasRole(user, "Superintendent");
-  const isProbation = hasRole(user, "Probation Officer");
-  const isDf = hasRole(user, "District Facilitator");
-  const isCaseWorker = hasRole(user, "Case Worker");
-  const isWorkerOrParent = hasRole(user, "Worker", "House Parent");
+  const role = user?.roleName ?? "";
+  const isSuperintendent = role === "Superintendent";
+  const isProbation = role === "Probation Officer";
+  const isDf = role === "District Facilitator";
+  const isCaseWorker = role === "Case Worker";
+  const isWorkerOrParent = role === "Worker" || role === "House Parent";
 
   const pending = allCases.filter((c: any) => {
     if (isSuperintendent) return c.workflowState === "Reviewed by PO";
@@ -1037,7 +1054,7 @@ export default function Dashboard() {
   const { data: activities, isLoading: activitiesLoading } = useGetRecentActivity({ query: { queryKey: getGetRecentActivityQueryKey() } });
   const { data: statusData, isLoading: statusLoading } = useGetChildrenByStatus({ query: { queryKey: getGetChildrenByStatusQueryKey() } });
 
-  const isGlobal = hasRole(user, "Super Admin", "Head Office");
+  const isGlobal = user?.roleName === "Super Admin" || user?.roleName === "Head Office" || user?.roleScope === "Global";
   const roleLabel = getRoleLabel(user?.roleName, isBn);
 
   return (

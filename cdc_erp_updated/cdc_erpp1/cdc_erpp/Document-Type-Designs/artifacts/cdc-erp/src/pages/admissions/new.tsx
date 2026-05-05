@@ -24,6 +24,7 @@ import {
 import { MAX_UPLOAD_BYTES, readFileAsDataUrl } from "@/lib/file-data-url";
 import { useDivisionData } from "@/hooks/use-division-data";
 import { CaseTypeSelect } from "@/components/CaseTypeSelect";
+import { FamilyTypeSelect } from "@/components/FamilyTypeSelect";
 
 const formSchema = z.object({
   centerId: z.string().min(1),
@@ -172,7 +173,7 @@ export default function NewAdmissionFullProfile() {
   const { divisionData: DIVISION_DATA } = useDivisionData();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const roleName = user?.roleName ?? "";
@@ -187,6 +188,10 @@ export default function NewAdmissionFullProfile() {
   const { data: centersResp } = useQuery({
     queryKey: ["centers"],
     queryFn: () => fetchJson("/api/centers"),
+  });
+  const { data: classes = [] } = useQuery({
+    queryKey: ["classes"],
+    queryFn: () => fetchJson("/api/classes"),
   });
   const centers = (centersResp?.centers ?? []).filter((center: any) => center.isHq !== "yes");
 
@@ -464,6 +469,8 @@ export default function NewAdmissionFullProfile() {
       },
     });
   }
+
+  const divisionData = DIVISION_DATA;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -744,12 +751,12 @@ export default function NewAdmissionFullProfile() {
                       <FormLabel>{isBn ? "বিভাগ" : "Division"}</FormLabel>
                       <Select 
                         onValueChange={(v) => {
-                          const division = DIVISION_DATA.find(d => d.id.toString() === v);
+                          const division = divisionData.find(d => d.id.toString() === v);
                           field.onChange(isBn ? division?.bn : division?.en);
                           form.setValue("presentDistrict", "");
                           form.setValue("presentUpazila", "");
                         }} 
-                        value={isBn ? DIVISION_DATA.find(d => d.bn === field.value)?.id.toString() : DIVISION_DATA.find(d => d.en === field.value)?.id.toString()}
+                        value={isBn ? divisionData.find(d => d.bn === field.value)?.id.toString() : divisionData.find(d => d.en === field.value)?.id.toString()}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -757,7 +764,7 @@ export default function NewAdmissionFullProfile() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {DIVISION_DATA.map(d => (
+                          {divisionData.map(d => (
                             <SelectItem key={d.id} value={d.id.toString()}>{isBn ? d.bn : d.en}</SelectItem>
                           ))}
                         </SelectContent>
@@ -767,7 +774,7 @@ export default function NewAdmissionFullProfile() {
 
                   <FormField control={form.control} name="presentDistrict" render={({ field }) => {
                     const divisionName = form.watch("presentDivision");
-                    const division = DIVISION_DATA.find(d => (isBn ? d.bn : d.en) === divisionName);
+                    const division = divisionData.find(d => (isBn ? d.bn : d.en) === divisionName);
                     const districts = division?.districts ?? [];
                     return (
                       <FormItem>
@@ -802,7 +809,7 @@ export default function NewAdmissionFullProfile() {
                   <FormField control={form.control} name="presentUpazila" render={({ field }) => {
                     const divisionName = form.watch("presentDivision");
                     const districtName = form.watch("presentDistrict");
-                    const division = DIVISION_DATA.find(d => (isBn ? d.bn : d.en) === divisionName);
+                    const division = divisionData.find(d => (isBn ? d.bn : d.en) === divisionName);
                     const district = division?.districts.find(d => (isBn ? d.bn : d.en) === districtName);
                     const upazilas = district?.upazilas ?? [];
                     return (
@@ -866,12 +873,12 @@ export default function NewAdmissionFullProfile() {
                       <FormLabel>{isBn ? "বিভাগ" : "Division"}</FormLabel>
                       <Select 
                         onValueChange={(v) => {
-                          const division = DIVISION_DATA.find(d => d.id.toString() === v);
+                          const division = divisionData.find(d => d.id.toString() === v);
                           field.onChange(isBn ? division?.bn : division?.en);
                           form.setValue("permanentDistrict", "");
                           form.setValue("permanentUpazila", "");
                         }} 
-                        value={isBn ? DIVISION_DATA.find(d => d.bn === field.value)?.id.toString() : DIVISION_DATA.find(d => d.en === field.value)?.id.toString()}
+                        value={isBn ? divisionData.find(d => d.bn === field.value)?.id.toString() : divisionData.find(d => d.en === field.value)?.id.toString()}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -879,7 +886,7 @@ export default function NewAdmissionFullProfile() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {DIVISION_DATA.map(d => (
+                          {divisionData.map(d => (
                             <SelectItem key={d.id} value={d.id.toString()}>{isBn ? d.bn : d.en}</SelectItem>
                           ))}
                         </SelectContent>
@@ -889,7 +896,7 @@ export default function NewAdmissionFullProfile() {
 
                   <FormField control={form.control} name="permanentDistrict" render={({ field }) => {
                     const divisionName = form.watch("permanentDivision");
-                    const division = DIVISION_DATA.find(d => (isBn ? d.bn : d.en) === divisionName);
+                    const division = divisionData.find(d => (isBn ? d.bn : d.en) === divisionName);
                     const districts = division?.districts ?? [];
                     return (
                       <FormItem>
@@ -920,18 +927,14 @@ export default function NewAdmissionFullProfile() {
                   <FormField control={form.control} name="permanentUpazila" render={({ field }) => {
                     const divisionName = form.watch("permanentDivision");
                     const districtName = form.watch("permanentDistrict");
-                    const division = DIVISION_DATA.find(d => (isBn ? d.bn : d.en) === divisionName);
+                    const division = divisionData.find(d => (isBn ? d.bn : d.en) === divisionName);
                     const district = division?.districts.find(d => (isBn ? d.bn : d.en) === districtName);
                     const upazilas = district?.upazilas ?? [];
                     return (
                       <FormItem>
                         <FormLabel>{isBn ? "উপজেলা" : "Upazila"}</FormLabel>
                         <Select key={districtName || 'permanent-upazila'} onValueChange={field.onChange} value={field.value} disabled={!districtName}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={isBn ? "উপজেলা" : "Upazila"} />
-                            </SelectTrigger>
-                          </FormControl>
+                          <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "উপজেলা" : "Upazila"} /></SelectTrigger></FormControl>
                           <SelectContent>
                             {upazilas.map(u => {
                               const label = isBn ? (typeof u === 'string' ? u : u.bn) : (typeof u === 'string' ? u : u.en);
@@ -1031,6 +1034,15 @@ export default function NewAdmissionFullProfile() {
                 </FormItem>
               )} />
 
+              <FormField control={form.control} name="familyType" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{isBn ? "পরিবারের ধরণ" : "Family Type"}</FormLabel>
+                  <FormControl>
+                    <FamilyTypeSelect value={field.value ?? ""} onChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )} />
+
               <FormField control={form.control} name="receivingOfficer" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "গ্রহণকারী কর্মকর্তা" : "Receiving Officer"}</FormLabel>
@@ -1059,7 +1071,14 @@ export default function NewAdmissionFullProfile() {
               <FormField control={form.control} name="educationLevel" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "শিশুর শিক্ষাগত যোগ্যতা" : "Educational Qualification"}</FormLabel>
-                  <FormControl><Input placeholder={isBn ? "যেমন: পঞ্চম শ্রেণি" : "e.g. Grade 5"} {...field} value={field.value ?? ""} /></FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {classes.map((c: any) => (
+                        <SelectItem key={c.id} value={isBn ? c.nameBn : c.nameEn}>{isBn ? c.nameBn : c.nameEn}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )} />
               <FormField control={form.control} name="childRisk" render={({ field }) => (

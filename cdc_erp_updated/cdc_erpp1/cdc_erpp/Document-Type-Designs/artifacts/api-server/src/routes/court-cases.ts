@@ -3,11 +3,13 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { courtCasesTable, childrenTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
-import { getCurrentUser, checkManageAccess } from "../middlewares/auth";
+import { getCurrentUser, checkManageAccess, moduleGuard } from "../middlewares/auth";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 
 const router: IRouter = Router();
+
+router.use(moduleGuard("court-cases"));
 
 function generateCourtCaseId(): string {
   const year = new Date().getFullYear();
@@ -50,9 +52,23 @@ const SELECT_FIELDS = {
 router.get("/", async (req, res) => {
   try {
     const { childId } = req.query as Record<string, string>;
-    const rows = await db.select(SELECT_FIELDS).from(courtCasesTable)
-      .leftJoin(childrenTable, eq(courtCasesTable.childId, childrenTable.id))
-      .orderBy(desc(courtCasesTable.createdAt));
+
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    const userCenterId = user.centerId;
+
+    if (!isGlobal && !userCenterId) return res.json([]);
+
+    let query = db.select(SELECT_FIELDS).from(courtCasesTable)
+      .leftJoin(childrenTable, eq(courtCasesTable.childId, childrenTable.id));
+
+    if (!isGlobal) {
+      query = query.where(eq(childrenTable.centerId, userCenterId!)) as any;
+    }
+
+    const rows = await query.orderBy(desc(courtCasesTable.createdAt));
     let filtered = rows;
     if (childId) filtered = filtered.filter(r => r.childId === parseInt(childId));
     res.json(filtered);

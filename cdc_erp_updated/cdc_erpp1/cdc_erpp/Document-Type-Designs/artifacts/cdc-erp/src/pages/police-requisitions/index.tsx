@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -54,7 +54,10 @@ export default function PoliceRequisitionsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canView   = usePermission("police", "view");
+  const canCreate = usePermission("police", "create");
+  const canEdit   = usePermission("police", "edit");
+  const canDelete = usePermission("police", "delete");
 
   const [deleting, setDeleting] = useState<PoliceReq | null>(null);
   const [editing, setEditing] = useState<PoliceReq | null>(null);
@@ -135,9 +138,11 @@ export default function PoliceRequisitionsList() {
           <h1 className="text-2xl font-bold text-foreground">{t("policeRequisitions.title")}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{t("policeRequisitions.subtitle")}</p>
         </div>
-        <Link href="/police-requisitions/new">
-          <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" />{t("policeRequisitions.newRequisition")}</Button>
-        </Link>
+        {canCreate && (
+          <Link href="/police-requisitions/new">
+            <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" />{t("policeRequisitions.newRequisition")}</Button>
+          </Link>
+        )}
       </div>
 
       {upcomingHearings.length > 0 && (
@@ -156,16 +161,23 @@ export default function PoliceRequisitionsList() {
         exportTitle="Police Requisitions" exportTitleBn="পুলিশ চাহিদাপত্রের তালিকা"
         emptyText="No requisitions found." emptyTextBn="কোনো চাহিদাপত্র পাওয়া যায়নি।"
         onRowClick={r => navigate(`/police-requisitions/${r.id}`)}
-        actions={canManage ? r => (
+        actions={r => (
           <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {canEdit && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Link href={`/police-requisitions/${r.id}`}><Button variant="ghost" size="sm">{t("common.view")}</Button></Link>
+            )}
           </div>
-        ) : r => <Link href={`/police-requisitions/${r.id}`}><Button variant="ghost" size="sm">{t("common.view")}</Button></Link>}
+        )}
         searchPlaceholder="Search by ID, child, court..."
         searchPlaceholderBn="আইডি, শিশু বা আদালত দিয়ে অনুসন্ধান..."
       />

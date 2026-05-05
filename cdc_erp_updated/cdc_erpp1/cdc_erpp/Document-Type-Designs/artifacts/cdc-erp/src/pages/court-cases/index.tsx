@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Scale, Pencil, Trash2 } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { getCourtOutcomeLabel } from "@/i18n/labels";
 
@@ -106,7 +106,10 @@ export default function CourtCasesList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canView   = usePermission("court", "view");
+  const canCreate = usePermission("court", "create");
+  const canEdit   = usePermission("court", "edit");
+  const canDelete = usePermission("court", "delete");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -240,7 +243,7 @@ export default function CourtCasesList() {
           <h1 className="text-2xl font-bold text-foreground">{t("courtCases.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{isBn ? "শুনানির তথ্য ও আইনি কার্যক্রম পর্যবেক্ষণ" : "Hearing information and legal proceeding monitoring"}</p>
         </div>
-        {canManage && (
+        {canCreate && (
           <div className="flex gap-2">
             <Button className="gap-2" onClick={openCreate}>
               <Plus className="h-4 w-4" /> {isBn ? "নতুন মামলা" : "New Court Case"}
@@ -254,12 +257,30 @@ export default function CourtCasesList() {
         exportTitle="Court Cases" exportTitleBn="আদালতের মামলার তালিকা"
         emptyText="No court cases found." emptyTextBn="কোনো আদালতের মামলা নেই।"
         onRowClick={r => navigate(`/court-cases/${r.id}`)}
-        actions={canManage ? r => (
-          <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}><Pencil className="h-3.5 w-3.5" /></Button>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}><Trash2 className="h-3.5 w-3.5" /></Button>
+        actions={(r) => (
+          <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+            {canEdit && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                onClick={() => setDeleting(r)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/court-cases/${r.id}`)}>
+                {isBn ? "দেখুন" : "View"}
+              </Button>
+            )}
           </div>
-        ) : undefined}
+        )}
       />
 
       <Dialog open={open} onOpenChange={v => { if (!v) closeDialog(); }}>

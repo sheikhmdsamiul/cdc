@@ -24,11 +24,13 @@ import {
   caseAgreementsTable,
 } from "@workspace/db";
 import { eq, ilike, or, count, desc, and, ne, inArray } from "drizzle-orm";
-import { getCurrentUser } from "../middlewares/auth";
+import { checkManageAccess, getCurrentUser, moduleGuard } from "../middlewares/auth";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 
 const router: IRouter = Router();
+
+router.use(moduleGuard("children"));
 const upload = multer({ storage: multer.memoryStorage() });
 
 function generateChildId(): string {
@@ -264,8 +266,12 @@ function normalizeChildPayload(body: Record<string, any>) {
 router.get("/age-alerts", async (req, res) => {
   try {
     const user = await getCurrentUser(req);
-    const userCenterId = user?.centerId ?? null;
-    const isGlobal = !userCenterId;
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    const userCenterId = user.centerId;
+
+    if (!isGlobal && !userCenterId) return res.json({ over18: [], turning18Soon: [] });
 
     const children = await db.select().from(childrenTable)
       .where(isGlobal ? undefined : eq(childrenTable.centerId, userCenterId!));
@@ -326,24 +332,27 @@ router.get("/age-alerts", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const { status, search, page = "1", limit = "20" } = req.query as Record<string, string>;
-    req.log.info({ status, search, page, limit }, "Listing children");
+    const { status, search, ageRange, page = "1", limit = "20" } = req.query as Record<string, string>;
+    req.log.info({ status, search, ageRange, page, limit }, "Listing children");
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 20;
     const offset = (pageNum - 1) * limitNum;
 
     const user = await getCurrentUser(req);
-    const userCenterId = user?.centerId ?? null;
-    const isGlobal = !userCenterId;
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    const userCenterId = user.centerId;
+
+    if (!isGlobal && !userCenterId) return res.json({ data: [], total: 0, page: pageNum, limit: limitNum });
 
     // Build where conditions
     const conditions: any[] = [];
     if (!isGlobal) conditions.push(eq(childrenTable.centerId, userCenterId!));
     if (status && status !== "all") {
       conditions.push(eq(childrenTable.currentStatus, status));
-    } else if (!status && !search) {
-      // By default (no status filter and no search), hide admission drafts.
-      // If there IS a search query, we show all statuses including Draft to help find records.
+    } else if (!status && !search && !ageRange) {
+      // By default, hide admission drafts unless searching or filtering.
       conditions.push(ne(childrenTable.currentStatus, "Draft"));
     }
     if (search) conditions.push(or(
@@ -355,7 +364,8 @@ router.get("/", async (req, res) => {
       ? (conditions.length === 1 ? conditions[0] : and(...conditions))
       : undefined;
 
-    const [allRows, data] = await Promise.all([
+    // Fetch data
+    let [allRowsCount, data] = await Promise.all([
       db.select({ c: count() }).from(childrenTable).where(whereClause),
       db.select({
         child: childrenTable,
@@ -364,12 +374,31 @@ router.get("/", async (req, res) => {
       }).from(childrenTable)
         .leftJoin(centersTable, eq(childrenTable.centerId, centersTable.id))
         .where(whereClause)
-        .limit(limitNum).offset(offset).orderBy(desc(childrenTable.createdAt)),
+        .orderBy(desc(childrenTable.createdAt)),
     ]);
 
+    let enriched = data.map((row) => enrichChild({ ...row.child, centerName: row.centerName ?? null, centerNameBn: row.centerNameBn ?? null }));
+
+    // Apply age filter in-memory (since currentAge is calculated)
+    if (ageRange && ageRange !== "all") {
+      enriched = enriched.filter(child => {
+        const age = child.currentAge;
+        if (ageRange === "none") return age === null;
+        const [min, max] = ageRange.split("-").map(v => v === "+" ? 999 : parseInt(v));
+        if (age === null) return false;
+        if (ageRange.endsWith("+")) return age >= min;
+        return age >= min && age <= (max ?? min);
+      });
+      allRowsCount[0].c = enriched.length;
+    }
+
+    // Apply pagination after in-memory filtering
+    const total = enriched.length;
+    const paginated = enriched.slice(offset, offset + limitNum);
+
     res.json({
-      data: data.map((row) => enrichChild({ ...row.child, centerName: row.centerName ?? null, centerNameBn: row.centerNameBn ?? null })),
-      total: allRows[0]?.c ?? 0,
+      data: paginated,
+      total,
       page: pageNum,
       limit: limitNum,
     });

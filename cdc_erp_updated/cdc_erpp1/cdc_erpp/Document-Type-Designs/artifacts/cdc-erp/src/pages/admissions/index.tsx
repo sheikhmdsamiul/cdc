@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, Pencil, Plus, Trash2 } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<string, string> = {
@@ -46,13 +46,15 @@ function normalizeAdmissionCenterName(value?: string | null) {
 
 export default function AdmissionsList() {
   const [, navigate] = useLocation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const { user, loading } = useAuth();
   const { toast } = useToast();
-  const canEdit = hasRole(user, "Super Admin", "Center Admin", "Data Entry Operator");
-  const canDelete = hasRole(user, "Super Admin", "Center Admin");
-  const canBulkCascadeDelete = hasRole(user, "Super Admin");
+  const canView   = usePermission("admissions", "view");
+  const canCreate = usePermission("admissions", "create");
+  const canEdit   = usePermission("admissions", "edit");
+  const canDelete = usePermission("admissions", "delete");
+  const canBulkCascadeDelete = user?.roleName === "Super Admin"; // Keeping bulk delete restricted to Super Admin for safety
   const [deleting, setDeleting] = useState<any>(null);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -220,7 +222,7 @@ export default function AdmissionsList() {
       filterOptions: APPROVAL_STATUSES.map((s) => ({ value: s, label: s, labelBn: statusLabel[s] ?? s })),
       exportValue: (r) => r.approvalStatus ?? "",
       render: (r) => {
-        const needsAttention = hasRole(user, "Data Entry Operator")
+        const needsAttention = user?.roleName === "Data Entry Operator"
           && ["Update Needed by CW", "Update Needed by PO"].includes(r.approvalStatus ?? "");
 
         return (
@@ -242,40 +244,40 @@ export default function AdmissionsList() {
           <h1 className="text-2xl font-bold text-foreground">{isBn ? "শিশু গ্রহণ" : "Admissions"}</h1>
          
         </div>
-        {canEdit && (
-          <div className="flex items-center gap-2">
-            {canBulkCascadeDelete && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedIds(allSelectedOnPage ? [] : allVisibleIds)}
-                >
-                  {allSelectedOnPage
-                    ? (isBn ? "সব আনসিলেক্ট" : "Unselect All")
-                    : (isBn ? "সব সিলেক্ট" : "Select All")}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedIds([])}
-                  disabled={selectedIds.length === 0}
-                >
-                  {isBn ? "ক্লিয়ার" : "Clear"}
-                </Button>
-                <Button
-                  variant="destructive"
-                  disabled={selectedIds.length === 0}
-                  onClick={() => setBulkDeleting(true)}
-                >
-                  {isBn ? `বাল্ক মুছুন (${selectedIds.length})` : `Bulk Delete (${selectedIds.length})`}
-                </Button>
-              </>
-            )}
+        <div className="flex items-center gap-2">
+          {canBulkCascadeDelete && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedIds(allSelectedOnPage ? [] : allVisibleIds)}
+              >
+                {allSelectedOnPage
+                  ? (isBn ? "সব আনসিলেক্ট" : "Unselect All")
+                  : (isBn ? "সব সিলেক্ট" : "Select All")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedIds([])}
+                disabled={selectedIds.length === 0}
+              >
+                {isBn ? "ক্লিয়ার" : "Clear"}
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={selectedIds.length === 0}
+                onClick={() => setBulkDeleting(true)}
+              >
+                {isBn ? `বাল্ক মুছুন (${selectedIds.length})` : `Bulk Delete (${selectedIds.length})`}
+              </Button>
+            </>
+          )}
+          {canCreate && (
             <Button className="gap-2" onClick={() => navigate("/admissions/new")}>
               <Plus className="h-4 w-4" />
               {isBn ? "নতুন শিশু" : "New Child"}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <DataTable
@@ -288,11 +290,13 @@ export default function AdmissionsList() {
         emptyText="No admission records found."
         emptyTextBn="কোনো ভর্তির রেকর্ড নেই।"
         onRowClick={(r) => navigate(`/admissions/${r.id}`)}
-        actions={canEdit ? (r) => (
+        actions={(r) => (
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => navigate(`/admissions/${r.id}/edit`)}>
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
+            {canEdit && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => navigate(`/admissions/${r.id}/edit`)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
             {canDelete && (
               <Button
                 size="sm"
@@ -303,8 +307,13 @@ export default function AdmissionsList() {
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             )}
+            {!canEdit && !canDelete && (
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/admissions/${r.id}`)}>
+                {t("common.view")}
+              </Button>
+            )}
           </div>
-        ) : undefined}
+        )}
       />
 
       {deleting && (

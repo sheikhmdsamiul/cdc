@@ -13,6 +13,7 @@ import {
   measurementSurveysTable, caseRiskAssessmentsTable,
   caseDetailAssessmentsTable, caseInterventionPlansTable,
   caseAgreementsTable, guardiansTable, familySocioeconomicRecordsTable,
+  classesTable, trainingsTable,
 } from "@workspace/db/schema";
 
 /* ─── date helpers ────────────────────────────────────────────────────────── */
@@ -43,6 +44,8 @@ let idx = 0;
 /* ─── clear all demo tables (keep users / roles / centers / admin-units) ─── */
 async function clearDemoData() {
   console.log("Clearing existing demo data...");
+  await db.delete(classesTable);
+  await db.delete(trainingsTable);
   await db.delete(caseAgreementsTable);
   await db.delete(caseInterventionPlansTable);
   await db.delete(caseDetailAssessmentsTable);
@@ -445,6 +448,36 @@ async function seed() {
     console.error("Centers not found. Run seed-auth first.\nFound centers:", allCenters.map(c => c.location));
     process.exit(1);
   }
+
+  /* ──────────────────────────────────────────────────────────────────────
+     CLASSES & TRAININGS SEEDING
+  ────────────────────────────────────────────────────────────────────── */
+  console.log("=== Seeding Classes and Trainings ===");
+  const classes = [
+    { nameEn: "Class 1", nameBn: "১ম শ্রেণি" },
+    { nameEn: "Class 2", nameBn: "২য় শ্রেণি" },
+    { nameEn: "Class 3", nameBn: "৩য় শ্রেণি" },
+    { nameEn: "Class 4", nameBn: "৪র্থ শ্রেণি" },
+    { nameEn: "Class 5", nameBn: "৫ম শ্রেণি" },
+    { nameEn: "Class 6", nameBn: "৬ষ্ঠ শ্রেণি" },
+    { nameEn: "Class 7", nameBn: "৭ম শ্রেণি" },
+    { nameEn: "Class 8", nameBn: "৮ম শ্রেণি" },
+    { nameEn: "Class 9", nameBn: "৯ম শ্রেণি" },
+    { nameEn: "Class 10", nameBn: "১০ম শ্রেণি" },
+    { nameEn: "O Level", nameBn: "ও লেভেল" },
+    { nameEn: "A Level", nameBn: "এ লেভেল" },
+  ];
+  await db.insert(classesTable).values(classes);
+
+  const trainings = [
+    { nameEn: "Electrical", nameBn: "ইলেকট্রিক্যাল" },
+    { nameEn: "Computer Training", nameBn: "কম্পিউটার প্রশিক্ষণ" },
+    { nameEn: "Plumbing", nameBn: "প্লাম্বিং" },
+    { nameEn: "Automobile", nameBn: "অটোমোবাইল" },
+    { nameEn: "Food Preparation", nameBn: "খাদ্য প্রস্তুতকরণ" },
+  ];
+  await db.insert(trainingsTable).values(trainings);
+  console.log(`  Seeded ${classes.length} classes and ${trainings.length} trainings.\n`);
 
   /* ──────────────────────────────────────────────────────────────────────
      TONGI — CDC Boys (10 children)

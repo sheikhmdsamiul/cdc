@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, ShieldAlert, Pencil, Trash2 } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const riskColors: Record<string, string> = {
@@ -30,7 +30,10 @@ export default function RiskAssessmentsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canView   = usePermission("risk", "view");
+  const canCreate = usePermission("risk", "create");
+  const canEdit   = usePermission("risk", "edit");
+  const canDelete = usePermission("risk", "delete");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -186,7 +189,7 @@ export default function RiskAssessmentsList() {
           <h1 className="text-2xl font-bold text-foreground">{t("riskAssessments.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{isBn ? "শিশু সুরক্ষার ঝুঁকি পরিমাপ ও পর্যবেক্ষণ" : "Child protection risk measurement and monitoring"}</p>
         </div>
-        {canManage && (
+        {canCreate && (
           <Dialog open={open && !editing} onOpenChange={v => { if (!v) setOpen(false); else { setEditing(null); setForm(EMPTY_FORM); setOpen(true); } }}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {isBn ? "নতুন মূল্যায়ন" : "New Assessment"}</Button>
@@ -204,12 +207,30 @@ export default function RiskAssessmentsList() {
         exportTitle="Risk Assessments" exportTitleBn="ঝুঁকি মূল্যায়ন"
         emptyText="No risk assessments found." emptyTextBn="কোনো ঝুঁকি মূল্যায়ন নেই।"
         onRowClick={r => navigate(`/risk-assessments/${r.id}`)}
-        actions={canManage ? r => (
-          <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}><Pencil className="h-3.5 w-3.5" /></Button>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}><Trash2 className="h-3.5 w-3.5" /></Button>
+        actions={(r) => (
+          <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+            {canEdit && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                onClick={() => setDeleting(r)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/risk-assessments/${r.id}`)}>
+                {isBn ? "দেখুন" : "View"}
+              </Button>
+            )}
           </div>
-        ) : undefined}
+        )}
       />
 
       {editing && (

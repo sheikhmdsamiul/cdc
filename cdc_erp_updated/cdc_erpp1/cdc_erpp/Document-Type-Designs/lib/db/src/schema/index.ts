@@ -22,3 +22,8 @@ export * from "./case_detail_assessments";
 export * from "./case_intervention_plans";
 export * from "./case_agreements";
 export * from "./case_types";
+export * from "./family_types";
+export * from "./classes";
+export * from "./trainings";
+export * from "./role_permissions";
+export * from "./role_center_access";

@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
+import { FamilyTypeSelect } from "@/components/FamilyTypeSelect";
 import { useToast } from "@/hooks/use-toast";
 
 const EMPTY_FORM = {
@@ -69,12 +70,15 @@ function BooleanChoice({
 }
 
 export default function FamilySocioeconomicList() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
-  const canOpenRow = user?.roleName !== "Data Entry Operator";
+  const canView   = usePermission("socioeconomic", "view");
+  const canCreate = usePermission("socioeconomic", "create");
+  const canEdit   = usePermission("socioeconomic", "edit");
+  const canDelete = usePermission("socioeconomic", "delete");
+  const canOpenRow = canView;
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
 
@@ -194,7 +198,7 @@ export default function FamilySocioeconomicList() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canManage) return;
+    if (!canEdit && !canCreate) return;
     const payload = normalizePayload();
     if (editing) {
       updateMutation.mutate({ id: editing.id, data: payload });
@@ -240,7 +244,7 @@ export default function FamilySocioeconomicList() {
         <div><Label>{isBn ? "সন্তান সংখ্যা" : "Number of Children"}</Label><Input type="number" min={0} value={form.childrenCount} onChange={(e) => setForm((f) => ({ ...f, childrenCount: e.target.value }))} /></div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div><Label>{isBn ? "পরিবারের ধরণ" : "Family Type"}</Label><Input value={form.familyType} onChange={(e) => setForm((f) => ({ ...f, familyType: e.target.value }))} /></div>
+        <div><Label>{isBn ? "পরিবারের ধরণ" : "Family Type"}</Label><FamilyTypeSelect value={form.familyType} onChange={(v) => setForm((f) => ({ ...f, familyType: v }))} /></div>
         <div><Label>{isBn ? "পিতা মাতার বৈবাহিক সম্পর্কের অবস্থা" : "Parents' Marital Status"}</Label><Input value={form.parentsMaritalStatus} onChange={(e) => setForm((f) => ({ ...f, parentsMaritalStatus: e.target.value }))} /></div>
         <div><Label>{isBn ? "শিশুর অভিভাবকের ধরণ" : "Guardian Type"}</Label><Input value={form.guardianType} onChange={(e) => setForm((f) => ({ ...f, guardianType: e.target.value }))} /></div>
       </div>
@@ -289,7 +293,7 @@ export default function FamilySocioeconomicList() {
           <h1 className="text-2xl font-bold text-foreground">{isBn ? "পারিবারিক ও আর্থ-সামাজিক তথ্যাদি" : "Family & Socioeconomic"}</h1>
           <p className="text-muted-foreground text-sm mt-1">{isBn ? "ভর্তি ও অভিভাবকের মধ্যবর্তী পারিবারিক ও আর্থ-সামাজিক তথ্য ব্যবস্থাপনা" : "Manage family and socioeconomic records between admissions and guardians."}</p>
         </div>
-        {canManage && (
+        {canCreate && (
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(EMPTY_FORM); } }}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]" onClick={openCreate}><Plus className="h-4 w-4" /> {isBn ? "নতুন রেকর্ড" : "New Record"}</Button>
@@ -319,16 +323,25 @@ export default function FamilySocioeconomicList() {
         exportTitleBn="পারিবারিক ও আর্থ-সামাজিক তথ্যাদি"
         emptyText="No family and socioeconomic records found."
         emptyTextBn="কোনো পারিবারিক ও আর্থ-সামাজিক রেকর্ড নেই।"
-        actions={canManage ? (r) => (
+        actions={(r) => (
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {canEdit && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Button variant="ghost" size="sm" onClick={() => navigate("/family-socioeconomic/" + r.id)}>
+                {isBn ? "দেখুন" : "View"}
+              </Button>
+            )}
           </div>
-        ) : undefined}
+        )}
       />
 
       {deleting && (

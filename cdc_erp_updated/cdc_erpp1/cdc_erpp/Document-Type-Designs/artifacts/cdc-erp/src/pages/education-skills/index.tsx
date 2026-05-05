@@ -8,7 +8,7 @@ import {
   useListEducationPlans,
   useUpdateEducationPlan,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
@@ -30,6 +30,8 @@ const EMPTY_FORM = {
   childId: "",
   programType: "Education" as ProgramType,
   admissionEligibleFor: "",
+  selectedClass: "",
+  selectedTraining: "",
   caseDetails: "",
   recommenderCaseWorkerName: "",
   recordTitle: "",
@@ -61,12 +63,15 @@ function today() {
 
 export default function EducationSkillsPage() {
   const [, navigate] = useLocation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const canManage = hasRole(user, "Super Admin", "Center Admin", "Head Office");
+  const canView   = usePermission("education", "view");
+  const canCreate = usePermission("education", "create");
+  const canEdit   = usePermission("education", "edit");
+  const canDelete = usePermission("education", "delete");
 
   const activeTab: ProgramType = "Admission Form";
   const [open, setOpen] = useState(false);
@@ -79,6 +84,16 @@ export default function EducationSkillsPage() {
   });
   const { data: childrenResp } = useListChildren({}, { query: { queryKey: [] } });
   const children = childrenResp?.data ?? [];
+
+  const { data: classes = [] } = useQuery({
+    queryKey: ["classes"],
+    queryFn: () => fetch("/api/classes").then((res) => res.json()),
+  });
+
+  const { data: trainings = [] } = useQuery({
+    queryKey: ["trainings"],
+    queryFn: () => fetch("/api/trainings").then((res) => res.json()),
+  });
 
   const createPlan = useCreateEducationPlan({
     mutation: {
@@ -160,10 +175,24 @@ export default function EducationSkillsPage() {
   }
 
   function openEditDialog(row: any) {
+    let sClass = "";
+    let sTraining = "";
+    if (row.admissionEligibleFor) {
+      const parts = row.admissionEligibleFor.split(" / ");
+      if (parts.length === 2) {
+        sClass = parts[0];
+        sTraining = parts[1];
+      } else if (parts.length === 1) {
+        sClass = parts[0]; // Fallback
+      }
+    }
+
     setForm({
       childId: String(row.childId),
       programType: "Admission Form",
       admissionEligibleFor: row.admissionEligibleFor ?? "",
+      selectedClass: sClass,
+      selectedTraining: sTraining,
       caseDetails: row.caseDetails ?? "",
       recommenderCaseWorkerName: row.recommenderCaseWorkerName ?? "",
       recordTitle: row.recordTitle ?? "",
@@ -194,10 +223,17 @@ export default function EducationSkillsPage() {
   function buildPayload() {
     const isSkills = form.programType === "Skills Assessment";
     const isAdmission = form.programType === "Admission Form";
+    
+    // Combine class and training
+    let combinedEligible = form.admissionEligibleFor;
+    if (isAdmission && (form.selectedClass || form.selectedTraining)) {
+      combinedEligible = [form.selectedClass, form.selectedTraining].filter(Boolean).join(" / ");
+    }
+
     return {
       childId: parseInt(form.childId, 10),
       programType: form.programType,
-      admissionEligibleFor: isAdmission ? (form.admissionEligibleFor || undefined) : undefined,
+      admissionEligibleFor: isAdmission ? (combinedEligible || undefined) : undefined,
       caseDetails: isAdmission ? (form.caseDetails || undefined) : undefined,
       recommenderCaseWorkerName: isAdmission ? (form.recommenderCaseWorkerName || undefined) : undefined,
       recordTitle: isAdmission ? (form.admissionEligibleFor || undefined) : (form.recordTitle || undefined),
@@ -300,7 +336,7 @@ export default function EducationSkillsPage() {
           </p>
         </div>
 
-        {canManage && (
+        {canCreate && (
           <Dialog open={open && !editing} onOpenChange={(value) => { if (!value) setOpen(false); }}>
             <DialogTrigger asChild>
               <Button className="gap-2" onClick={openNewDialog}>
@@ -318,6 +354,8 @@ export default function EducationSkillsPage() {
                 activeTab={activeTab}
                 isBn={isBn}
                 children={children}
+                classes={classes}
+                trainings={trainings}
                 onSubmit={handleSubmit}
                 isSubmitting={createPlan.isPending || updatePlan.isPending}
                 levelLabel={levelLabel}
@@ -338,16 +376,25 @@ export default function EducationSkillsPage() {
         emptyText="No admission forms found."
         emptyTextBn="কোনো ভর্তি ফরম পাওয়া যায়নি।"
         onRowClick={(row) => navigate(`/education-skills/${row.id}`)}
-        actions={canManage ? (row) => (
+        actions={(row) => (
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEditDialog(row)}>
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(row)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {canEdit && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEditDialog(row)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(row)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/education-skills/${row.id}`)}>
+                {isBn ? "দেখুন" : "View"}
+              </Button>
+            )}
           </div>
-        ) : undefined}
+        )}
       />
 
       {editing && (
@@ -362,6 +409,8 @@ export default function EducationSkillsPage() {
               activeTab={activeTab}
               isBn={isBn}
               children={children}
+              classes={classes}
+              trainings={trainings}
               onSubmit={handleSubmit}
               isSubmitting={createPlan.isPending || updatePlan.isPending}
               levelLabel={levelLabel}
@@ -403,6 +452,8 @@ function FormContent({
   activeTab,
   isBn,
   children,
+  classes,
+  trainings,
   onSubmit,
   isSubmitting,
   levelLabel,
@@ -413,6 +464,8 @@ function FormContent({
   activeTab: ProgramType;
   isBn: boolean;
   children: Array<{ id: number; fullName: string }>;
+  classes: Array<{ id: number; nameEn: string; nameBn: string }>;
+  trainings: Array<{ id: number; nameEn: string; nameBn: string }>;
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   levelLabel: (value?: string) => string;
@@ -469,8 +522,25 @@ function FormContent({
           <Field label={isBn ? "মামলার বিবরণ" : "Case Details"} className="md:col-span-2">
             <Textarea className="min-h-[96px]" value={form.caseDetails} onChange={(e) => setForm((prev) => ({ ...prev, caseDetails: e.target.value, programType: activeTab }))} placeholder={isBn ? "মামলার বিবরণ লিখুন" : "Write case details"} />
           </Field>
-          <Field label={isBn ? "কোন শ্রেণিতে/ প্রশিক্ষণে ভর্তিরযোগ্য" : "Eligible Class / Training"}>
-            <Input value={form.admissionEligibleFor} onChange={(e) => setForm((prev) => ({ ...prev, admissionEligibleFor: e.target.value, programType: activeTab }))} placeholder={isBn ? "যেমন: শ্রেণি ৮ / সেলাই প্রশিক্ষণ" : "e.g. Grade 8 / Tailoring Training"} />
+          <Field label={isBn ? "শ্রেণি" : "Class"}>
+            <Select value={form.selectedClass} onValueChange={(value) => setForm((prev) => ({ ...prev, selectedClass: value, programType: activeTab }))}>
+              <SelectTrigger><SelectValue placeholder={isBn ? "শ্রেণি নির্বাচন করুন" : "Select Class"} /></SelectTrigger>
+              <SelectContent>
+                {classes.map((c) => (
+                  <SelectItem key={c.id} value={isBn ? c.nameBn : c.nameEn}>{isBn ? c.nameBn : c.nameEn}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label={isBn ? "প্রশিক্ষণের নাম" : "Training Name"}>
+            <Select value={form.selectedTraining} onValueChange={(value) => setForm((prev) => ({ ...prev, selectedTraining: value, programType: activeTab }))}>
+              <SelectTrigger><SelectValue placeholder={isBn ? "প্রশিক্ষণ নির্বাচন করুন" : "Select Training"} /></SelectTrigger>
+              <SelectContent>
+                {trainings.map((t) => (
+                  <SelectItem key={t.id} value={isBn ? t.nameBn : t.nameEn}>{isBn ? t.nameBn : t.nameEn}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field label={isBn ? "সুপারিশকারী কেসওয়ার্কারএর নাম" : "Recommending Case Worker"}>
             <Input value={form.recommenderCaseWorkerName} onChange={(e) => setForm((prev) => ({ ...prev, recommenderCaseWorkerName: e.target.value, programType: activeTab }))} placeholder={isBn ? "কেসওয়ার্কারের নাম লিখুন" : "Enter case worker name"} />
@@ -498,7 +568,14 @@ function FormContent({
             <Input value={form.institutionName} onChange={(e) => setForm((prev) => ({ ...prev, institutionName: e.target.value }))} placeholder={isBn ? "প্রতিষ্ঠানের নাম" : "Institution name"} />
           </Field>
           <Field label={isBn ? "শিক্ষার স্তর" : "Education Level"}>
-            <Input value={form.educationLevel} onChange={(e) => setForm((prev) => ({ ...prev, educationLevel: e.target.value }))} placeholder={isBn ? "যেমন: শ্রেণি ৮" : "e.g. Grade 8"} />
+            <Select value={form.educationLevel} onValueChange={(value) => setForm((prev) => ({ ...prev, educationLevel: value }))}>
+              <SelectTrigger><SelectValue placeholder={isBn ? "স্তর নির্বাচন করুন" : "Select Level"} /></SelectTrigger>
+              <SelectContent>
+                {classes.map((c) => (
+                  <SelectItem key={c.id} value={isBn ? c.nameBn : c.nameEn}>{isBn ? c.nameBn : c.nameEn}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field label={isBn ? "বোর্ড / কারিকুলাম" : "Board / Curriculum"}>
             <Input value={form.boardOrCurriculum} onChange={(e) => setForm((prev) => ({ ...prev, boardOrCurriculum: e.target.value }))} placeholder={isBn ? "যেমন: জাতীয় শিক্ষাক্রম" : "e.g. National Curriculum"} />
@@ -529,7 +606,14 @@ function FormContent({
       {isVocational && (
         <div className="grid gap-4 md:grid-cols-2">
           <Field label={isBn ? "কোর্স / প্রশিক্ষণের নাম" : "Course / Training Title"}>
-            <Input value={form.recordTitle} onChange={(e) => setForm((prev) => ({ ...prev, recordTitle: e.target.value, programType: activeTab }))} placeholder={isBn ? "যেমন: সেলাই প্রশিক্ষণ" : "e.g. Tailoring Training"} />
+            <Select value={form.recordTitle} onValueChange={(value) => setForm((prev) => ({ ...prev, recordTitle: value, programType: activeTab }))}>
+              <SelectTrigger><SelectValue placeholder={isBn ? "প্রশিক্ষণ নির্বাচন করুন" : "Select Training"} /></SelectTrigger>
+              <SelectContent>
+                {trainings.map((t) => (
+                  <SelectItem key={t.id} value={isBn ? t.nameBn : t.nameEn}>{isBn ? t.nameBn : t.nameEn}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field label={isBn ? "প্রশিক্ষণ প্রদানকারী" : "Training Provider"}>
             <Input value={form.institutionName} onChange={(e) => setForm((prev) => ({ ...prev, institutionName: e.target.value }))} placeholder={isBn ? "প্রদানকারীর নাম" : "Provider name"} />

@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Clock, Pencil, Trash2 } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const VISIT_TYPES = ["Home", "Phone", "Office", "Community"];
@@ -23,7 +23,10 @@ export default function FollowUpsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canView   = usePermission("followups", "view");
+  const canCreate = usePermission("followups", "create");
+  const canEdit   = usePermission("followups", "edit");
+  const canDelete = usePermission("followups", "delete");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -123,7 +126,7 @@ export default function FollowUpsList() {
           <h1 className="text-2xl font-bold text-foreground">{t("followUps.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{isBn ? "মুক্তি পরবর্তী পর্যবেক্ষণ ও ফলো-আপ রেকর্ড" : "Post-release monitoring and follow-up records"}</p>
         </div>
-        {canManage && (
+        {canCreate && (
           <Dialog open={open && !editing} onOpenChange={v => { if (!v) setOpen(false); else { setEditing(null); setForm(EMPTY_FORM); setOpen(true); } }}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {isBn ? "নতুন ফলো-আপ" : "New Follow-up"}</Button>
@@ -141,12 +144,23 @@ export default function FollowUpsList() {
         exportTitle="Follow-ups" exportTitleBn="ফলো-আপ তালিকা"
         emptyText="No follow-up records found." emptyTextBn="কোনো ফলো-আপ রেকর্ড নেই।"
         onRowClick={r => navigate(`/follow-ups/${r.id}`)}
-        actions={canManage ? r => (
+        actions={r => (
           <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}><Pencil className="h-3.5 w-3.5" /></Button>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}><Trash2 className="h-3.5 w-3.5" /></Button>
+            {canEdit && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/follow-ups/${r.id}`)}>{t("common.view")}</Button>
+            )}
           </div>
-        ) : undefined}
+        )}
       />
 
       {editing && (

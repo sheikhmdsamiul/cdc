@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { guardianVisitsTable, guardiansTable, childrenTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
-import { checkManageAccess } from "../middlewares/auth";
+import { checkManageAccess, getCurrentUser } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
@@ -28,10 +28,24 @@ const SELECT_FIELDS = {
 router.get("/", async (req, res) => {
   try {
     const { childId, guardianId } = req.query as Record<string, string>;
-    const rows = await db.select(SELECT_FIELDS).from(guardianVisitsTable)
+
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    const userCenterId = user.centerId;
+
+    if (!isGlobal && !userCenterId) return res.json([]);
+
+    let query = db.select(SELECT_FIELDS).from(guardianVisitsTable)
       .leftJoin(childrenTable, eq(guardianVisitsTable.childId, childrenTable.id))
-      .leftJoin(guardiansTable, eq(guardianVisitsTable.guardianId, guardiansTable.id))
-      .orderBy(desc(guardianVisitsTable.createdAt));
+      .leftJoin(guardiansTable, eq(guardianVisitsTable.guardianId, guardiansTable.id));
+
+    if (!isGlobal) {
+      query = query.where(eq(childrenTable.centerId, userCenterId!)) as any;
+    }
+
+    const rows = await query.orderBy(desc(guardianVisitsTable.createdAt));
     let filtered = rows;
     if (childId) filtered = filtered.filter(r => r.childId === parseInt(childId));
     if (guardianId) filtered = filtered.filter(r => r.guardianId === parseInt(guardianId));

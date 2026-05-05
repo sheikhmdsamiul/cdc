@@ -17,7 +17,7 @@ function programLabel(type: string | undefined, isBn: boolean) {
 export default function EducationSkillsRecordDetail() {
   const { id } = useParams();
   const [, navigate] = useLocation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const planId = parseInt(id || "0", 10);
 

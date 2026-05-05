@@ -13,7 +13,7 @@ function yesNo(value: boolean | null | undefined, isBn: boolean) {
 export default function FamilySocioeconomicDetail() {
   const { id } = useParams();
   const [, navigate] = useLocation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const recordId = parseInt(id || "0", 10);
 

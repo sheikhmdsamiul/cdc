@@ -2,8 +2,11 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { educationPlansTable, childrenTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
+import { getCurrentUser, moduleGuard } from "../middlewares/auth";
 
 const router: IRouter = Router();
+
+router.use(moduleGuard("education-skills"));
 
 function generatePlanId(): string {
   const year = new Date().getFullYear();
@@ -14,7 +17,16 @@ function generatePlanId(): string {
 router.get("/", async (req, res) => {
   try {
     const { childId } = req.query as Record<string, string>;
-    const rows = await db
+
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    const userCenterId = user.centerId;
+
+    if (!isGlobal && !userCenterId) return res.json([]);
+
+    let query = db
       .select({
         id: educationPlansTable.id,
         planId: educationPlansTable.planId,
@@ -48,8 +60,13 @@ router.get("/", async (req, res) => {
         createdAt: educationPlansTable.createdAt,
       })
       .from(educationPlansTable)
-      .leftJoin(childrenTable, eq(educationPlansTable.childId, childrenTable.id))
-      .orderBy(desc(educationPlansTable.createdAt));
+      .leftJoin(childrenTable, eq(educationPlansTable.childId, childrenTable.id));
+
+    if (!isGlobal) {
+      query = query.where(eq(childrenTable.centerId, userCenterId!)) as any;
+    }
+
+    const rows = await query.orderBy(desc(educationPlansTable.createdAt));
 
     let filtered = rows;
     if (childId) filtered = filtered.filter(r => r.childId === parseInt(childId));

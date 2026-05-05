@@ -23,8 +23,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { Loader2, CalendarDays, CheckCircle2, Image as ImageIcon, AlertCircle, Copy } from "lucide-react";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { getCenterLabel } from "@/i18n/labels";
+import { CaseTypeSelect } from "@/components/CaseTypeSelect";
+import { FamilyTypeSelect } from "@/components/FamilyTypeSelect";
 import {
   calculateAgeFromDob,
   calculateDobFromAge,
@@ -142,9 +144,14 @@ export default function EditAdmissionFullProfile() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
+  const canView   = usePermission("admissions", "view");
+  const canCreate = usePermission("admissions", "create");
+  const canEdit   = usePermission("admissions", "edit");
+  const canDelete = usePermission("admissions", "delete");
+
   const roleName = user?.roleName ?? "";
   const isDeo = roleName === "Data Entry Operator";
   const isBypassRole = roleName === "Super Admin" || roleName === "Head Office";
@@ -159,6 +166,10 @@ export default function EditAdmissionFullProfile() {
     queryKey: ["centers"],
     queryFn: () => fetchJson("/api/centers"),
   });
+  const { data: classes = [] } = useQuery({
+    queryKey: ["classes"],
+    queryFn: () => fetchJson("/api/classes"),
+  });
   const centers = (centersResp?.centers ?? []).filter((center: any) => center.isHq !== "yes");
   const { data: admission } = useGetAdmission(admissionId, { query: { queryKey: getGetAdmissionQueryKey(admissionId), enabled: !!admissionId } });
   const childId = (admission as any)?.childId ? Number((admission as any).childId) : 0;
@@ -170,7 +181,7 @@ export default function EditAdmissionFullProfile() {
       ? (admission as any)?.poFeedback
       : "";
   const isResubmitState = workflowStatus === "Update Needed by CW" || workflowStatus === "Update Needed by PO";
-  const canEditForm = hasRole(user, "Super Admin", "Head Office", "Center Admin", "Data Entry Operator");
+  const canEditForm = canCreate || canEdit;
   const isReadOnly = !canEditForm;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -1136,7 +1147,18 @@ export default function EditAdmissionFullProfile() {
               <FormField control={form.control} name="caseType" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "মামলার ধরন" : "Case Type"}</FormLabel>
-                  <FormControl><Input placeholder={isBn ? "মামলার ধরন লিখুন" : "Enter case type"} {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <CaseTypeSelect value={field.value ?? ""} onChange={field.onChange} isBn={isBn} />
+                  </FormControl>
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="familyType" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{isBn ? "পরিবারের ধরণ" : "Family Type"}</FormLabel>
+                  <FormControl>
+                    <FamilyTypeSelect value={field.value ?? ""} onChange={field.onChange} />
+                  </FormControl>
                 </FormItem>
               )} />
 
@@ -1168,7 +1190,14 @@ export default function EditAdmissionFullProfile() {
               <FormField control={form.control} name="educationLevel" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "শিশুর শিক্ষাগত যোগ্যতা" : "Educational Qualification"}</FormLabel>
-                  <FormControl><Input placeholder={isBn ? "যেমন: পঞ্চম শ্রেণি" : "e.g. Grade 5"} {...field} value={field.value ?? ""} /></FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {classes.map((c: any) => (
+                        <SelectItem key={c.id} value={isBn ? c.nameBn : c.nameEn}>{isBn ? c.nameBn : c.nameEn}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )} />
               <FormField control={form.control} name="childRisk" render={({ field }) => (

@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const RISK_COLOR: Record<string, string> = {
@@ -25,7 +25,9 @@ export default function CasesList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canCreate = usePermission("cases", "create");
+  const canEdit   = usePermission("cases", "edit");
+  const canDelete = usePermission("cases", "delete");
 
   const [deleting, setDeleting] = useState<any>(null);
   const { data: cases = [], isLoading } = useListCases({}, { query: { queryKey: getListCasesQueryKey({}) } });
@@ -107,25 +109,34 @@ export default function CasesList() {
           <h1 className="text-3xl font-bold tracking-tight">{t("cases.title")}</h1>
           <p className="text-muted-foreground">{isBn ? "সক্রিয় ও বন্ধ মামলা পরিচালনা করুন।" : "Manage and track active and closed cases."}</p>
         </div>
-        <Link href="/cases/new">
-          <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {t("cases.newCase")}</Button>
-        </Link>
+        {canCreate && (
+          <Link href="/cases/new">
+            <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {t("cases.newCase")}</Button>
+          </Link>
+        )}
       </div>
       <DataTable
         columns={columns} data={cases} isLoading={isLoading} isBn={isBn}
         exportTitle="Cases" exportTitleBn="মামলার তালিকা"
         emptyText="No cases found." emptyTextBn="কোনো মামলা পাওয়া যায়নি।"
         onRowClick={r => navigate(`/cases/${r.id}`)}
-        actions={canManage ? r => (
+        actions={r => (
           <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigate(`/cases/${r.id}`)}>
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {canEdit && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigate(`/cases/${r.id}`)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Link href={`/cases/${r.id}`}><Button variant="ghost" size="sm">{t("common.view")}</Button></Link>
+            )}
           </div>
-        ) : r => <Link href={`/cases/${r.id}`}><Button variant="ghost" size="sm">{t("common.view")}</Button></Link>}
+        )}
       />
 
       {deleting && (

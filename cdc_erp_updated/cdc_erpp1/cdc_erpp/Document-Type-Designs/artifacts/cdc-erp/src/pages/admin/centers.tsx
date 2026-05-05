@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,13 +73,18 @@ function CenterForm({ initial, onSave, onClose, isBn }: {
 export default function CentersPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Center | null>(null);
 
-  const canManage = hasRole(user, "Super Admin", "Center Admin", "Head Office");
+  const canView   = usePermission("centers", "view");
+  const canCreate = usePermission("centers", "create");
+  const canEdit   = usePermission("centers", "edit");
+  const canDelete = usePermission("centers", "delete");
+
+  const canManage = canCreate || canEdit || canDelete;
 
   const { data } = useQuery({
     queryKey: ["centers"],

@@ -8,7 +8,7 @@ import { DetailField, SectionCard } from "@/components/DetailField";
 export default function GuardianVisitDetail() {
   const { id } = useParams();
   const [, navigate] = useLocation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const visitId = parseInt(id || "0", 10);
 

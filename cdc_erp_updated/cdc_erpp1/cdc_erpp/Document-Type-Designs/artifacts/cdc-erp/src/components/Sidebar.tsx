@@ -3,11 +3,11 @@ import {
   Users, FileText, Activity, ShieldAlert, Heart, 
   Scale, ClipboardList, BookOpen, Clock, UsersRound, GraduationCap,
   LayoutDashboard, LogOut, Menu, Building2, Network,
-  BarChart3, ChevronRight, FileBarChart2, Home, PanelLeftClose, PanelLeftOpen, Tags
+  BarChart3, ChevronRight, FileBarChart2, Home, PanelLeftClose, PanelLeftOpen, Tags, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { getRoleLabel } from "@/i18n/labels";
@@ -65,11 +65,16 @@ function SidebarContent({
   collapsed?: boolean;
   onToggleCollapse?: () => void;
 }) {
-  const { user, logout } = useAuth();
+  const { user, logout, permissions } = useAuth();
   const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
-  const canAdmin = hasRole(user, "Super Admin", "Center Admin", "Head Office");
-  const isDeo = hasRole(user, "Data Entry Operator");
+  
+  const canView = (module: string) => {
+    if (!user) return false;
+    if (user.roleName === "Super Admin" || user.roleName === "Head Office") return true;
+    return permissions[module]?.canView ?? false;
+  };
+
   const roleLabel = getRoleLabel(user?.roleName, isBn);
   const initials = user?.fullName
     ?.split(" ").filter(Boolean).slice(0, 2).map(n => n[0]).join("").toUpperCase() ?? "?";
@@ -118,50 +123,44 @@ function SidebarContent({
       {/* Nav */}
       <div className="flex-1 overflow-y-auto py-2 sidebar-scroll">
         <nav className="px-2 space-y-0.5">
-          {isDeo ? (
-            <>
-              <NavItem href="/admissions" label={t("nav.admissions")} icon={ClipboardList} collapsed={collapsed} />
-              <NavItem href="/children" label={t("nav.children")} icon={Users} collapsed={collapsed} />
-            </>
-          ) : (
-            <>
-          <NavItem href="/" label={t("nav.dashboard")} icon={LayoutDashboard} collapsed={collapsed} />
+          {canView("dashboard") && <NavItem href="/" label={t("nav.dashboard")} icon={LayoutDashboard} collapsed={collapsed} />}
 
-          {!collapsed && <NavSection label={t("nav.caseManagement")} />}
-          <NavItem href="/admissions" label={t("nav.admissions")} icon={ClipboardList} collapsed={collapsed} />
-          <NavItem href="/children" label={t("nav.children")} icon={Users} collapsed={collapsed} />
-          <NavItem href="/cases" label={t("nav.caseFiles")} icon={FileText} collapsed={collapsed} />
-          <NavItem href="/family-socioeconomic" label={t("nav.familySocioeconomic")} icon={Home} collapsed={collapsed} />
-          <NavItem href="/guardians" label={t("nav.guardians")} icon={UsersRound} collapsed={collapsed} />
-          <NavItem href="/health" label={t("nav.healthRecords")} icon={Heart} collapsed={collapsed} />
-          <NavItem href="/counseling" label={t("nav.counseling")} icon={Activity} collapsed={collapsed} />
-          <NavItem href="/education-skills" label={t("nav.educationSkills")} icon={GraduationCap} collapsed={collapsed} />
-          <NavItem href="/risk-assessments" label={t("nav.riskAssessments")} icon={ShieldAlert} collapsed={collapsed} />
+          {!collapsed && (canView("admissions") || canView("children") || canView("cases") || canView("family-socioeconomic") || canView("guardians") || canView("health") || canView("counseling") || canView("education-skills") || canView("risk-assessments")) && <NavSection label={t("nav.caseManagement")} />}
+          {canView("admissions") && <NavItem href="/admissions" label={t("nav.admissions")} icon={ClipboardList} collapsed={collapsed} />}
+          {canView("children") && <NavItem href="/children" label={t("nav.children")} icon={Users} collapsed={collapsed} />}
+          {canView("cases") && <NavItem href="/cases" label={t("nav.caseFiles")} icon={FileText} collapsed={collapsed} />}
+          {canView("family-socioeconomic") && <NavItem href="/family-socioeconomic" label={t("nav.familySocioeconomic")} icon={Home} collapsed={collapsed} />}
+          {canView("guardians") && <NavItem href="/guardians" label={t("nav.guardians")} icon={UsersRound} collapsed={collapsed} />}
+          {canView("health") && <NavItem href="/health" label={t("nav.healthRecords")} icon={Heart} collapsed={collapsed} />}
+          {canView("counseling") && <NavItem href="/counseling" label={t("nav.counseling")} icon={Activity} collapsed={collapsed} />}
+          {canView("education-skills") && <NavItem href="/education-skills" label={t("nav.educationSkills")} icon={GraduationCap} collapsed={collapsed} />}
+          {canView("risk-assessments") && <NavItem href="/risk-assessments" label={t("nav.riskAssessments")} icon={ShieldAlert} collapsed={collapsed} />}
 
-          {!collapsed && <NavSection label={t("nav.legalProcedures")} />}
-          <NavItem href="/court-cases" label={t("nav.courtCases")} icon={Scale} collapsed={collapsed} />
-          <NavItem href="/police-requisitions" label={t("nav.policeRequisitions")} icon={ShieldAlert} collapsed={collapsed} />
+          {!collapsed && (canView("court-cases") || canView("police-requisitions")) && <NavSection label={t("nav.legalProcedures")} />}
+          {canView("court-cases") && <NavItem href="/court-cases" label={t("nav.courtCases")} icon={Scale} collapsed={collapsed} />}
+          {canView("police-requisitions") && <NavItem href="/police-requisitions" label={t("nav.policeRequisitions")} icon={ShieldAlert} collapsed={collapsed} />}
 
-          {!collapsed && <NavSection label={t("nav.followUp")} />}
-          <NavItem href="/follow-ups" label={t("nav.followUps")} icon={Clock} collapsed={collapsed} />
-          <NavItem href="/release-records" label={t("nav.releaseRecords")} icon={BookOpen} collapsed={collapsed} />
-          <NavItem href="/surveys" label={t("nav.surveys")} icon={BarChart3} collapsed={collapsed} />
+          {!collapsed && (canView("follow-ups") || canView("release-records") || canView("measurement-surveys")) && <NavSection label={t("nav.followUp")} />}
+          {canView("follow-ups") && <NavItem href="/follow-ups" label={t("nav.followUps")} icon={Clock} collapsed={collapsed} />}
+          {canView("release-records") && <NavItem href="/release-records" label={t("nav.releaseRecords")} icon={BookOpen} collapsed={collapsed} />}
+          {canView("measurement-surveys") && <NavItem href="/surveys" label={t("nav.surveys")} icon={BarChart3} collapsed={collapsed} />}
 
-          {!collapsed && <NavSection label={t("nav.analytics")} />}
-          <NavItem href="/reports" label={t("nav.reportsAnalytics")} icon={FileBarChart2} collapsed={collapsed} />
+          {!collapsed && canView("reports") && <NavSection label={t("nav.analytics")} />}
+          {canView("reports") && <NavItem href="/reports" label={t("nav.reportsAnalytics")} icon={FileBarChart2} collapsed={collapsed} />}
 
-          {canAdmin && (
+          {(canView("users") || canView("centers") || canView("org_structure") || canView("address") || canView("case_types") || canView("family_types") || canView("education") || canView("permissions")) && (
             <>
               {!collapsed && <NavSection label={t("nav.administration")} />}
-              <NavItem href="/admin/users" label={t("nav.userManagement")} icon={Users} collapsed={collapsed} />
-              <NavItem href="/admin/centers" label={t("nav.centers")} icon={Building2} collapsed={collapsed} />
-              <NavItem href="/admin/org-structure" label={t("nav.orgStructure")} icon={Network} collapsed={collapsed} />
-              <NavItem href="/admin/address" label={isBn ? "ঠিকানা ব্যবস্থাপনা" : "Address Management"} icon={Home} collapsed={collapsed} />
-              <NavItem href="/admin/case-types" label={isBn ? "মামলার ধরন" : "Case Types"} icon={Tags} collapsed={collapsed} />
-              </>
-              )}
-              </>
-              )}
+              {canView("users") && <NavItem href="/admin/users" label={t("nav.userManagement")} icon={Users} collapsed={collapsed} />}
+              {canView("centers") && <NavItem href="/admin/centers" label={t("nav.centers")} icon={Building2} collapsed={collapsed} />}
+              {canView("org_structure") && <NavItem href="/admin/org-structure" label={t("nav.orgStructure")} icon={Network} collapsed={collapsed} />}
+              {canView("address") && <NavItem href="/admin/address" label={isBn ? "ঠিকানা ব্যবস্থাপনা" : "Address Management"} icon={Home} collapsed={collapsed} />}
+              {canView("case_types") && <NavItem href="/admin/case-types" label={isBn ? "মামলার ধরন" : "Case Types"} icon={Tags} collapsed={collapsed} />}
+              {canView("family_types") && <NavItem href="/admin/family-types" label={isBn ? "পরিবারের ধরন" : "Family Types"} icon={Tags} collapsed={collapsed} />}
+              {canView("education") && <NavItem href="/admin/education" label={isBn ? "শিক্ষা ফর্ম" : "Education Form"} icon={BookOpen} collapsed={collapsed} />}
+              {canView("permissions") && <NavItem href="/admin/permissions" label={isBn ? "অনুমতি ব্যবস্থাপনা" : "Permissions"} icon={ShieldCheck} collapsed={collapsed} />}
+            </>
+          )}
               </nav>
               </div>
 

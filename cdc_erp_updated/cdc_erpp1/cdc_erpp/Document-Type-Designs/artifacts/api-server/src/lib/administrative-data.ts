@@ -1,11 +1,10 @@
-export const DIVISION_DATA = [
+export const DIVISION_DATA = 
+[
   {
-    "id": 1,
     "bn": "ঢাকা বিভাগ",
-    "en": "DHAKA DIVISION",
+    "en": "Dhaka Division",
     "districts": [
       {
-        "id": 11,
         "bn": "ঢাকা জেলা",
         "en": "Dhaka District",
         "upazilas": [
@@ -32,7 +31,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 12,
         "bn": "ফরিদপুর জেলা",
         "en": "Faridpur District",
         "upazilas": [
@@ -75,7 +73,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 13,
         "bn": "গাজীপুর জেলা",
         "en": "Gazipur District",
         "upazilas": [
@@ -102,7 +99,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 14,
         "bn": "গোপালগঞ্জ জেলা",
         "en": "Gopalganj District",
         "upazilas": [
@@ -129,7 +125,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 15,
         "bn": "কিশোরগঞ্জ জেলা",
         "en": "Kishoreganj District",
         "upazilas": [
@@ -188,7 +183,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 16,
         "bn": "মাদারীপুর জেলা",
         "en": "Madaripur District",
         "upazilas": [
@@ -215,7 +209,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 17,
         "bn": "মানিকগঞ্জ জেলা",
         "en": "Manikganj District",
         "upazilas": [
@@ -250,7 +243,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 18,
         "bn": "মুন্সীগঞ্জ জেলা",
         "en": "Munshiganj District",
         "upazilas": [
@@ -281,7 +273,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 19,
         "bn": "নারায়ণগঞ্জ জেলা",
         "en": "Narayanganj District",
         "upazilas": [
@@ -308,7 +299,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 110,
         "bn": "নরসিংদী জেলা",
         "en": "Narsingdi District",
         "upazilas": [
@@ -339,7 +329,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 111,
         "bn": "রাজবাড়ী জেলা",
         "en": "Rajbari District",
         "upazilas": [
@@ -366,7 +355,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 112,
         "bn": "শরীয়তপুর জেলা",
         "en": "Shariatpur District",
         "upazilas": [
@@ -397,7 +385,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 113,
         "bn": "টাঙ্গাইল জেলা",
         "en": "Tangail District",
         "upazilas": [
@@ -454,12 +441,10 @@ export const DIVISION_DATA = [
     ]
   },
   {
-    "id": 2,
     "bn": "খুলনা বিভাগ",
-    "en": "KHULNA DIVISION",
+    "en": "Khulna Division",
     "districts": [
       {
-        "id": 21,
         "bn": "বাগেরহাট জেলা",
         "en": "Bagerhat District",
         "upazilas": [
@@ -502,7 +487,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 22,
         "bn": "চুয়াডাঙ্গা জেলা",
         "en": "Chuadanga District",
         "upazilas": [
@@ -525,7 +509,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 23,
         "bn": "যশোর জেলা",
         "en": "Jashore District",
         "upazilas": [
@@ -564,7 +547,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 24,
         "bn": "ঝিনাইদহ জেলা",
         "en": "Jhenaidah District",
         "upazilas": [
@@ -595,7 +577,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 25,
         "bn": "খুলনা জেলা",
         "en": "Khulna District",
         "upazilas": [
@@ -638,7 +619,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 26,
         "bn": "কুষ্টিয়া জেলা",
         "en": "Kushtia District",
         "upazilas": [
@@ -669,7 +649,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 27,
         "bn": "মাগুরা জেলা",
         "en": "Magura District",
         "upazilas": [
@@ -692,7 +671,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 28,
         "bn": "মেহেরপুর জেলা",
         "en": "Meherpur District",
         "upazilas": [
@@ -711,7 +689,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 29,
         "bn": "নড়াইল জেলা",
         "en": "Narail District",
         "upazilas": [
@@ -730,7 +707,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 210,
         "bn": "সাতক্ষীরা জেলা",
         "en": "Satkhira District",
         "upazilas": [
@@ -767,12 +743,10 @@ export const DIVISION_DATA = [
     ]
   },
   {
-    "id": 3,
     "bn": "চট্টগ্রাম বিভাগ",
-    "en": "CHATTOGRAM DIVISION",
+    "en": "Chattogram Division",
     "districts": [
       {
-        "id": 31,
         "bn": "বান্দরবান জেলা",
         "en": "Bandarban District",
         "upazilas": [
@@ -807,7 +781,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 32,
         "bn": "ব্রাহ্মণবাড়িয়া জেলা",
         "en": "Brahmanbaria District",
         "upazilas": [
@@ -850,7 +823,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 33,
         "bn": "চাঁদপুর জেলা",
         "en": "Chandpur District",
         "upazilas": [
@@ -889,7 +861,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 34,
         "bn": "চট্টগ্রাম জেলা",
         "en": "Chattogram District",
         "upazilas": [
@@ -956,7 +927,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 35,
         "bn": "কুমিল্লা জেলা",
         "en": "Cumilla District",
         "upazilas": [
@@ -1031,7 +1001,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 36,
         "bn": "কক্সবাজার জেলা",
         "en": "Coxsbazar District",
         "upazilas": [
@@ -1074,7 +1043,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 37,
         "bn": "ফেনী জেলা",
         "en": "Feni District",
         "upazilas": [
@@ -1105,7 +1073,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 38,
         "bn": "খাগড়াছড়ি জেলা",
         "en": "Khagrachari District",
         "upazilas": [
@@ -1148,7 +1115,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 39,
         "bn": "লক্ষ্মীপুর জেলা",
         "en": "Lakshmipur District",
         "upazilas": [
@@ -1175,7 +1141,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 310,
         "bn": "নোয়াখালী জেলা",
         "en": "Noakhali District",
         "upazilas": [
@@ -1218,7 +1183,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 311,
         "bn": "রাঙ্গামাটি জেলা",
         "en": "Rangamati District",
         "upazilas": [
@@ -1267,12 +1231,10 @@ export const DIVISION_DATA = [
     ]
   },
   {
-    "id": 4,
     "bn": "রাজশাহী বিভাগ",
-    "en": "RAJSHAHI DIVISION",
+    "en": "Rajshahi Division",
     "districts": [
       {
-        "id": 41,
         "bn": "বগুড়া জেলা",
         "en": "Bogura District",
         "upazilas": [
@@ -1327,7 +1289,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 42,
         "bn": "জয়পুরহাট জেলা",
         "en": "Joypurhat District",
         "upazilas": [
@@ -1354,7 +1315,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 43,
         "bn": "নওগাঁ জেলা",
         "en": "Naogaon District",
         "upazilas": [
@@ -1405,7 +1365,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 44,
         "bn": "নাটোর জেলা",
         "en": "Natore District",
         "upazilas": [
@@ -1440,7 +1399,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 45,
         "bn": "চাঁপাইনবাবগঞ্জ জেলা",
         "en": "Chapainawabganj District",
         "upazilas": [
@@ -1467,7 +1425,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 46,
         "bn": "পাবনা জেলা",
         "en": "Pabna District",
         "upazilas": [
@@ -1510,7 +1467,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 47,
         "bn": "রাজশাহী জেলা",
         "en": "Rajshahi District",
         "upazilas": [
@@ -1553,7 +1509,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 48,
         "bn": "সিরাজগঞ্জ জেলা",
         "en": "Sirajganj District",
         "upazilas": [
@@ -1598,12 +1553,10 @@ export const DIVISION_DATA = [
     ]
   },
   {
-    "id": 5,
     "bn": "সিলেট বিভাগ",
-    "en": "SYLHET DIVISION",
+    "en": "Sylhet Division",
     "districts": [
       {
-        "id": 51,
         "bn": "হবিগঞ্জ জেলা",
         "en": "Habiganj District",
         "upazilas": [
@@ -1650,8 +1603,7 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 52,
-        "bn": "মৌলভীবাজার জেলা",
+        "bn": "مৌলভীবাজার জেলা",
         "en": "Moulvibazar District",
         "upazilas": [
           {
@@ -1685,7 +1637,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 53,
         "bn": "সুনামগঞ্জ জেলা",
         "en": "Sunamganj District",
         "upazilas": [
@@ -1740,7 +1691,6 @@ export const DIVISION_DATA = [
         ]
       },
       {
-        "id": 54,
         "bn": "সিলেট জেলা",
         "en": "Sylhet District",
         "upazilas": [
@@ -1770,7 +1720,7 @@ export const DIVISION_DATA = [
           },
           {
             "bn": "গোলাপগঞ্জ উপজেলা",
-            "en": "Golapganj Upazila"
+            "en": "Golapগঞ্জ Upazila"
           },
           {
             "bn": "গোয়াইনঘাট উপজেলা",
@@ -1801,690 +1751,670 @@ export const DIVISION_DATA = [
     ]
   },
   {
-    "id": 6,
     "bn": "রংপুর বিভাগ",
-    "en": "RANGPUR DIVISION",
+    "en": "Rangpur Division",
     "districts": [
       {
-        "id": 61,
         "bn": "দিনাজপুর জেলা",
-        "en": "দিনাজপুর জেলা",
+        "en": "Dinajpur District",
         "upazilas": [
           {
             "bn": "বিরামপুর উপজেলা",
-            "en": "বিরামপুর উপজেলা"
+            "en": "Birampur Upazila"
           },
           {
             "bn": "বীরগঞ্জ উপজেলা",
-            "en": "বীরগঞ্জ উপজেলা"
+            "en": "Birganj Upazila"
           },
           {
             "bn": "বিরল উপজেলা",
-            "en": "বিরল উপজেলা"
+            "en": "Birol Upazila"
           },
           {
             "bn": "বোচাগঞ্জ উপজেলা",
-            "en": "বোচাগঞ্জ উপজেলা"
+            "en": "Bochaganj Upazila"
           },
           {
             "bn": "চিরিরবন্দর উপজেলা",
-            "en": "চিরিরবন্দর উপজেলা"
+            "en": "Chirirbandar Upazila"
           },
           {
             "bn": "ফুলবাড়ী উপজেলা",
-            "en": "ফুলবাড়ী উপজেলা"
+            "en": "Fulbari Upazila"
           },
           {
             "bn": "ঘোড়াঘাট উপজেলা",
-            "en": "ঘোড়াঘাট উপজেলা"
+            "en": "Ghoraghat Upazila"
           },
           {
             "bn": "হাকিমপুর উপজেলা",
-            "en": "হাকিমপুর উপজেলা"
+            "en": "Hakimpur Upazila"
           },
           {
             "bn": "কাহারোল উপজেলা",
-            "en": "কাহারোল উপজেলা"
+            "en": "Kaharol Upazila"
           },
           {
-            "bn": "খানসামা উপজেলা",
-            "en": "খানসামা উপজেলা"
+            "bn": "خانসামা উপজেলা",
+            "en": "Khansama Upazila"
           },
           {
             "bn": "নবাবগঞ্জ উপজেলা",
-            "en": "নবাবগঞ্জ উপজেলা"
+            "en": "Nawabganj Upazila"
           },
           {
             "bn": "পার্বতীপুর উপজেলা",
-            "en": "পার্বতীপুর উপজেলা"
+            "en": "Parbatipur Upazila"
           },
           {
             "bn": "দিনাজপুর সদর উপজেলা",
-            "en": "দিনাজপুর সদর উপজেলা"
+            "en": "Dinajpur Sadar Upazila"
           }
         ]
       },
       {
-        "id": 62,
         "bn": "গাইবান্ধা জেলা",
-        "en": "গাইবান্ধা জেলা",
+        "en": "Gaibandha District",
         "upazilas": [
           {
             "bn": "ফুলছড়ি উপজেলা",
-            "en": "ফুলছড়ি উপজেলা"
+            "en": "Phulchari Upazila"
           },
           {
             "bn": "গাইবান্ধা সদর উপজেলা",
-            "en": "গাইবান্ধা সদর উপজেলা"
+            "en": "Gaibandha Sadar Upazila"
           },
           {
             "bn": "গোবিন্দগঞ্জ উপজেলা",
-            "en": "গোবিন্দগঞ্জ উপজেলা"
+            "en": "Gobindaganj Upazila"
           },
           {
             "bn": "পলাশবাড়ী উপজেলা",
-            "en": "পলাশবাড়ী উপজেলা"
+            "en": "Palashbari Upazila"
           },
           {
             "bn": "সাদুল্লাপুর উপজেলা",
-            "en": "সাদুল্লাপুর উপজেলা"
+            "en": "Sadullapur Upazila"
           },
           {
             "bn": "সাঘাটা উপজেলা",
-            "en": "সাঘাটা উপজেলা"
+            "en": "Saghata Upazila"
           },
           {
             "bn": "সুন্দরগঞ্জ উপজেলা",
-            "en": "সুন্দরগঞ্জ উপজেলা"
+            "en": "Sundarganj Upazila"
           }
         ]
       },
       {
-        "id": 63,
         "bn": "কুড়িগ্রাম জেলা",
-        "en": "কুড়িগ্রাম জেলা",
+        "en": "Kurigram District",
         "upazilas": [
           {
             "bn": "ফুলবাড়ী উপজেলা",
-            "en": "ফুলবাড়ী উপজেলা"
+            "en": "Phulbari Upazila"
           },
           {
             "bn": "ভূরঙ্গামারী উপজেলা",
-            "en": "ভূরঙ্গামারী উপজেলা"
+            "en": "Bhurungamari Upazila"
           },
           {
             "bn": "চর রাজিবপুর উপজেলা",
-            "en": "চর রাজিবপুর উপজেলা"
+            "en": "Charrajibpur Upazila"
           },
           {
             "bn": "চিলমারী উপজেলা",
-            "en": "চিলমারী উপজেলা"
+            "en": "Chilmari Upazila"
           },
           {
             "bn": "কুড়িগ্রাম সদর উপজেলা",
-            "en": "কুড়িগ্রাম সদর উপজেলা"
+            "en": "Kurigram Sadar Upazila"
           },
           {
             "bn": "নাগেশ্বরী উপজেলা",
-            "en": "নাগেশ্বরী উপজেলা"
+            "en": "Nageshwari Upazila"
           },
           {
             "bn": "রাজারহাট উপজেলা",
-            "en": "রাজারহাট উপজেলা"
+            "en": "Rajarhat Upazila"
           },
           {
             "bn": "রৌমারী উপজেলা",
-            "en": "রৌমারী উপজেলা"
+            "en": "Rowmari Upazila"
           },
           {
             "bn": "উলিপুর উপজেলা",
-            "en": "উলিপুর উপজেলা"
+            "en": "Ulipur Upazila"
           }
         ]
       },
       {
-        "id": 64,
         "bn": "লালমনিরহাট জেলা",
-        "en": "লালমনিরহাট জেলা",
+        "en": "Lalmonirhat District",
         "upazilas": [
           {
             "bn": "আদিতমারী উপজেলা",
-            "en": "আদিতমারী উপজেলা"
+            "en": "Aditmari Upazila"
           },
           {
             "bn": "হাতীবান্ধা উপজেলা",
-            "en": "হাতীবান্ধা উপজেলা"
+            "en": "Hatibandha Upazila"
           },
           {
             "bn": "কালীগঞ্জ উপজেলা",
-            "en": "কালীগঞ্জ উপজেলা"
+            "en": "Kaliganj Upazila"
           },
           {
             "bn": "লালমনিরহাট সদর উপজেলা",
-            "en": "লালমনিরহাট সদর উপজেলা"
+            "en": "Lalmonirhat Sadar Upazila"
           },
           {
             "bn": "পাটগ্রাম উপজেলা",
-            "en": "পাটগ্রাম উপজেলা"
+            "en": "Patgram Upazila"
           }
         ]
       },
       {
-        "id": 65,
         "bn": "নীলফামারী জেলা",
-        "en": "নীলফামারী জেলা",
+        "en": "Nilphamari District",
         "upazilas": [
           {
             "bn": "ডোমার উপজেলা",
-            "en": "ডোমার উপজেলা"
+            "en": "Domar Upazila"
           },
           {
             "bn": "জলঢাকা উপজেলা",
-            "en": "জলঢাকা উপজেলা"
+            "en": "Jaldhaka Upazila"
           },
           {
             "bn": "কিশোরগঞ্জ উপজেলা",
-            "en": "কিশোরগঞ্জ উপজেলা"
+            "en": "Kishorganj Upazila"
           },
           {
             "bn": "নীলফামারী সদর উপজেলা",
-            "en": "নীলফামারী সদর উপজেলা"
+            "en": "Nilphamari Sadar Upazila"
           },
           {
             "bn": "সৈয়দপুর উপজেলা",
-            "en": "সৈয়দপুর উপজেলা"
+            "en": "Syedpur Upazila"
           },
           {
             "bn": "ডিমলা উপজেলা",
-            "en": "ডিমলা উপজেলা"
+            "en": "Dimla Upazila"
           }
         ]
       },
       {
-        "id": 66,
         "bn": "পঞ্চগড় জেলা",
-        "en": "পঞ্চগড় জেলা",
+        "en": "Panchagarh District",
         "upazilas": [
           {
             "bn": "আটোয়ারী উপজেলা",
-            "en": "আটোয়ারী উপজেলা"
+            "en": "Atwari Upazila"
           },
           {
             "bn": "বোদা উপজেলা",
-            "en": "বোদা উপজেলা"
+            "en": "Boda Upazila"
           },
           {
             "bn": "দেবীগঞ্জ উপজেলা",
-            "en": "দেবীগঞ্জ উপজেলা"
+            "en": "Debiganj Upazila"
           },
           {
             "bn": "পঞ্চগড় সদর",
-            "en": "পঞ্চগড় সদর"
+            "en": "Panchagarh Sadar Upazila"
           },
           {
             "bn": "তেঁতুলিয়া উপজেলা",
-            "en": "তেঁতুলিয়া উপজেলা"
+            "en": "Tetulia Upazila"
           }
         ]
       },
       {
-        "id": 67,
         "bn": "রংপুর জেলা",
-        "en": "রংপুর জেলা",
+        "en": "Rangpur District",
         "upazilas": [
           {
             "bn": "বদরগঞ্জ উপজেলা",
-            "en": "বদরগঞ্জ উপজেলা"
+            "en": "Badargonj Upazila"
           },
           {
             "bn": "কাউনিয়া উপজেলা",
-            "en": "কাউনিয়া উপজেলা"
+            "en": "Kaunia Upazila"
           },
           {
             "bn": "রংপুর সদর উপজেলা",
-            "en": "রংপুর সদর উপজেলা"
+            "en": "Rangpur Sadar Upazila"
           },
           {
             "bn": "মিঠাপুকুর উপজেলা",
-            "en": "মিঠাপুকুর উপজেলা"
+            "en": "Mithapukur Upazila"
           },
           {
             "bn": "পীরগাছা উপজেলা",
-            "en": "পীরগাছা উপজেলা"
+            "en": "Pirgacha Upazila"
           },
           {
             "bn": "পীরগঞ্জ উপজেলা",
-            "en": "পীরগঞ্জ উপজেলা"
+            "en": "Pirgonj Upazila"
           },
           {
             "bn": "তারাগঞ্জ উপজেলা",
-            "en": "তারাগঞ্জ উপজেলা"
+            "en": "Taragonj Upazila"
           },
           {
             "bn": "গংগাচড়া উপজেলা",
-            "en": "গংগাচড়া উপজেলা"
+            "en": "Gangachara Upazila"
           }
         ]
       },
       {
-        "id": 68,
         "bn": "ঠাকুরগাঁও জেলা",
-        "en": "ঠাকুরগাঁও জেলা",
+        "en": "Thakurgaon District",
         "upazilas": [
           {
             "bn": "পীরগঞ্জ উপজেলা",
-            "en": "পীরগঞ্জ উপজেলা"
+            "en": "Pirganj Upazila"
           },
           {
             "bn": "বালিয়াডাঙ্গী উপজেলা",
-            "en": "বালিয়াডাঙ্গী উপজেলা"
+            "en": "Baliadangi Upazila"
           },
           {
             "bn": "হরিপুর উপজেলা",
-            "en": "হরিপুর উপজেলা"
+            "en": "Haripur Upazila"
           },
           {
             "bn": "রাণীশংকৈল উপজেলা",
-            "en": "রাণীশংকৈল উপজেলা"
+            "en": "Ranisankail Upazila"
           },
           {
             "bn": "ঠাকুরগাঁও সদর উপজেলা",
-            "en": "ঠাকুরগাঁও সদর উপজেলা"
+            "en": "Thakurgaon Sadar Upazila"
           }
         ]
       }
     ]
   },
   {
-    "id": 7,
     "bn": "ময়মনসিংহ বিভাগ",
-    "en": "MYMENSINGH DIVISION",
+    "en": "Mymensingh Division",
     "districts": [
       {
-        "id": 71,
         "bn": "জামালপুর জেলা",
-        "en": "জামালপুর জেলা",
+        "en": "Jamalpur District",
         "upazilas": [
           {
             "bn": "বকশীগঞ্জ উপজেলা",
-            "en": "বকশীগঞ্জ উপজেলা"
+            "en": "Bokshiganj Upazila"
           },
           {
             "bn": "দেওয়ানগঞ্জ উপজেলা",
-            "en": "দেওয়ানগঞ্জ উপজেলা"
+            "en": "Dewangonj Upazila"
           },
           {
             "bn": "ইসলামপুর উপজেলা",
-            "en": "ইসলামপুর উপজেলা"
+            "en": "Islampur Upazila"
           },
           {
             "bn": "জামালপুর সদর উপজেলা",
-            "en": "জামালপুর সদর উপজেলা"
+            "en": "Jamalpur Sadar Upazila"
           },
           {
             "bn": "মাদারগঞ্জ উপজেলা",
-            "en": "মাদারগঞ্জ উপজেলা"
+            "en": "Madarganj Upazila"
           },
           {
             "bn": "মেলান্দহ উপজেলা",
-            "en": "মেলান্দহ উপজেলা"
+            "en": "Melandah Upazila"
           },
           {
             "bn": "সরিষাবাড়ী উপজেলা",
-            "en": "সরিষাবাড়ী উপজেলা"
+            "en": "Sarishabari Upazila"
           }
         ]
       },
       {
-        "id": 72,
         "bn": "ময়মনসিংহ জেলা",
-        "en": "ময়মনসিংহ জেলা",
+        "en": "Mymensingh District",
         "upazilas": [
           {
             "bn": "ভালুকা উপজেলা",
-            "en": "ভালুকা উপজেলা"
+            "en": "Bhaluka Upazila"
           },
           {
             "bn": "ধোবাউড়া উপজেলা",
-            "en": "ধোবাউড়া উপজেলা"
+            "en": "Dhobaura Upazila"
           },
           {
             "bn": "ফুলবাড়ীয়া উপজেলা",
-            "en": "ফুলবাড়ীয়া উপজেলা"
+            "en": "Fulbaria Upazila"
           },
           {
             "bn": "গফরগাঁও উপজেলা",
-            "en": "গফরগাঁও উপজেলা"
+            "en": "Gafargaon Upazila"
           },
           {
             "bn": "গৌরীপুর উপজেলা",
-            "en": "গৌরীপুর উপজেলা"
+            "en": "Gouripur Upazila"
           },
           {
             "bn": "হালুয়াঘাট উপজেলা",
-            "en": "হালুয়াঘাট উপজেলা"
+            "en": "Haluaghat Upazila"
           },
           {
             "bn": "ঈশ্বরগঞ্জ উপজেলা",
-            "en": "ঈশ্বরগঞ্জ উপজেলা"
+            "en": "Iswarganj Upazila"
           },
           {
             "bn": "ময়মনসিংহ সদর উপজেলা",
-            "en": "ময়মনসিংহ সদর উপজেলা"
+            "en": "Mymensingh Sadar Upazila"
           },
           {
             "bn": "মুক্তাগাছা উপজেলা",
-            "en": "মুক্তাগাছা উপজেলা"
+            "en": "Muktagacha Upazila"
           },
           {
             "bn": "নান্দাইল উপজেলা",
-            "en": "নান্দাইল উপজেলা"
+            "en": "Nandail Upazila"
           },
           {
             "bn": "ফুলপুর উপজেলা",
-            "en": "ফুলপুর উপজেলা"
+            "en": "Phulpur Upazila"
           },
           {
             "bn": "তারাকান্দা উপজেলা",
-            "en": "তারাকান্দা উপজেলা"
+            "en": "Tarakanda Upazila"
           },
           {
             "bn": "ত্রিশাল উপজেলা",
-            "en": "ত্রিশাল উপজেলা"
+            "en": "Trishal Upazila"
           }
         ]
       },
       {
-        "id": 73,
         "bn": "নেত্রকোণা জেলা",
-        "en": "নেত্রকোণা জেলা",
+        "en": "Netrokona District",
         "upazilas": [
           {
             "bn": "আটপাড়া উপজেলা",
-            "en": "আটপাড়া উপজেলা"
+            "en": "Atpara Upazila"
           },
           {
             "bn": "বারহাট্টা উপজেলা",
-            "en": "বারহাট্টা উপজেলা"
+            "en": "Barhatta Upazila"
           },
           {
             "bn": "দুর্গাপুর উপজেলা",
-            "en": "দুর্গাপুর উপজেলা"
+            "en": "Durgapur Upazila"
           },
           {
             "bn": "খালিয়াজুরী উপজেলা",
-            "en": "খালিয়াজুরী উপজেলা"
+            "en": "Khaliajuri Upazila"
           },
           {
             "bn": "কলমাকান্দা উপজেলা",
-            "en": "কলমাকান্দা উপজেলা"
+            "en": "Kalmakanda Upazila"
           },
           {
             "bn": "কেন্দুয়া উপজেলা",
-            "en": "কেন্দুয়া উপজেলা"
+            "en": "Kendua Upazila"
           },
           {
             "bn": "মদন উপজেলা",
-            "en": "মদন উপজেলা"
+            "en": "Madan Upazila"
           },
           {
             "bn": "মোহনগঞ্জ উপজেলা",
-            "en": "মোহনগঞ্জ উপজেলা"
+            "en": "Mohongonj Upazila"
           },
           {
             "bn": "নেত্রকোণা সদর উপজেলা",
-            "en": "নেত্রকোণা সদর উপজেলা"
+            "en": "Netrokona Sadar Upazila"
           },
           {
             "bn": "পূর্বধলা উপজেলা",
-            "en": "পূর্বধলা উপজেলা"
+            "en": "Purbadhala Upazila"
           }
         ]
       },
       {
-        "id": 74,
         "bn": "শেরপুর জেলা",
-        "en": "শেরপুর জেলা",
+        "en": "Sherpur District",
         "upazilas": [
           {
             "bn": "ঝিনাইগাতী উপজেলা",
-            "en": "ঝিনাইগাতী উপজেলা"
+            "en": "Jhenaigati Upazila"
           },
           {
             "bn": "নকলা উপজেলা",
-            "en": "নকলা উপজেলা"
+            "en": "Nokla Upazila"
           },
           {
             "bn": "নালিতাবাড়ী উপজেলা",
-            "en": "নালিতাবাড়ী উপজেলা"
+            "en": "Nalitabari Upazila"
           },
           {
             "bn": "শেরপুর সদর উপজেলা",
-            "en": "শেরপুর সদর উপজেলা"
+            "en": "Sherpur Sadar Upazila"
           },
           {
             "bn": "শ্রীবরদী উপজেলা",
-            "en": "শ্রীবরদী উপজেলা"
+            "en": "Sreebordi Upazila"
           }
         ]
       }
     ]
   },
   {
-    "id": 8,
     "bn": "বরিশাল বিভাগ",
-    "en": "BARISHAL DIVISION",
+    "en": "Barishal Division",
     "districts": [
       {
-        "id": 81,
         "bn": "ঝালকাঠি জেলা",
-        "en": "ঝালকাঠি জেলা",
+        "en": "Jhalakathi District",
         "upazilas": [
           {
             "bn": "ঝালকাঠি সদর উপজেলা",
-            "en": "ঝালকাঠি সদর উপজেলা"
+            "en": "Jhalakathi Sadar Upazila"
           },
           {
             "bn": "নলছিটি উপজেলা",
-            "en": "নলছিটি উপজেলা"
+            "en": "Nalchity Upazila"
           },
           {
             "bn": "কাঠালিয়া উপজেলা",
-            "en": "কাঠালিয়া উপজেলা"
+            "en": "Kathalia Upazila"
           },
           {
             "bn": "রাজাপুর উপজেলা",
-            "en": "রাজাপুর উপজেলা"
+            "en": "Rajapur Upazila"
           }
         ]
       },
       {
-        "id": 82,
         "bn": "বরগুনা জেলা",
-        "en": "বরগুনা জেলা",
+        "en": "Barguna District",
         "upazilas": [
           {
             "bn": "আমতলী উপজেলা",
-            "en": "আমতলী উপজেলা"
+            "en": "Amtali Upazila"
           },
           {
             "bn": "বামনা উপজেলা",
-            "en": "বামনা উপজেলা"
+            "en": "Bamna Upazila"
           },
           {
             "bn": "বরগুনা সদর উপজেলা",
-            "en": "বরগুনা সদর উপজেলা"
+            "en": "Barguna Sadar Upazila"
           },
           {
             "bn": "বেতাগী উপজেলা",
-            "en": "বেতাগী উপজেলা"
+            "en": "Betagi Upazila"
           },
           {
             "bn": "পাথরঘাটা উপজেলা",
-            "en": "পাথরঘাটা উপজেলা"
+            "en": "Pathorghata Upazila"
           },
           {
             "bn": "তালতলী উপজেলা",
-            "en": "তালতলী উপজেলা"
+            "en": "Taltali Upazila"
           }
         ]
       },
       {
-        "id": 83,
         "bn": "বরিশাল জেলা",
-        "en": "বরিশাল জেলা",
+        "en": "Barishal District",
         "upazilas": [
           {
             "bn": "আগৈলঝাড়া উপজেলা",
-            "en": "আগৈলঝাড়া উপজেলা"
+            "en": "Agailjhara Upazila"
           },
           {
             "bn": "babuganj উপজেলা",
-            "en": "babuganj উপজেলা"
+            "en": "Babuganj Upazila"
           },
           {
             "bn": "বাকেরগঞ্জ উপজেলা",
-            "en": "বাকেরগঞ্জ উপজেলা"
+            "en": "Bakerganj Upazila"
           },
           {
             "bn": "বানারীপাড়া উপজেলা",
-            "en": "বানারীপাড়া উপজেলা"
+            "en": "Banaripara Upazila"
           },
           {
             "bn": "গৌরনদী উপজেলা",
-            "en": "গৌরনদী উপজেলা"
+            "en": "Gournadi Upazila"
           },
           {
             "bn": "হিজলা উপজেলা",
-            "en": "হিজলা উপজেলা"
+            "en": "Hizla Upazila"
           },
           {
             "bn": "বরিশাল সদর উপজেলা",
-            "en": "বরিশাল সদর উপজেলা"
+            "en": "Barishal Sadar Upazila"
           },
           {
             "bn": "মেহেন্দিগঞ্জ উপজেলা",
-            "en": "মেহেন্দিগঞ্জ উপজেলা"
+            "en": "Mehendiganj Upazila"
           },
           {
             "bn": "মুলাদী উপজেলা",
-            "en": "মুলাদী উপজেলা"
+            "en": "Muladi Upazila"
           },
           {
             "bn": "উজিরপুর উপজেলা",
-            "en": "উজিরপুর উপজেলা"
+            "en": "Wazirpur Upazila"
           }
         ]
       },
       {
-        "id": 84,
         "bn": "ভোলা জেলা",
-        "en": "ভোলা জেলা",
+        "en": "Bhola District",
         "upazilas": [
           {
             "bn": "ভোলা সদর উপজেলা",
-            "en": "ভোলা সদর উপজেলা"
+            "en": "Bhola Sadar Upazila"
           },
           {
             "bn": "বোরহানউদ্দিন উপজেলা",
-            "en": "বোরহানউদ্দিন উপজেলা"
+            "en": "Borhanuddin Upazila"
           },
           {
             "bn": "দৌলতখান উপজেলা",
-            "en": "দৌলতখান উপজেলা"
+            "en": "Doulatkhan Upazila"
           },
           {
             "bn": "লালমোহন উপজেলা",
-            "en": "লালমোহন উপজেলা"
+            "en": "Lalmohan Upazila"
           },
           {
             "bn": "মনপুরা উপজেলা",
-            "en": "মনপুরা উপজেলা"
+            "en": "Monpura Upazila"
           },
           {
             "bn": "তজুমদ্দিন উপজেলা",
-            "en": "তজুমদ্দিন উপজেলা"
+            "en": "Tazumuddin Upazila"
           },
           {
             "bn": "চরফ্যাশন উপজেলা",
-            "en": "চরফ্যাশন উপজেলা"
+            "en": "Charfesson Upazila"
           }
         ]
       },
       {
-        "id": 85,
         "bn": "পটুয়াখালী জেলা",
-        "en": "পটুয়াখালী জেলা",
+        "en": "Patuakhali District",
         "upazilas": [
           {
             "bn": "বাউফল উপজেলা",
-            "en": "বাউফল উপজেলা"
+            "en": "Bauphal Upazila"
           },
           {
             "bn": "দশমিনা উপজেলা",
-            "en": "দশমিনা উপজেলা"
+            "en": "Dashmina Upazila"
           },
           {
             "bn": "দুমকী উপজেলা",
-            "en": "দুমকী উপজেলা"
+            "en": "Dumki Upazila"
           },
           {
             "bn": "কলাপাড়া উপজেলা",
-            "en": "কলাপাড়া উপজেলা"
+            "en": "Kalapara Upazila"
           },
           {
             "bn": "মির্জাগঞ্জ উপজেলা",
-            "en": "মির্জাগঞ্জ উপজেলা"
+            "en": "Mirzaganj Upazila"
           },
           {
             "bn": "পটুয়াখালী সদর উপজেলা",
-            "en": "পটুয়াখালী সদর উপজেলা"
+            "en": "Patuakhali Sadar Upazila"
           },
           {
             "bn": "রাঙ্গাবালী উপজেলা",
-            "en": "রাঙ্গাবালী উপজেলা"
+            "en": "Rangabali Upazila"
           },
           {
             "bn": "গলাচিপা উপজেলা",
-            "en": "গলাচিপা উপজেলা"
+            "en": "Galachipa Upazila"
           }
         ]
       },
       {
-        "id": 86,
         "bn": "পিরোজপুর জেলা",
-        "en": "পিরোজপুর জেলা",
+        "en": "Pirojpur District",
         "upazilas": [
           {
             "bn": "ভান্ডারিয়া উপজেলা",
-            "en": "ভান্ডারিয়া উপজেলা"
+            "en": "Bhandaria Upazila"
           },
           {
             "bn": "কাউখালী উপজেলা",
-            "en": "কাউখালী উপজেলা"
+            "en": "Kawkhali Upazila"
           },
           {
             "bn": "মঠবাড়ীয়া উপজেলা",
-            "en": "মঠবাড়ীয়া উপজেলা"
+            "en": "Mathbaria Upazila"
           },
           {
             "bn": "নাজিরপুর উপজেলা",
-            "en": "নাজিরপুর উপজেলা"
+            "en": "Nazirpur Upazila"
           },
           {
             "bn": "পিরোজপুর সদর উপজেলা",
-            "en": "পিরোজপুর সদর উপজেলা"
+            "en": "Pirojpur Sadar Upazila"
           },
           {
             "bn": "নেছারাবাদ উপজেলা",
-            "en": "নেছারাবাদ উপজেলা"
+            "en": "Nesarabad Upazila"
           },
           {
             "bn": "জিয়ানগর উপজেলা",
-            "en": "জিয়ানগর উপজেলা"
+            "en": "Zianagar Upazila"
           }
         ]
       }
     ]
   }
-];
+]
+;

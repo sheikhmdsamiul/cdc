@@ -1,16 +1,16 @@
-[16:06:08.722] [32mINFO[39m (271267): [36mServer listening[39m
+[16:58:40.022] [32mINFO[39m (288419): [36mServer listening[39m
     [35mport[39m: 8080
-[16:06:26.390] [32mINFO[39m (271267): [36mrequest completed[39m
+[16:58:44.241] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 1,
       "method": "GET",
-      "url": "/api/case-types"
+      "url": "/api/family-types"
     }
     [35mres[39m: {
       "statusCode": 200
     }
-    [35mresponseTime[39m: 67
-[16:07:20.972] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 51
+[16:59:20.496] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 2,
       "method": "GET",
@@ -19,8 +19,8 @@
     [35mres[39m: {
       "statusCode": 401
     }
-    [35mresponseTime[39m: 10
-[16:07:26.454] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 4
+[16:59:24.447] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 3,
       "method": "POST",
@@ -29,8 +29,16 @@
     [35mres[39m: {
       "statusCode": 200
     }
-    [35mresponseTime[39m: 1282
-[16:07:26.671] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 924
+[16:59:24.665] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 5,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "1000"
+[16:59:24.679] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 4,
       "method": "GET",
@@ -39,26 +47,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 15
-[16:07:26.673] [32mINFO[39m (271267): [36mListing children[39m
-    [35mreq[39m: {
-      "id": 5,
-      "method": "GET",
-      "url": "/api/children"
-    }
-    [35mpage[39m: "1"
-    [35mlimit[39m: "1000"
-[16:07:26.748] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 8,
-      "method": "GET",
-      "url": "/api/admissions"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 44
-[16:07:26.806] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 23
+[16:59:24.712] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 6,
       "method": "GET",
@@ -67,18 +57,18 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 127
-[16:07:26.807] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 35
+[16:59:24.761] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 5,
+      "id": 8,
       "method": "GET",
-      "url": "/api/children"
+      "url": "/api/admissions"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 138
-[16:07:26.833] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 51
+[16:59:24.805] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 11,
       "method": "GET",
@@ -87,8 +77,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 71
-[16:07:26.834] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 46
+[16:59:24.838] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 7,
       "method": "GET",
@@ -97,18 +87,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 137
-[16:07:26.869] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 9,
-      "method": "GET",
-      "url": "/api/cases"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 156
-[16:07:26.870] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 150
+[16:59:24.867] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 13,
       "method": "GET",
@@ -117,8 +97,18 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 26
-[16:07:26.889] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 51
+[16:59:24.889] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 9,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 165
+[16:59:24.890] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 10,
       "method": "GET",
@@ -127,8 +117,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 159
-[16:07:26.890] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 149
+[16:59:24.958] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 12,
       "method": "GET",
@@ -137,48 +127,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 53
-[16:07:26.952] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 15,
-      "method": "GET",
-      "url": "/api/dashboard/recent-activity"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 64
-[16:07:26.952] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 16,
-      "method": "GET",
-      "url": "/api/dashboard/children-by-status"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 50
-[16:07:26.961] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 18,
-      "method": "GET",
-      "url": "/api/court-cases"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 22
-[16:07:26.988] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 14,
-      "method": "GET",
-      "url": "/api/dashboard/stats"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 121
-[16:07:26.996] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 177
+[16:59:24.971] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 17,
       "method": "GET",
@@ -187,8 +137,48 @@
     [35mres[39m: {
       "statusCode": 304
     }
+    [35mresponseTime[39m: 14
+[16:59:24.972] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 15,
+      "method": "GET",
+      "url": "/api/dashboard/recent-activity"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
     [35mresponseTime[39m: 75
-[16:07:27.009] [32mINFO[39m (271267): [36mrequest completed[39m
+[16:59:24.980] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 16,
+      "method": "GET",
+      "url": "/api/dashboard/children-by-status"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 36
+[16:59:24.997] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 18,
+      "method": "GET",
+      "url": "/api/court-cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 15
+[16:59:25.024] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 5,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 362
+[16:59:25.035] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 19,
       "method": "GET",
@@ -197,8 +187,18 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 5
-[16:07:27.020] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 13
+[16:59:25.043] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 14,
+      "method": "GET",
+      "url": "/api/dashboard/stats"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 170
+[16:59:25.052] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 20,
       "method": "GET",
@@ -207,8 +207,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 3
-[16:07:27.032] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 7
+[16:59:25.066] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 21,
       "method": "GET",
@@ -217,8 +217,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 3
-[16:07:27.217] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 4
+[16:59:25.376] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 22,
       "method": "GET",
@@ -227,8 +227,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 93
-[16:07:27.252] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 116
+[16:59:25.422] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 23,
       "method": "GET",
@@ -237,8 +237,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 34
-[16:07:27.653] [32mINFO[39m (271267): [36mListing children[39m
+    [35mresponseTime[39m: 73
+[16:59:25.996] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
       "id": 24,
       "method": "GET",
@@ -246,7 +246,7 @@
     }
     [35mpage[39m: "1"
     [35mlimit[39m: "1000"
-[16:07:27.672] [32mINFO[39m (271267): [36mrequest completed[39m
+[16:59:26.017] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 24,
       "method": "GET",
@@ -255,8 +255,8 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 20
-[16:07:27.681] [32mINFO[39m (271267): [36mListing children[39m
+    [35mresponseTime[39m: 23
+[16:59:26.026] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
       "id": 25,
       "method": "GET",
@@ -264,7 +264,7 @@
     }
     [35mpage[39m: "1"
     [35mlimit[39m: "1000"
-[16:07:27.697] [32mINFO[39m (271267): [36mrequest completed[39m
+[16:59:26.042] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 25,
       "method": "GET",
@@ -274,7 +274,7 @@
       "statusCode": 304
     }
     [35mresponseTime[39m: 17
-[16:07:27.704] [32mINFO[39m (271267): [36mListing children[39m
+[16:59:26.049] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
       "id": 26,
       "method": "GET",
@@ -282,7 +282,7 @@
     }
     [35mpage[39m: "1"
     [35mlimit[39m: "1000"
-[16:07:27.719] [32mINFO[39m (271267): [36mrequest completed[39m
+[16:59:26.066] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 26,
       "method": "GET",
@@ -291,436 +291,445 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 15
-[16:07:30.439] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 17
+[16:59:28.364] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 27,
       "method": "GET",
-      "url": "/api/case-types"
+      "url": "/api/family-types"
     }
     [35mres[39m: {
-      "statusCode": 304
+      "statusCode": 200
     }
     [35mresponseTime[39m: 5
-[16:07:33.478] [32mINFO[39m (271267): [36mrequest completed[39m
+[17:00:42.702] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 28,
-      "method": "GET",
-      "url": "/api/admissions"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 14
-[16:07:35.266] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 29,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 4
-[16:07:35.314] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 30,
-      "method": "GET",
-      "url": "/api/admin-units/tree"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 23
-[16:07:35.314] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 31,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 20
-[16:07:53.331] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 32,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 25
-[16:07:55.700] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 33,
-      "method": "DELETE",
-      "url": "/api/case-types/16"
-    }
-    [35mres[39m: {
-      "statusCode": 200
-    }
-    [35mresponseTime[39m: 12
-[16:07:55.772] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 34,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 200
-    }
-    [35mresponseTime[39m: 6
-[16:07:59.519] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 35,
-      "method": "GET",
-      "url": "/api/admissions"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 16
-[16:08:02.560] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 36,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 4
-[16:08:02.605] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 37,
-      "method": "GET",
-      "url": "/api/admin-units/tree"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 20
-[16:08:02.630] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 38,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 42
-[16:08:10.005] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 39,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 5
-[16:08:19.443] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 40,
-      "method": "POST",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 201
-    }
-    [35mresponseTime[39m: 10
-[16:08:19.492] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 41,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 200
-    }
-    [35mresponseTime[39m: 3
-[16:08:22.900] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 42,
-      "method": "GET",
-      "url": "/api/admissions"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 14
-[16:08:25.645] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 43,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 6
-[16:08:25.702] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 44,
-      "method": "GET",
-      "url": "/api/admin-units/tree"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 30
-[16:08:25.742] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 45,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 68
-[16:08:35.414] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 46,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 5
-[16:08:38.630] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 47,
-      "method": "DELETE",
-      "url": "/api/case-types/17"
-    }
-    [35mres[39m: {
-      "statusCode": 200
-    }
-    [35mresponseTime[39m: 8
-[16:08:38.698] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 48,
-      "method": "GET",
-      "url": "/api/case-types"
-    }
-    [35mres[39m: {
-      "statusCode": 200
-    }
-    [35mresponseTime[39m: 7
-[16:12:06.925] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 49,
       "method": "GET",
       "url": "/api/auth/me"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 25
-[16:12:07.106] [32mINFO[39m (271267): [36mListing children[39m
+    [35mresponseTime[39m: 34
+[17:00:42.851] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 51,
+      "id": 29,
       "method": "GET",
-      "url": "/api/children"
+      "url": "/api/family-types"
     }
-    [35mpage[39m: "1"
-    [35mlimit[39m: "1000"
-[16:12:07.110] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 5
+[17:01:14.942] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 50,
+      "id": 30,
+      "method": "GET",
+      "url": "/api/case-types"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 29
+[17:01:19.395] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 31,
+      "method": "GET",
+      "url": "/api/users"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 14
+[17:01:19.425] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 32,
+      "method": "GET",
+      "url": "/api/roles"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 41
+[17:01:19.431] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 33,
       "method": "GET",
       "url": "/api/centers"
     }
     [35mres[39m: {
       "statusCode": 304
     }
+    [35mresponseTime[39m: 46
+[17:05:06.275] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 35,
+      "method": "GET",
+      "url": "/api/roles"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 36
+[17:05:06.277] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 36,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 34
+[17:05:06.285] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 34,
+      "method": "GET",
+      "url": "/api/users"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 49
+[17:05:15.847] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 37,
+      "method": "GET",
+      "url": "/api/users"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 8
+[17:05:15.855] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 38,
+      "method": "GET",
+      "url": "/api/roles"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
     [35mresponseTime[39m: 7
-[16:12:07.126] [32mINFO[39m (271267): [36mrequest completed[39m
+[17:05:15.858] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 52,
+      "id": 39,
       "method": "GET",
-      "url": "/api/court-cases"
+      "url": "/api/centers"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 15
-[16:12:07.153] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 8
+[17:05:23.271] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 54,
-      "method": "GET",
-      "url": "/api/admissions"
+      "id": 40,
+      "method": "POST",
+      "url": "/api/auth/logout"
     }
     [35mres[39m: {
-      "statusCode": 304
+      "statusCode": 200
     }
-    [35mresponseTime[39m: 28
-[16:12:07.189] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 3
+[17:05:38.511] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 57,
+      "id": 41,
+      "method": "POST",
+      "url": "/api/auth/login"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1201
+[17:05:38.672] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 42,
       "method": "GET",
       "url": "/api/children/age-alerts"
     }
     [35mres[39m: {
-      "statusCode": 304
+      "statusCode": 200
     }
-    [35mresponseTime[39m: 37
-[16:12:07.217] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 16
+[17:05:38.766] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 53,
+      "id": 44,
       "method": "GET",
-      "url": "/api/follow-ups"
+      "url": "/api/cases"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 100
-[16:12:07.218] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 101
+[17:05:38.812] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 59,
+      "id": 45,
+      "method": "GET",
+      "url": "/api/dashboard/stats"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 141
+[17:05:38.823] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 43,
+      "method": "GET",
+      "url": "/api/court-cases/upcoming"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 164
+[17:05:38.823] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 47,
+      "method": "GET",
+      "url": "/api/dashboard/children-by-status"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 136
+[17:05:38.832] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 46,
+      "method": "GET",
+      "url": "/api/dashboard/recent-activity"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 152
+[17:05:40.520] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 48,
       "method": "GET",
       "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 9
+[17:05:41.620] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 49,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:41.633] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 50,
+      "method": "GET",
+      "url": "/api/family-socioeconomic-records"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 11
+[17:05:41.645] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 49,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 26
+[17:05:43.484] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 51,
+      "method": "GET",
+      "url": "/api/guardians"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 11
+[17:05:43.485] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 53,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "100"
+[17:05:43.494] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 52,
+      "method": "GET",
+      "url": "/api/guardian-visits"
     }
     [35mres[39m: {
       "statusCode": 304
     }
     [35mresponseTime[39m: 17
-[16:12:07.230] [32mINFO[39m (271267): [36mrequest completed[39m
+[17:05:43.495] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
-      "id": 55,
+      "id": 54,
       "method": "GET",
-      "url": "/api/cases"
+      "url": "/api/children"
+    }
+    [35msearch[39m: ""
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:43.520] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 53,
+      "method": "GET",
+      "url": "/api/children"
     }
     [35mres[39m: {
-      "statusCode": 304
+      "statusCode": 200
     }
-    [35mresponseTime[39m: 99
-[16:12:07.247] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 37
+[17:05:43.527] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 54,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 34
+[17:05:44.708] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
       "id": 56,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:44.714] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 55,
       "method": "GET",
       "url": "/api/health-assessments"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 107
-[16:12:07.299] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 11
+[17:05:44.734] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 62,
-      "method": "GET",
-      "url": "/api/dashboard/children-by-status"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 45
-[16:12:07.304] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 63,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 17
-[16:12:07.320] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 61,
-      "method": "GET",
-      "url": "/api/dashboard/recent-activity"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 74
-[16:12:07.320] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 58,
-      "method": "GET",
-      "url": "/api/court-cases/upcoming"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 151
-[16:12:07.321] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 51,
+      "id": 56,
       "method": "GET",
       "url": "/api/children"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 215
-[16:12:07.333] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 27
+[17:05:46.216] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
-      "id": 65,
+      "id": 58,
       "method": "GET",
-      "url": "/api/centers"
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:46.222] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 57,
+      "method": "GET",
+      "url": "/api/counseling-sessions"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 6
-[16:12:07.339] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 11
+[17:05:46.236] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 58,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 21
+[17:05:47.992] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 60,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:48.012] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 59,
+      "method": "GET",
+      "url": "/api/education-plans"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 25
+[17:05:48.029] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 60,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 38
+[17:05:48.654] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 61,
+      "method": "GET",
+      "url": "/api/risk-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 14
+[17:05:48.656] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 62,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:48.675] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 62,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 20
+[17:05:49.767] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
       "id": 64,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:49.776] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 63,
       "method": "GET",
       "url": "/api/court-cases"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 15
-[16:12:07.351] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 12
+[17:05:49.793] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 66,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 7
-[16:12:07.357] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 60,
-      "method": "GET",
-      "url": "/api/dashboard/stats"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 119
-[16:12:07.366] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 67,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 5
-[16:12:07.495] [32mINFO[39m (271267): [36mListing children[39m
-    [35mreq[39m: {
-      "id": 68,
-      "method": "GET",
-      "url": "/api/children"
-    }
-    [35mpage[39m: "1"
-    [35mlimit[39m: "1000"
-[16:12:07.520] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 68,
+      "id": 64,
       "method": "GET",
       "url": "/api/children"
     }
@@ -728,15 +737,63 @@
       "statusCode": 304
     }
     [35mresponseTime[39m: 26
-[16:12:07.528] [32mINFO[39m (271267): [36mListing children[39m
+[17:05:51.290] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 65,
+      "method": "GET",
+      "url": "/api/police-acquisitions"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 12
+[17:05:52.973] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 67,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:05:52.977] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 66,
+      "method": "GET",
+      "url": "/api/follow-ups"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 8
+[17:05:52.990] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 67,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 18
+[17:05:54.070] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
       "id": 69,
       "method": "GET",
       "url": "/api/children"
     }
     [35mpage[39m: "1"
-    [35mlimit[39m: "1000"
-[16:12:07.551] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mlimit[39m: "20"
+[17:05:54.073] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 68,
+      "method": "GET",
+      "url": "/api/release-records"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 8
+[17:05:54.088] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 69,
       "method": "GET",
@@ -745,26 +802,28 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 24
-[16:12:07.561] [32mINFO[39m (271267): [36mListing children[39m
+    [35mresponseTime[39m: 19
+[17:05:54.672] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 70,
       "method": "GET",
-      "url": "/api/children"
+      "url": "/api/measurement-surveys"
     }
-    [35mpage[39m: "1"
-    [35mlimit[39m: "1000"
-[16:12:07.598] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 12
+[17:05:57.487] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 70,
+      "id": 72,
       "method": "GET",
-      "url": "/api/children"
+      "url": "/api/centers"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 37
-[16:12:07.629] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 19
+[17:05:57.566] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 71,
       "method": "GET",
@@ -773,228 +832,584 @@
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 65
-[16:12:07.662] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 72,
-      "method": "GET",
-      "url": "/api/reports/monthly-report"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 31
-[16:12:12.070] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 73,
-      "method": "POST",
-      "url": "/api/auth/logout"
-    }
-    [35mres[39m: {
-      "statusCode": 200
-    }
-    [35mresponseTime[39m: 3
-[16:12:17.913] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 74,
-      "method": "POST",
-      "url": "/api/auth/login"
-    }
-    [35mres[39m: {
-      "statusCode": 200
-    }
-    [35mresponseTime[39m: 1130
-[16:12:18.147] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 101
+[17:06:05.249] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 75,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 4
-[16:12:18.246] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 76,
-      "method": "GET",
-      "url": "/api/reports/monthly-report"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 99
-[16:12:18.268] [32mINFO[39m (271267): [36mListing children[39m
-    [35mreq[39m: {
-      "id": 77,
-      "method": "GET",
-      "url": "/api/children"
-    }
-    [35mpage[39m: "1"
-    [35mlimit[39m: "1000"
-[16:12:18.283] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 78,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 9
-[16:12:18.301] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 77,
-      "method": "GET",
-      "url": "/api/children"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 35
-[16:12:18.312] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 79,
-      "method": "GET",
-      "url": "/api/court-cases"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 28
-[16:12:18.312] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 80,
-      "method": "GET",
-      "url": "/api/follow-ups"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 23
-[16:12:18.334] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 81,
-      "method": "GET",
-      "url": "/api/admissions"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 34
-[16:12:18.334] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 82,
       "method": "GET",
       "url": "/api/cases"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 23
-[16:12:18.342] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 11
+[17:06:05.255] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 83,
-      "method": "GET",
-      "url": "/api/health-assessments"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 23
-[16:12:18.359] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 84,
+      "id": 73,
       "method": "GET",
       "url": "/api/children/age-alerts"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 26
-[16:12:18.382] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 23
+[17:06:05.255] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 85,
+      "id": 74,
       "method": "GET",
       "url": "/api/court-cases/upcoming"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 36
-[16:12:18.383] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 20
+[17:06:05.323] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 86,
-      "method": "GET",
-      "url": "/api/cases"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 25
-[16:12:18.429] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 87,
+      "id": 76,
       "method": "GET",
       "url": "/api/dashboard/stats"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 62
-[16:12:18.441] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 40
+[17:06:05.330] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 89,
+      "id": 78,
       "method": "GET",
       "url": "/api/dashboard/children-by-status"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 48
-[16:12:18.441] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 38
+[17:06:05.338] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 90,
-      "method": "GET",
-      "url": "/api/centers"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 30
-[16:12:18.448] [32mINFO[39m (271267): [36mrequest completed[39m
-    [35mreq[39m: {
-      "id": 88,
+      "id": 77,
       "method": "GET",
       "url": "/api/dashboard/recent-activity"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 67
-[16:12:18.448] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 52
+[17:06:07.646] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 79,
+      "method": "GET",
+      "url": "/api/admissions"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 15
+[17:06:18.092] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 80,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 30
+[17:06:19.319] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 81,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:06:19.343] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 82,
+      "method": "GET",
+      "url": "/api/family-socioeconomic-records"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 10
+[17:06:19.368] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 81,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 50
+[17:06:45.804] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 85,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "100"
+[17:06:45.807] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 86,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35msearch[39m: ""
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:06:45.829] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 83,
+      "method": "GET",
+      "url": "/api/guardians"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 34
+[17:06:45.843] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 84,
+      "method": "GET",
+      "url": "/api/guardian-visits"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 44
+[17:06:45.863] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 85,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 60
+[17:06:45.872] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 86,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 66
+[17:07:05.465] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 87,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:05.505] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 88,
+      "method": "GET",
+      "url": "/api/family-socioeconomic-records"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 38
+[17:07:05.536] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 87,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 71
+[17:07:08.917] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 89,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 7
+[17:07:10.906] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 90,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:10.923] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
       "id": 91,
+      "method": "GET",
+      "url": "/api/family-socioeconomic-records"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 14
+[17:07:10.930] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 90,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 25
+[17:07:13.302] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 92,
+      "method": "GET",
+      "url": "/api/guardians"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 7
+[17:07:13.303] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 94,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "100"
+[17:07:13.309] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 93,
+      "method": "GET",
+      "url": "/api/guardian-visits"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 12
+[17:07:13.309] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 95,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35msearch[39m: ""
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:13.331] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 94,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 29
+[17:07:13.373] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 95,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 65
+[17:07:14.120] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 97,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:14.128] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 96,
+      "method": "GET",
+      "url": "/api/health-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 12
+[17:07:14.143] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 97,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 22
+[17:07:15.096] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 99,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:15.104] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 98,
+      "method": "GET",
+      "url": "/api/counseling-sessions"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 11
+[17:07:15.110] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 99,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 15
+[17:07:16.023] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 101,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:16.045] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 100,
+      "method": "GET",
+      "url": "/api/education-plans"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 26
+[17:07:16.052] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 101,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 30
+[17:07:17.335] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 103,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:17.343] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 102,
+      "method": "GET",
+      "url": "/api/risk-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 12
+[17:07:17.353] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 103,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 18
+[17:07:23.811] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 105,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:23.817] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 104,
       "method": "GET",
       "url": "/api/court-cases"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 20
-[16:12:18.463] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 11
+[17:07:23.826] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 92,
+      "id": 105,
       "method": "GET",
-      "url": "/api/centers"
+      "url": "/api/children"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 4
-[16:12:18.477] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 16
+[17:07:25.876] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 93,
+      "id": 106,
+      "method": "GET",
+      "url": "/api/police-acquisitions"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 8
+[17:07:28.302] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 108,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:28.308] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 107,
+      "method": "GET",
+      "url": "/api/follow-ups"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 13
+[17:07:28.323] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 108,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 22
+[17:07:29.407] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 110,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:07:29.411] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 109,
+      "method": "GET",
+      "url": "/api/release-records"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 7
+[17:07:29.425] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 110,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 18
+[17:07:30.506] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 111,
+      "method": "GET",
+      "url": "/api/measurement-surveys"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 14
+[17:07:33.661] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 112,
+      "method": "GET",
+      "url": "/api/reports/monthly-report"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 87
+[17:07:42.666] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 113,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 13
+[17:09:53.655] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 114,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 51
+[17:11:13.266] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 115,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 43
+[17:14:11.280] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 116,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 50
+[17:14:14.738] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 117,
+      "method": "POST",
+      "url": "/api/auth/logout"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[17:14:20.031] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 118,
+      "method": "POST",
+      "url": "/api/auth/login"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1028
+[17:14:20.208] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 119,
       "method": "GET",
       "url": "/api/centers"
     }
@@ -1002,45 +1417,195 @@
       "statusCode": 304
     }
     [35mresponseTime[39m: 5
-[16:12:18.569] [32mINFO[39m (271267): [36mrequest completed[39m
+[17:14:20.214] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
-      "id": 94,
-      "method": "GET",
-      "url": "/api/reports/monthly-report"
-    }
-    [35mres[39m: {
-      "statusCode": 304
-    }
-    [35mresponseTime[39m: 25
-[16:12:18.860] [32mINFO[39m (271267): [36mListing children[39m
-    [35mreq[39m: {
-      "id": 95,
+      "id": 120,
       "method": "GET",
       "url": "/api/children"
     }
     [35mpage[39m: "1"
     [35mlimit[39m: "1000"
-[16:12:18.889] [32mINFO[39m (271267): [36mrequest completed[39m
+[17:14:20.257] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 95,
+      "id": 123,
+      "method": "GET",
+      "url": "/api/admissions"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 26
+[17:14:20.292] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 121,
+      "method": "GET",
+      "url": "/api/court-cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 76
+[17:14:20.320] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 126,
+      "method": "GET",
+      "url": "/api/children/age-alerts"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 51
+[17:14:20.320] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 120,
       "method": "GET",
       "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 107
+[17:14:20.349] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 122,
+      "method": "GET",
+      "url": "/api/follow-ups"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 122
+[17:14:20.350] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 127,
+      "method": "GET",
+      "url": "/api/court-cases/upcoming"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 26
+[17:14:20.365] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 128,
+      "method": "GET",
+      "url": "/api/cases"
     }
     [35mres[39m: {
       "statusCode": 304
     }
     [35mresponseTime[39m: 30
-[16:12:18.897] [32mINFO[39m (271267): [36mListing children[39m
+[17:14:20.366] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 96,
+      "id": 124,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 130
+[17:14:20.378] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 125,
+      "method": "GET",
+      "url": "/api/health-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 137
+[17:14:20.414] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 129,
+      "method": "GET",
+      "url": "/api/dashboard/stats"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 66
+[17:14:20.448] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 131,
+      "method": "GET",
+      "url": "/api/dashboard/children-by-status"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 35
+[17:14:20.449] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 132,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 28
+[17:14:20.457] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 130,
+      "method": "GET",
+      "url": "/api/dashboard/recent-activity"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 62
+[17:14:20.457] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 133,
+      "method": "GET",
+      "url": "/api/court-cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 25
+[17:14:20.478] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 134,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 9
+[17:14:20.503] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 135,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 5
+[17:14:20.524] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 136,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 4
+[17:14:20.574] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 137,
       "method": "GET",
       "url": "/api/children"
     }
     [35mpage[39m: "1"
     [35mlimit[39m: "1000"
-[16:12:18.917] [32mINFO[39m (271267): [36mrequest completed[39m
+[17:14:20.594] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 96,
+      "id": 137,
       "method": "GET",
       "url": "/api/children"
     }
@@ -1048,29 +1613,491 @@
       "statusCode": 304
     }
     [35mresponseTime[39m: 21
-[16:12:18.926] [32mINFO[39m (271267): [36mListing children[39m
+[17:14:20.696] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 97,
+      "id": 138,
+      "method": "GET",
+      "url": "/api/reports/monthly-report"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 67
+[17:14:20.728] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 139,
+      "method": "GET",
+      "url": "/api/reports/monthly-report"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 31
+[17:14:21.254] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 140,
       "method": "GET",
       "url": "/api/children"
     }
     [35mpage[39m: "1"
     [35mlimit[39m: "1000"
-[16:12:18.939] [32mINFO[39m (271267): [36mrequest completed[39m
+[17:14:21.270] [32mINFO[39m (288419): [36mrequest completed[39m
     [35mreq[39m: {
-      "id": 97,
+      "id": 140,
       "method": "GET",
       "url": "/api/children"
     }
     [35mres[39m: {
       "statusCode": 304
     }
-    [35mresponseTime[39m: 14
-[16:12:21.355] [32mINFO[39m (271267): [36mrequest completed[39m
+    [35mresponseTime[39m: 16
+[17:14:21.278] [32mINFO[39m (288419): [36mListing children[39m
     [35mreq[39m: {
-      "id": 98,
+      "id": 141,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "1000"
+[17:14:21.298] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 141,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 21
+[17:14:26.599] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 142,
+      "method": "GET",
+      "url": "/api/users"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 9
+[17:14:26.603] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 143,
+      "method": "GET",
+      "url": "/api/roles"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 8
+[17:14:26.607] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 144,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 5
+[17:15:11.771] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 145,
+      "method": "GET",
+      "url": "/api/users"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 43
+[17:15:11.800] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 147,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 40
+[17:15:11.803] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 146,
+      "method": "GET",
+      "url": "/api/roles"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 46
+[17:15:15.518] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 148,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 6
+[17:15:15.543] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 149,
+      "method": "GET",
+      "url": "/api/admin-units"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 29
+[17:15:17.106] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 150,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 4
+[17:15:17.255] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 151,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 4
+[17:15:17.548] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 152,
+      "method": "GET",
+      "url": "/api/reports/monthly-report"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 67
+[17:16:05.370] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 154,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:16:05.416] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 153,
+      "method": "GET",
+      "url": "/api/risk-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 52
+[17:16:05.465] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 154,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 96
+[17:16:06.997] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 155,
+      "method": "GET",
+      "url": "/api/risk-assessments/128"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 9
+[17:26:19.492] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 156,
+      "method": "GET",
+      "url": "/api/risk-assessments/128"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 33
+[17:26:22.327] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 157,
+      "method": "GET",
+      "url": "/api/centers"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 4
+[17:26:22.866] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 158,
+      "method": "GET",
+      "url": "/api/reports/monthly-report"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 118
+[17:26:24.839] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 159,
+      "method": "GET",
+      "url": "/api/reports/monthly-report"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 30
+[17:26:56.258] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 161,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:26:56.296] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 160,
+      "method": "GET",
+      "url": "/api/risk-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 43
+[17:26:56.331] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 161,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 74
+[17:27:00.731] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 162,
+      "method": "GET",
+      "url": "/api/risk-assessments/111"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 6
+[17:28:17.561] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 163,
+      "method": "GET",
+      "url": "/api/reports/monthly-report"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 109
+[17:29:07.647] [32mINFO[39m (288419): [36mListing children[39m
+    [35mreq[39m: {
+      "id": 165,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mpage[39m: "1"
+    [35mlimit[39m: "20"
+[17:29:07.676] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 164,
+      "method": "GET",
+      "url": "/api/risk-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 33
+[17:29:07.695] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 165,
+      "method": "GET",
+      "url": "/api/children"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 49
+[17:29:09.246] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 166,
+      "method": "GET",
+      "url": "/api/risk-assessments/128"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 5
+[17:29:15.745] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 167,
+      "method": "GET",
+      "url": "/api/children/112"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 11
+[17:29:15.776] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 168,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 25
+[17:29:15.776] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 169,
+      "method": "GET",
+      "url": "/api/health-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 20
+[17:29:15.797] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 173,
+      "method": "GET",
+      "url": "/api/education-plans"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 19
+[17:29:15.811] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 174,
+      "method": "GET",
+      "url": "/api/family-socioeconomic-records"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 9
+[17:29:15.824] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 170,
+      "method": "GET",
+      "url": "/api/counseling-sessions"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 67
+[17:29:15.829] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 171,
+      "method": "GET",
+      "url": "/api/risk-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 71
+[17:29:15.840] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 172,
       "method": "GET",
       "url": "/api/admissions"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 81
+[17:31:38.913] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 176,
+      "method": "GET",
+      "url": "/api/cases"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 59
+[17:31:38.922] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 175,
+      "method": "GET",
+      "url": "/api/children/112"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 79
+[17:31:38.923] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 177,
+      "method": "GET",
+      "url": "/api/health-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 64
+[17:31:38.928] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 178,
+      "method": "GET",
+      "url": "/api/counseling-sessions"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 69
+[17:31:38.940] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 179,
+      "method": "GET",
+      "url": "/api/risk-assessments"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 79
+[17:31:38.953] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 180,
+      "method": "GET",
+      "url": "/api/admissions"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 88
+[17:31:38.953] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 181,
+      "method": "GET",
+      "url": "/api/education-plans"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 21
+[17:31:38.964] [32mINFO[39m (288419): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 182,
+      "method": "GET",
+      "url": "/api/family-socioeconomic-records"
     }
     [35mres[39m: {
       "statusCode": 304

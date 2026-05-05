@@ -2,9 +2,11 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { releaseRecordsTable, childrenTable } from "@workspace/db";
 import { and, eq, desc } from "drizzle-orm";
-import { checkManageAccess, getCurrentUser } from "../middlewares/auth";
+import { checkManageAccess, getCurrentUser, moduleGuard } from "../middlewares/auth";
 
 const router: IRouter = Router();
+
+router.use(moduleGuard("release-records"));
 
 const WORKFLOW = {
   DRAFT: "Draft",
@@ -40,11 +42,25 @@ const SELECT_FIELDS = {
 router.get("/", async (req, res) => {
   try {
     const { childId, status } = req.query as Record<string, string>;
-    let rows = await db.select(SELECT_FIELDS).from(releaseRecordsTable)
-      .leftJoin(childrenTable, eq(releaseRecordsTable.childId, childrenTable.id))
-      .orderBy(desc(releaseRecordsTable.createdAt));
-    if (childId) rows = rows.filter(r => r.childId === parseInt(childId));
-    if (status) rows = rows.filter(r => r.approvalStatus === status);
+
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    const userCenterId = user.centerId;
+
+    if (!isGlobal && !userCenterId) return res.json([]);
+
+    let query = db.select(SELECT_FIELDS).from(releaseRecordsTable)
+      .leftJoin(childrenTable, eq(releaseRecordsTable.childId, childrenTable.id));
+
+    if (!isGlobal) {
+      query = query.where(eq(childrenTable.centerId, userCenterId!)) as any;
+    }
+
+    let rows = await query.orderBy(desc(releaseRecordsTable.createdAt));
+    if (childId) rows = rows.filter((r: any) => r.childId === parseInt(childId));
+    if (status) rows = rows.filter((r: any) => r.approvalStatus === status);
     res.json(rows);
   } catch (err) {
     req.log.error({ err }, "Failed to list release records");

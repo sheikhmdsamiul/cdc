@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,13 +110,18 @@ function UserForm({ initial, roles, centers, onSave, onClose, isBn }: {
 export default function UsersPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
 
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canView   = usePermission("users", "view");
+  const canCreate = usePermission("users", "create");
+  const canEdit   = usePermission("users", "edit");
+  const canDelete = usePermission("users", "delete");
+
+  const canManage = canCreate || canEdit || canDelete;
 
   const { data: usersData } = useQuery({ queryKey: ["users"], queryFn: () => fetchJson("/api/users") });
   const { data: rolesData } = useQuery({ queryKey: ["roles"], queryFn: () => fetchJson("/api/roles") });

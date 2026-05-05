@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { moduleGuard } from "../middlewares/auth";
 import healthRouter from "./health";
 import dashboardRouter from "./dashboard";
 import childrenRouter from "./children";
@@ -28,37 +29,48 @@ import rolesRouter from "./roles";
 import workflowRouter from "./workflow";
 import reportsRouter from "./reports";
 import caseTypesRouter from "./case-types";
+import familyTypesRouter from "./family-types";
+import classesRouter from "./classes";
+import trainingsRouter from "./trainings";
+import permissionsRouter from "./permissions";
 
 const router: IRouter = Router();
 
+// ─── Public / infrastructure ─────────────────────────────────────────────────
 router.use(healthRouter);
 router.use("/auth", authRouter);
-router.use("/users", usersRouter);
+router.use("/roles", rolesRouter);
 router.use("/centers", centersRouter);
 router.use("/admin-units", adminUnitsRouter);
-router.use("/roles", rolesRouter);
-router.use("/workflow", workflowRouter);
-router.use("/dashboard", dashboardRouter);
-router.use("/children", childrenRouter);
-router.use("/cases", casesRouter);
-router.use("/health-assessments", healthAssessmentsRouter);
-router.use("/counseling-sessions", counselingSessionsRouter);
-router.use("/guardians", guardiansRouter);
-router.use("/guardian-visits", guardianVisitsRouter);
-router.use("/court-cases", courtCasesRouter);
-router.use("/police-acquisitions", policeAcquisitionsRouter);
-router.use("/education-plans", educationPlansRouter);
-router.use("/release-records", releaseRecordsRouter);
-router.use("/follow-ups", followUpsRouter);
-router.use("/admissions", admissionsRouter);
-router.use("/family-socioeconomic-records", familySocioeconomicRecordsRouter);
-router.use("/risk-assessments", riskAssessmentsRouter);
-router.use("/measurement-surveys", measurementSurveysRouter);
-router.use("/case-risk-assessments", caseRiskAssessmentsRouter);
-router.use("/case-detail-assessments", caseDetailAssessmentsRouter);
-router.use("/case-intervention-plans", caseInterventionPlansRouter);
-router.use("/case-agreements", caseAgreementsRouter);
-router.use("/reports", reportsRouter);
+router.use("/users", usersRouter);
 router.use("/case-types", caseTypesRouter);
+router.use("/family-types", familyTypesRouter);
+router.use("/classes", classesRouter);
+router.use("/trainings", trainingsRouter);
+router.use("/permissions", permissionsRouter);
+router.use("/workflow", workflowRouter);
+
+// ─── Module routes — protected by DB-driven permission guard ──────────────────
+router.use("/dashboard",                  moduleGuard("dashboard"),           dashboardRouter);
+router.use("/admissions",                 moduleGuard("admissions"),          admissionsRouter);
+router.use("/children",                   moduleGuard("children"),            childrenRouter);
+router.use("/cases",                      moduleGuard("cases"),               casesRouter);
+router.use("/family-socioeconomic-records", moduleGuard("family-socioeconomic"), familySocioeconomicRecordsRouter);
+router.use("/health-assessments",         moduleGuard("health"),              healthAssessmentsRouter);
+router.use("/counseling-sessions",        moduleGuard("counseling"),          counselingSessionsRouter);
+router.use("/education-plans",            moduleGuard("education-skills"),    educationPlansRouter);
+router.use("/guardians",                  moduleGuard("guardians"),           guardiansRouter);
+router.use("/guardian-visits",            moduleGuard("guardians"),           guardianVisitsRouter);
+router.use("/court-cases",               moduleGuard("court-cases"),         courtCasesRouter);
+router.use("/police-acquisitions",        moduleGuard("police-requisitions"), policeAcquisitionsRouter);
+router.use("/risk-assessments",           moduleGuard("risk-assessments"),    riskAssessmentsRouter);
+router.use("/release-records",            moduleGuard("release-records"),     releaseRecordsRouter);
+router.use("/follow-ups",                moduleGuard("follow-ups"),          followUpsRouter);
+router.use("/measurement-surveys",        moduleGuard("health"),              measurementSurveysRouter);
+router.use("/case-risk-assessments",      moduleGuard("cases"),               caseRiskAssessmentsRouter);
+router.use("/case-detail-assessments",    moduleGuard("cases"),               caseDetailAssessmentsRouter);
+router.use("/case-intervention-plans",    moduleGuard("cases"),               caseInterventionPlansRouter);
+router.use("/case-agreements",            moduleGuard("cases"),               caseAgreementsRouter);
+router.use("/reports",                    moduleGuard("reports"),             reportsRouter);
 
 export default router;

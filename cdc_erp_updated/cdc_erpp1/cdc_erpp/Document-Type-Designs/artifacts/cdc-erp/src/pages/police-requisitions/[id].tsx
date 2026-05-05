@@ -6,7 +6,7 @@ import { ArrowLeft, Printer, Shield, CheckCircle2, Send, XCircle, Loader2 } from
 import { Button } from "@/components/ui/button";
 import { DetailField, SectionCard } from "@/components/DetailField";
 import { Link } from "wouter";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 
 const STATUS_COLORS: Record<string, string> = {
   Draft:        "bg-gray-100 text-gray-700",
@@ -17,7 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function PrintableRequisitionLetter({ req, centerName }: { req: any; centerName?: string }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
 
   return (
@@ -108,8 +108,8 @@ function StatusActions({ req, onUpdate }: { req: any; onUpdate: () => void }) {
   const [ackRef, setAckRef] = useState("");
   const [officerName, setOfficerName] = useState(req.policeOfficerName || "");
 
-  const isSuperintendent = hasRole(user, "Superintendent", "Center Admin", "Super Admin");
-  const canChangeStatus = isSuperintendent;
+  const canEdit = usePermission("police-requisitions", "edit");
+  const canChangeStatus = canEdit;
 
   const updateStatus = async (status: string) => {
     setLoading(true);

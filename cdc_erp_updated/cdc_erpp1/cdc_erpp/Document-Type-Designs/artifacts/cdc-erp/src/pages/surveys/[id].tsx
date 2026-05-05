@@ -7,7 +7,7 @@ import { DetailField, SectionCard } from "@/components/DetailField";
 import { Link } from "wouter";
 
 function SurveyAnswer({ label, value }: { label: string; value: string | boolean | null | undefined }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   if (value === null || value === undefined || value === "") {
     return (
@@ -36,7 +36,7 @@ function SurveyAnswer({ label, value }: { label: string; value: string | boolean
 }
 
 function TradesDisplay({ trades, label }: { trades: any; label: string }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const list: string[] = Array.isArray(trades) ? trades : [];
   return (

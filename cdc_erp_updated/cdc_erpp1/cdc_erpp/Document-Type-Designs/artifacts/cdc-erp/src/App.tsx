@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AddressProvider } from "@/contexts/AddressContext";
+import { ShieldAlert } from "lucide-react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
@@ -50,30 +51,79 @@ import CentersPage from "@/pages/admin/centers";
 import OrgStructurePage from "@/pages/admin/org-structure";
 import AddressManagementPage from "@/pages/admin/address";
 import CaseTypesPage from "@/pages/admin/case-types";
+import FamilyTypesPage from "@/pages/admin/family-types";
+import EducationConfigPage from "@/pages/admin/education";
+import PermissionsPage from "@/pages/admin/permissions";
 
 const queryClient = new QueryClient();
 
+function ModuleRoute({ module, path, component: Component, ...rest }: any) {
+  const { user, permissions } = useAuth();
+  const canView = () => {
+    if (!user) return false;
+    if (user.roleName === "Super Admin" || user.roleName === "Head Office") return true;
+    return permissions[module]?.canView ?? false;
+  };
+
+  return (
+    <Route path={path} {...rest}>
+      {(params) => canView() ? <Component params={params} /> : (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-muted-foreground">
+          <ShieldAlert className="h-16 w-16 opacity-30" />
+          <p className="text-lg font-semibold">Access Denied to this Module</p>
+        </div>
+      )}
+    </Route>
+  );
+}
+
+function AdminRoute({ path, component: Component, ...rest }: any) {
+  const { user } = useAuth();
+  const canAdmin = user?.roleName === "Super Admin" || user?.roleName === "Center Admin" || user?.roleName === "Head Office";
+
+  return (
+    <Route path={path} {...rest}>
+      {(params) => canAdmin ? <Component params={params} /> : (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-muted-foreground">
+          <ShieldAlert className="h-16 w-16 opacity-30" />
+          <p className="text-lg font-semibold">Admin Access Required</p>
+        </div>
+      )}
+    </Route>
+  );
+}
+
 function ProtectedRoutes() {
-  const { user, loading } = useAuth();
+  const { user, loading, permissions } = useAuth();
   const [location, navigate] = useLocation();
+
+  const getDefaultRoute = () => {
+    if (user?.roleName === "Super Admin" || user?.roleName === "Head Office") return "/";
+    const p = permissions || {};
+    if (p["dashboard"]?.canView) return "/";
+    if (p["admissions"]?.canView) return "/admissions";
+    if (p["children"]?.canView) return "/children";
+    if (p["cases"]?.canView) return "/cases";
+    if (p["family-socioeconomic"]?.canView) return "/family-socioeconomic";
+    if (p["guardians"]?.canView) return "/guardians";
+    if (p["health"]?.canView) return "/health";
+    if (p["counseling"]?.canView) return "/counseling";
+    if (p["education-skills"]?.canView) return "/education-skills";
+    if (p["risk-assessments"]?.canView) return "/risk-assessments";
+    if (p["court-cases"]?.canView) return "/court-cases";
+    if (p["police-requisitions"]?.canView) return "/police-requisitions";
+    if (p["follow-ups"]?.canView) return "/follow-ups";
+    if (p["release-records"]?.canView) return "/release-records";
+    if (p["measurement-surveys"]?.canView) return "/surveys";
+    if (p["reports"]?.canView) return "/reports";
+    return "/"; // fallback
+  };
 
   useEffect(() => {
     if (!loading && user && location === "/login") {
-      navigate("/", { replace: true } as any);
+      navigate(getDefaultRoute(), { replace: true } as any);
     }
-  }, [loading, user, location]);
-
-  useEffect(() => {
-    if (loading || !user) return;
-    if (user.roleName !== "Data Entry Operator") return;
-
-    const isAllowedPath =
-      location.startsWith("/admissions") ||
-      location.startsWith("/children");
-    if (!isAllowedPath) {
-      navigate("/admissions", { replace: true } as any);
-    }
-  }, [loading, user, location, navigate]);
+  }, [loading, user, location, navigate, permissions]);
 
   if (loading) {
     return (
@@ -95,61 +145,64 @@ function ProtectedRoutes() {
   return (
     <Layout>
       <Switch>
-        <Route path="/" component={Dashboard} />
+        <ModuleRoute path="/" module="dashboard" component={Dashboard} />
 
-        <Route path="/children" component={ChildrenList} />
-        <Route path="/children/:id" component={ChildDetail} />
+        <ModuleRoute path="/children" module="children" component={ChildrenList} />
+        <ModuleRoute path="/children/:id" module="children" component={ChildDetail} />
 
-        <Route path="/cases" component={CasesList} />
-        <Route path="/cases/new" component={NewCase} />
-        <Route path="/cases/:id" component={CaseDetail} />
+        <ModuleRoute path="/cases" module="cases" component={CasesList} />
+        <ModuleRoute path="/cases/new" module="cases" component={NewCase} />
+        <ModuleRoute path="/cases/:id" module="cases" component={CaseDetail} />
 
-        <Route path="/admissions" component={AdmissionsList} />
-        <Route path="/admissions/new" component={NewAdmission} />
-        <Route path="/admissions/:id/edit" component={EditAdmission} />
-        <Route path="/admissions/:id" component={AdmissionDetail} />
-        <Route path="/family-socioeconomic/:id" component={FamilySocioeconomicDetail} />
-        <Route path="/family-socioeconomic" component={FamilySocioeconomicList} />
+        <ModuleRoute path="/admissions" module="admissions" component={AdmissionsList} />
+        <ModuleRoute path="/admissions/new" module="admissions" component={NewAdmission} />
+        <ModuleRoute path="/admissions/:id/edit" module="admissions" component={EditAdmission} />
+        <ModuleRoute path="/admissions/:id" module="admissions" component={AdmissionDetail} />
+        <ModuleRoute path="/family-socioeconomic/:id" module="family-socioeconomic" component={FamilySocioeconomicDetail} />
+        <ModuleRoute path="/family-socioeconomic" module="family-socioeconomic" component={FamilySocioeconomicList} />
 
-        <Route path="/health" component={HealthList} />
-        <Route path="/health/:id" component={HealthDetail} />
+        <ModuleRoute path="/health" module="health" component={HealthList} />
+        <ModuleRoute path="/health/:id" module="health" component={HealthDetail} />
 
-        <Route path="/counseling" component={CounselingList} />
-        <Route path="/counseling/:id" component={CounselingDetail} />
+        <ModuleRoute path="/counseling" module="counseling" component={CounselingList} />
+        <ModuleRoute path="/counseling/:id" module="counseling" component={CounselingDetail} />
 
-        <Route path="/education-skills" component={EducationSkillsPage} />
-        <Route path="/education-skills/:id" component={EducationSkillsDetailPage} />
+        <ModuleRoute path="/education-skills" module="education-skills" component={EducationSkillsPage} />
+        <ModuleRoute path="/education-skills/:id" module="education-skills" component={EducationSkillsDetailPage} />
 
-        <Route path="/guardians" component={GuardiansList} />
-        <Route path="/guardians/:id" component={GuardianDetail} />
+        <ModuleRoute path="/guardians" module="guardians" component={GuardiansList} />
+        <ModuleRoute path="/guardians/:id" module="guardians" component={GuardianDetail} />
 
-        <Route path="/court-cases" component={CourtCasesList} />
-        <Route path="/court-cases/:id" component={CourtCaseDetail} />
+        <ModuleRoute path="/court-cases" module="court-cases" component={CourtCasesList} />
+        <ModuleRoute path="/court-cases/:id" module="court-cases" component={CourtCaseDetail} />
 
-        <Route path="/risk-assessments" component={RiskAssessmentsList} />
-        <Route path="/risk-assessments/:id" component={RiskAssessmentDetail} />
+        <ModuleRoute path="/risk-assessments" module="risk-assessments" component={RiskAssessmentsList} />
+        <ModuleRoute path="/risk-assessments/:id" module="risk-assessments" component={RiskAssessmentDetail} />
 
-        <Route path="/release-records" component={ReleaseRecordsList} />
-        <Route path="/release-records/:id" component={ReleaseRecordDetail} />
+        <ModuleRoute path="/release-records" module="release-records" component={ReleaseRecordsList} />
+        <ModuleRoute path="/release-records/:id" module="release-records" component={ReleaseRecordDetail} />
 
-        <Route path="/follow-ups" component={FollowUpsList} />
-        <Route path="/follow-ups/:id" component={FollowUpDetail} />
+        <ModuleRoute path="/follow-ups" module="follow-ups" component={FollowUpsList} />
+        <ModuleRoute path="/follow-ups/:id" module="follow-ups" component={FollowUpDetail} />
 
-        <Route path="/police-requisitions" component={PoliceRequisitionsList} />
-        <Route path="/police-requisitions/new" component={NewPoliceRequisition} />
-        <Route path="/police-requisitions/:id" component={PoliceRequisitionDetail} />
+        <ModuleRoute path="/police-requisitions" module="police-requisitions" component={PoliceRequisitionsList} />
+        <ModuleRoute path="/police-requisitions/new" module="police-requisitions" component={NewPoliceRequisition} />
+        <ModuleRoute path="/police-requisitions/:id" module="police-requisitions" component={PoliceRequisitionDetail} />
 
-        <Route path="/surveys" component={SurveysList} />
-        <Route path="/surveys/new" component={NewSurvey} />
-        <Route path="/surveys/:id" component={SurveyDetail} />
+        <ModuleRoute path="/surveys" module="measurement-surveys" component={SurveysList} />
+        <ModuleRoute path="/surveys/new" module="measurement-surveys" component={NewSurvey} />
+        <ModuleRoute path="/surveys/:id" module="measurement-surveys" component={SurveyDetail} />
 
-        <Route path="/reports" component={ReportsPage} />
+        <ModuleRoute path="/reports" module="reports" component={ReportsPage} />
 
-        <Route path="/admin/users" component={UsersPage} />
-        <Route path="/admin/centers" component={CentersPage} />
-        <Route path="/admin/org-structure" component={OrgStructurePage} />
-        <Route path="/admin/address" component={AddressManagementPage} />
-        <Route path="/admin/case-types" component={CaseTypesPage} />
+        <AdminRoute path="/admin/users" component={UsersPage} />
+        <AdminRoute path="/admin/centers" component={CentersPage} />
+        <AdminRoute path="/admin/org-structure" component={OrgStructurePage} />
+        <AdminRoute path="/admin/address" component={AddressManagementPage} />
+        <AdminRoute path="/admin/case-types" component={CaseTypesPage} />
+        <AdminRoute path="/admin/family-types" component={FamilyTypesPage} />
+        <AdminRoute path="/admin/education" component={EducationConfigPage} />
+        <AdminRoute path="/admin/permissions" component={PermissionsPage} />
 
         <Route component={NotFound} />
       </Switch>

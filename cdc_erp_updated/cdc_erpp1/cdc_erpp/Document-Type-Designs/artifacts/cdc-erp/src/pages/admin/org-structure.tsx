@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -136,14 +136,19 @@ function UnitForm({ initial, units, centers, onSave, onClose, isBn }: {
 export default function OrgStructurePage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Unit | null>(null);
   const [deleting, setDeleting] = useState<Unit | null>(null);
 
-  const canManage = hasRole(user, "Super Admin");
+  const canView   = usePermission("org_structure", "view");
+  const canCreate = usePermission("org_structure", "create");
+  const canEdit   = usePermission("org_structure", "edit");
+  const canDelete = usePermission("org_structure", "delete");
+
+  const canManage = canCreate || canEdit || canDelete;
 
   const { data: unitsData } = useQuery({
     queryKey: ["admin-units"],

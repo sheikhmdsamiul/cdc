@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Heart, Pencil, Trash2 } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const conditionColors: Record<string, string> = {
@@ -49,7 +49,10 @@ export default function HealthList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
+  const canView   = usePermission("health", "view");
+  const canCreate = usePermission("health", "create");
+  const canEdit   = usePermission("health", "edit");
+  const canDelete = usePermission("health", "delete");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -257,7 +260,7 @@ export default function HealthList() {
           <h1 className="text-2xl font-bold text-foreground">{t("health.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{isBn ? "চিকিৎসা মূল্যায়ন ও স্বাস্থ্য পর্যবেক্ষণ রেকর্ড" : "Medical evaluations and health monitoring records"}</p>
         </div>
-        {canManage && (
+        {canCreate && (
           <Dialog open={open && !editing} onOpenChange={v => { if (!v) setOpen(false); else { setEditing(null); setForm(EMPTY_FORM); setOpen(true); } }}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {isBn ? "নতুন মূল্যায়ন" : "New Assessment"}</Button>
@@ -275,12 +278,19 @@ export default function HealthList() {
         exportTitle="Health Assessments" exportTitleBn="স্বাস্থ্য মূল্যায়ন"
         emptyText="No assessments found." emptyTextBn="কোনো মূল্যায়ন পাওয়া যায়নি।"
         onRowClick={r => navigate(`/health/${r.id}`)}
-        actions={canManage ? r => (
+        actions={r => (
           <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}><Pencil className="h-3.5 w-3.5" /></Button>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}><Trash2 className="h-3.5 w-3.5" /></Button>
+            {canEdit && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}><Pencil className="h-3.5 w-3.5" /></Button>
+            )}
+            {canDelete && (
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}><Trash2 className="h-3.5 w-3.5" /></Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/health/${r.id}`)}>{t("common.view")}</Button>
+            )}
           </div>
-        ) : undefined}
+        )}
       />
 
       {/* Edit Dialog */}

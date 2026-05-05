@@ -9,6 +9,7 @@
     "start": "set -a; [ -f ./.env ] && . ./.env; set +a; node --enable-source-maps ./dist/index.mjs",
     "seed-auth": "set -a; [ -f ./.env ] && . ./.env; set +a; npm run build && node --enable-source-maps ./dist/seed-auth.mjs",
     "seed-demo": "set -a; [ -f ./.env ] && . ./.env; set +a; npm run build && node --enable-source-maps ./dist/seed-demo.mjs",
+    "seed-admin": "set -a; [ -f ./.env ] && . ./.env; set +a; npm run build && node --enable-source-maps ./dist/seed-admin.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

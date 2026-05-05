@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DetailField, SectionCard } from "@/components/DetailField";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
@@ -86,17 +86,24 @@ export default function AdmissionDetail() {
     );
   }
 
+  const canView   = usePermission("admissions", "view");
+  const canCreate = usePermission("admissions", "create");
+  const canEdit   = usePermission("admissions", "edit");
+  const canDelete = usePermission("admissions", "delete");
+
   const record = admission as any;
   const status = record.approvalStatus;
-  const isAdminOverride = hasRole(user, "Super Admin", "Center Admin");
-  const canSubmit = ["Draft", "Update Needed by CW", "Update Needed by PO"].includes(status) && (isAdminOverride || hasRole(user, "Data Entry Operator"));
+
+  // In this workflow, "edit" permission generally covers the review/forward/approve steps.
+  // "create" permission covers the initial submission and draft edits.
+  const canSubmit = ["Draft", "Update Needed by CW", "Update Needed by PO"].includes(status) && (canCreate || canEdit);
   const canEditProfile = canSubmit;
-  const canViewFullForm = isAdminOverride || hasRole(user, "Data Entry Operator", "Case Worker", "Probation Officer", "Superintendent");
-  const canForwardToPo = status === "Submitted to CW" && (isAdminOverride || hasRole(user, "Case Worker"));
+  const canViewFullForm = canView;
+  const canForwardToPo = status === "Submitted to CW" && canEdit;
   const canUpdateNeededCw = canForwardToPo;
-  const canForwardToSupt = status === "Submitted to PO" && (isAdminOverride || hasRole(user, "Probation Officer"));
+  const canForwardToSupt = status === "Submitted to PO" && canEdit;
   const canUpdateNeededPo = canForwardToSupt;
-  const canApprove = status === "Submitted to SUPT" && (isAdminOverride || hasRole(user, "Superintendent"));
+  const canApprove = status === "Submitted to SUPT" && canEdit;
   const canReject = canApprove;
 
   function submitDialogAction() {

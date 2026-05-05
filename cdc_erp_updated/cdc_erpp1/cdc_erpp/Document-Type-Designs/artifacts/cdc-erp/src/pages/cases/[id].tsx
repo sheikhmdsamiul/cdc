@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -150,8 +150,9 @@ function getRiskScoreLabels(isBn: boolean): Record<number, string> {
 /* ────── workflow ────── */
 function WorkflowBar({ caseFile, onAction }: { caseFile: any; onAction: () => void }) {
   const { user } = useAuth();
+  const canEdit = usePermission("cases", "edit");
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const [loading, setLoading] = useState(false);
 
@@ -171,8 +172,8 @@ function WorkflowBar({ caseFile, onAction }: { caseFile: any; onAction: () => vo
   }
 
   const st = caseFile.approvalStatus;
-  const canSubmit = hasRole(user, "case_worker", "center_admin") && st === "Draft";
-  const canReview = hasRole(user, "supervisor", "head_office") && st === "Pending";
+  const canSubmit = canEdit && st === "Draft";
+  const canReview = canEdit && st === "Pending";
 
   return (
     <div className="flex items-center gap-3 text-sm flex-wrap">
@@ -192,7 +193,7 @@ function WorkflowBar({ caseFile, onAction }: { caseFile: any; onAction: () => vo
 /* ────── Form 1 (Intake) view/edit ────── */
 function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => void }) {
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const updateCase = useUpdateCase();
   const [editing, setEditing] = useState(false);
@@ -457,7 +458,7 @@ function ScorePicker({ value, onChange }: { value: number; onChange: (v: number)
 
 function RiskTab({ caseId }: { caseId: number }) {
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const [editing, setEditing] = useState(false);
   const [scores, setScores] = useState<Record<string, number>>({});
@@ -624,7 +625,7 @@ function RatingPicker({ value, onChange }: { value: number; onChange: (v: number
 
 function DetailTab({ caseId }: { caseId: number }) {
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const [editing, setEditing] = useState(false);
   const [childDomains, setChildDomains] = useState<Record<string, { rating: number; notes: string }>>({});
@@ -761,7 +762,7 @@ function DetailTab({ caseId }: { caseId: number }) {
 /* ────── Form 4: Intervention Plan ────── */
 function PlanTab({ caseId }: { caseId: number }) {
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ planDate: new Date().toISOString().split("T")[0], planEndDate: "", caseWorkerName: "", supervisorName: "", problemStatement: "", longTermGoal: "", objectives: "", activities: "", responsiblePerson: "", resources: "", progressIndicators: "", reviewDate: "", childCommitments: "", familyCommitments: "", organizationCommitments: "" });
@@ -865,7 +866,7 @@ function PlanTab({ caseId }: { caseId: number }) {
 /* ────── Form 5: Implementation Agreement ────── */
 function AgreementTab({ caseId }: { caseId: number }) {
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ agreementDate: new Date().toISOString().split("T")[0], agreementText: "", childName: "", childSignature: "", guardianName: "", guardianSignature: "", witnessName: "", witnessSignature: "", officerName: "", officerSignature: "", agreementStatus: "Draft", notes: "" });
@@ -983,7 +984,7 @@ export default function CaseDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const qc = useQueryClient();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const [activeTab, setActiveTab] = useState<TabId>("intake");
 

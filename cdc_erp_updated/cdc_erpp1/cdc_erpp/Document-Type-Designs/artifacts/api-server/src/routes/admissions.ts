@@ -23,9 +23,11 @@ import {
   centersTable,
 } from "@workspace/db";
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { getCurrentUser } from "../middlewares/auth";
+import { getCurrentUser, moduleGuard } from "../middlewares/auth";
 
 const router: IRouter = Router();
+
+router.use(moduleGuard("admissions"));
 
 const ADMISSION_WORKFLOW = {
   DRAFT: "Draft",
@@ -173,12 +175,15 @@ router.get("/", async (req, res) => {
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
 
+    const isGlobal = user.roleName === "Super Admin" || user.roleName === "Head Office";
+    if (!isGlobal && !user.centerId) return res.json([]);
+
     const { childId, status } = req.query as Record<string, string>;
     const conditions = [];
     if (childId) conditions.push(eq(admissionsTable.childId, parseInt(childId, 10)));
     if (status) conditions.push(eq(admissionsTable.approvalStatus, status));
-    if (user.roleName !== "Super Admin" && user.roleName !== "Head Office" && user.centerId != null) {
-      conditions.push(eq(childrenTable.centerId, user.centerId));
+    if (!isGlobal) {
+      conditions.push(eq(childrenTable.centerId, user.centerId!));
     }
 
     const whereClause = conditions.length === 0

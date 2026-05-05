@@ -689,6 +689,7 @@ router.get("/monthly-report", async (req, res) => {
         otherRehabilitationInfo: riskAssessmentsTable.otherRehabilitationInfo,
         protectionMeasures: riskAssessmentsTable.protectionMeasures,
         updatedAt: riskAssessmentsTable.updatedAt,
+        status: riskAssessmentsTable.status,
       }).from(riskAssessmentsTable),
       db.select({
         childId: followUpsTable.childId,
@@ -766,7 +767,7 @@ router.get("/monthly-report", async (req, res) => {
       (row) => row.updatedAt,
     );
     const riskByChild = latestByChild(
-      risk.filter((row) => isOnOrBefore(row.assessmentDate ?? row.updatedAt, reportEnd)),
+      risk.filter((row) => isOnOrBefore(row.assessmentDate ?? row.updatedAt, reportEnd) && row.status !== "Draft"),
       (row) => row.assessmentDate ?? row.updatedAt,
     );
     const followUpByChild = latestByChild(
@@ -914,7 +915,7 @@ router.get("/monthly-report", async (req, res) => {
         riskRow?.childCounselingStatus ?? "",
         riskRow?.familyCounselingStatus ?? "",
         riskRow?.recreationArrangement ?? "",
-        riskRow?.otherRehabilitationInfo ?? riskRow?.protectionMeasures ?? "",
+        riskRow?.otherRehabilitationInfo ?? "",
         release?.releaseType ?? "",
         release?.handedOverTo ? formatBnDate(release.releaseDate) : "",
         followUp?.followUpDate
@@ -995,11 +996,11 @@ router.get("/center-comparison", async (req, res) => {
 
 const AGE_GROUPS = [
   { label: "৯ বছরের নিচে", min: 0, max: 8 },
-  { label: "৯ বছর থেকে অনূর্ধ্ব ১০ বছর", min: 9, max: 9 },
-  { label: "১০ বছর থেকে অনূর্ধ্ব ১২ বছর", min: 10, max: 11 },
-  { label: "১২ বছর থেকে অনূর্ধ্ব ১৬ বছর", min: 12, max: 15 },
-  { label: "১৬ বছর থেকে অনূর্ধ্ব ১৮ বছর", min: 16, max: 17 },
-  { label: "১৮ বছরের উর্দ্ধে", min: 18, max: 999 },
+  { label: "৯–১০ বছর", min: 9, max: 10 },
+  { label: "১০–১২ বছর", min: 11, max: 12 },
+  { label: "১২–১৬ বছর", min: 13, max: 15 },
+  { label: "১৬–১৮ বছর", min: 16, max: 17 },
+  { label: "১৮ বছরের ঊর্ধ্বে", min: 18, max: 999 },
   { label: "বয়স উল্লেখ নেই", min: -1, max: -1 },
 ];
 
@@ -1291,11 +1292,14 @@ router.get("/chok01", async (req, res) => {
       if (!isInSelectedCenter(child.resolvedCenterId)) return false;
       const admissionDate = parseDate(child.admissionDate);
       if (!admissionDate || admissionDate > asOf) return false;
-      if (!isApprovedAsOf(child.id, asOf)) return false;
 
       const release = latestReleaseByChild.get(child.id);
       const releaseDate = parseDate(release?.releaseDate);
       if (releaseDate && releaseDate.getTime() <= asOf.getTime()) return false;
+
+      // Ensure only admitted children are counted, as requested by user.
+      // We check currentStatus to match the "database" view the user expects.
+      if (child.currentStatus !== "Admitted") return false;
 
       return true;
     }

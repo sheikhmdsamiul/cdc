@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Pencil, Trash2, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { getCenterLabel } from "@/i18n/labels";
 
@@ -31,8 +31,10 @@ export default function ChildrenList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
-  const canImport = !!user;
+  const canCreate = usePermission("children", "create");
+  const canEdit   = usePermission("children", "edit");
+  const canDelete = usePermission("children", "delete");
+  const canImport = canCreate; // Mapping import to create permission
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -155,13 +157,6 @@ export default function ChildrenList() {
 
   type Row = NonNullable<NonNullable<typeof data>["data"]>[number];
 
-  const AGE_RANGE_OPTIONS = [
-    { value: "0-5",   label: "0–5",   labelBn: "০–৫ বছর" },
-    { value: "6-10",  label: "6–10",  labelBn: "৬–১০ বছর" },
-    { value: "11-14", label: "11–14", labelBn: "১১–১৪ বছর" },
-    { value: "15-17", label: "15–17", labelBn: "১৫–১৭ বছর" },
-    { value: "18+",   label: "18+",   labelBn: "১৮+ বছর" },
-  ];
 
   const columns: ColumnDef<Row>[] = [
     {
@@ -201,8 +196,7 @@ export default function ChildrenList() {
     },
     {
       key: "currentAge", label: "Current Age", labelBn: "বর্তমান বয়স",
-      filterType: "select",
-      filterOptions: AGE_RANGE_OPTIONS,
+      filterType: "text",
       exportValue: r => String((r as any).currentAge ?? ""),
       render: r => {
         const age = (r as any).currentAge;
@@ -275,19 +269,24 @@ export default function ChildrenList() {
         emptyText="No children found."
         emptyTextBn="কোনো শিশু পাওয়া যায়নি।"
         onRowClick={r => navigate(`/children/${r.id}`)}
-        actions={canManage ? r => (
+        actions={r => (
           <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {canEdit && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(r)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!canEdit && !canDelete && (
+              <Link href={`/children/${r.id}`}>
+                <Button variant="ghost" size="sm">{t("common.view")}</Button>
+              </Link>
+            )}
           </div>
-        ) : r => (
-          <Link href={`/children/${r.id}`}>
-            <Button variant="ghost" size="sm">{t("common.view")}</Button>
-          </Link>
         )}
         page={page}
         total={data?.total}

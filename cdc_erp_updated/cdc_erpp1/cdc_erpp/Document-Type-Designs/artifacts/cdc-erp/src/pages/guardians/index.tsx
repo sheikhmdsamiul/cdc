@@ -15,7 +15,7 @@ import { Plus, UsersRound, Pencil, Trash2, Check, ChevronsUpDown, Search } from 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const RELATIONSHIPS = ["Father", "Mother", "Uncle", "Aunt", "Grandparent", "Sibling", "Other"];
@@ -28,8 +28,11 @@ export default function GuardiansList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin");
-  const canOpenRow = user?.roleName !== "Data Entry Operator";
+  const canView   = usePermission("guardians", "view");
+  const canCreate = usePermission("guardians", "create");
+  const canEdit   = usePermission("guardians", "edit");
+  const canDelete = usePermission("guardians", "delete");
+  const canOpenRow = canView;
 
   const [open, setOpen] = useState(false);
   const [visitOpen, setVisitOpen] = useState(false);
@@ -119,7 +122,7 @@ export default function GuardiansList() {
 
   const handleVisitSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canManage) return;
+    if (!canEdit && !canCreate) return;
     const data = { ...visitForm, childId: parseInt(visitForm.childId), guardianId: parseInt(visitForm.guardianId) };
     if (editingVisit) {
       updateVisitMutation.mutate({ id: editingVisit.id, data });
@@ -340,28 +343,30 @@ export default function GuardiansList() {
           <h1 className="text-2xl font-bold text-foreground">{t("guardians.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{isBn ? "অভিভাবক তথ্য ও পরিদর্শন লগ ব্যবস্থাপনা" : "Guardian information and visit log management"}</p>
         </div>
-        {canManage && (
-          <div className="flex gap-2">
-            <Dialog open={visitOpen && !editingVisit} onOpenChange={v => { if (!v) setVisitOpen(false); else { setEditingVisit(null); setVisitForm(EMPTY_VISIT); setVisitOpen(true); } }}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2"><Plus className="h-4 w-4" /> {isBn ? "পরিদর্শন যোগ করুন" : "Log Visit"}</Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogHeader><DialogTitle>{isBn ? "নতুন পরিদর্শন রেকর্ড" : "New Guardian Visit"}</DialogTitle></DialogHeader>
-                {VisitForm({})}
-              </DialogContent>
-            </Dialog>
-            <Dialog open={open && !editingGuardian} onOpenChange={v => { if (!v) setOpen(false); else { setEditingGuardian(null); setForm(EMPTY_GUARDIAN); setOpen(true); } }}>
-              <DialogTrigger asChild>
-                <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {isBn ? "নতুন অভিভাবক" : "New Guardian"}</Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogHeader><DialogTitle>{isBn ? "নতুন অভিভাবক" : "New Guardian"}</DialogTitle></DialogHeader>
-                {GuardianForm()}
-              </DialogContent>
-            </Dialog>
-          </div>
-        )}
+        <div className="flex gap-2">
+          {canCreate && (
+            <>
+              <Dialog open={visitOpen && !editingVisit} onOpenChange={v => { if (!v) setVisitOpen(false); else { setEditingVisit(null); setVisitForm(EMPTY_VISIT); setVisitOpen(true); } }}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2"><Plus className="h-4 w-4" /> {isBn ? "পরিদর্শন যোগ করুন" : "Log Visit"}</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg">
+                  <DialogHeader><DialogTitle>{isBn ? "নতুন পরিদর্শন রেকর্ড" : "New Guardian Visit"}</DialogTitle></DialogHeader>
+                  {VisitForm({})}
+                </DialogContent>
+              </Dialog>
+              <Dialog open={open && !editingGuardian} onOpenChange={v => { if (!v) setOpen(false); else { setEditingGuardian(null); setForm(EMPTY_GUARDIAN); setOpen(true); } }}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {isBn ? "নতুন অভিভাবক" : "New Guardian"}</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg">
+                  <DialogHeader><DialogTitle>{isBn ? "নতুন অভিভাবক" : "New Guardian"}</DialogTitle></DialogHeader>
+                  {GuardianForm()}
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+        </div>
       </div>
 
       <Tabs defaultValue="guardians">
@@ -375,16 +380,23 @@ export default function GuardiansList() {
             exportTitle="Guardians" exportTitleBn="অভিভাবকের তালিকা"
             emptyText="No guardians found." emptyTextBn="কোনো অভিভাবক পাওয়া যায়নি।"
             onRowClick={canOpenRow ? (g) => navigate(`/guardians/${g.id}`) : undefined}
-            actions={canManage ? g => (
+            actions={g => (
               <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setForm({ guardianName: g.guardianName ?? "", relationship: g.relationship ?? "Father", nidNo: g.nidNo ?? "", contactNumber: g.contactNumber ?? "", address: g.address ?? "", childId: (g as any).childId ?? "" }); setEditingGuardian(g); setOpen(true); }}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeletingGuardian(g)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                {canEdit && (
+                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setForm({ guardianName: g.guardianName ?? "", relationship: g.relationship ?? "Father", nidNo: g.nidNo ?? "", contactNumber: g.contactNumber ?? "", address: g.address ?? "", childId: (g as any).childId ?? "" }); setEditingGuardian(g); setOpen(true); }}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                {canDelete && (
+                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeletingGuardian(g)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                {!canEdit && !canDelete && (
+                  <Button variant="ghost" size="sm" onClick={() => navigate(`/guardians/${g.id}`)}>{t("common.view")}</Button>
+                )}
               </div>
-            ) : undefined}
+            )}
           />
         </TabsContent>
         <TabsContent value="visits" className="mt-4">
@@ -394,23 +406,27 @@ export default function GuardiansList() {
             emptyText="No visit logs." emptyTextBn="কোনো পরিদর্শন লগ নেই।"
             onRowClick={canOpenRow ? (v) => {
               fillVisitForm(v);
-              if (canManage) {
+              if (canEdit) {
                 setEditingVisit(v);
                 setVisitOpen(true);
                 return;
               }
               setViewingVisit(v);
             } : undefined}
-            actions={canManage ? v => (
+            actions={v => (
               <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { fillVisitForm(v); setEditingVisit(v); setVisitOpen(true); }}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeletingVisit(v)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                {canEdit && (
+                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { fillVisitForm(v); setEditingVisit(v); setVisitOpen(true); }}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                {canDelete && (
+                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeletingVisit(v)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
               </div>
-            ) : undefined}
+            )}
           />
         </TabsContent>
       </Tabs>

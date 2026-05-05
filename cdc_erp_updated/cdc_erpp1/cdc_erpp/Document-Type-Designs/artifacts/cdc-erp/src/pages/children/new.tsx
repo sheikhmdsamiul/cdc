@@ -16,6 +16,8 @@ import { useTranslation } from "react-i18next";
 import { Loader2, CalendarDays, CheckCircle2, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCenterLabel } from "@/i18n/labels";
+import { CaseTypeSelect } from "@/components/CaseTypeSelect";
+import { FamilyTypeSelect } from "@/components/FamilyTypeSelect";
 import {
   calculateAgeFromDob,
   calculateDobFromAge,
@@ -95,7 +97,7 @@ function fetchJson(url: string) {
 export default function NewChild() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const createChild = useCreateChild();
@@ -832,7 +834,18 @@ export default function NewChild() {
               <FormField control={form.control} name="caseType" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "মামলার ধরন" : "Case Type"}</FormLabel>
-                  <FormControl><Input placeholder={isBn ? "মামলার ধরন লিখুন" : "Enter case type"} {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <CaseTypeSelect value={field.value ?? ""} onChange={field.onChange} isBn={isBn} />
+                  </FormControl>
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="familyType" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{isBn ? "পরিবারের ধরণ" : "Family Type"}</FormLabel>
+                  <FormControl>
+                    <FamilyTypeSelect value={field.value ?? ""} onChange={field.onChange} />
+                  </FormControl>
                 </FormItem>
               )} />
 

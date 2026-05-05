@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Plus, CheckCircle2, XCircle, Send, Pencil, Trash2 } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/DataTable";
-import { useAuth, hasRole } from "@/contexts/AuthContext";
+import { useAuth, hasRole, usePermission } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const RELEASE_TYPES = ["Court Order", "Guardian Request", "Transfer", "Escape", "Medical", "Other"];
@@ -31,8 +31,12 @@ export default function ReleaseRecordsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canManage = hasRole(user, "Super Admin", "Center Admin", "DEO");
-  const canApprove = hasRole(user, "Super Admin", "Center Admin", "Superintendent");
+  const canView    = usePermission("release", "view");
+  const canCreate  = usePermission("release", "create");
+  const canEdit    = usePermission("release", "edit");
+  const canDelete  = usePermission("release", "delete");
+  // In this system, "Approve" is treated as an "edit" action on the record status.
+  const canApprove = canEdit;
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -154,7 +158,7 @@ export default function ReleaseRecordsList() {
           <h1 className="text-2xl font-bold text-foreground">{t("releaseRecords.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{isBn ? "আনুষ্ঠানিক মুক্তির নথি ও হস্তান্তরের রেকর্ড" : "Official release documentation and handover records"}</p>
         </div>
-        {canManage && (
+        {canCreate && (
           <Button onClick={openCreate} className="gap-2 bg-[#166534] hover:bg-[#0d4427]">
             <Plus className="h-4 w-4" />{isBn ? "নতুন মুক্তি" : "New Release"}
           </Button>
@@ -170,13 +174,13 @@ export default function ReleaseRecordsList() {
           const status = (r as any).approvalStatus ?? "Draft";
           return (
             <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-              {/* Submit for approval — DEO/Center Admin on Draft records */}
-              {canManage && status === "Draft" && (
+              {/* Submit for approval — anyone with create/edit permission on Draft records */}
+              {(canCreate || canEdit) && status === "Draft" && (
                 <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1" onClick={() => { setActionTarget(r); setActionType(null); actionMutation.mutate({ id: (r as any).id, action: "submit" }); }}>
                   <Send className="h-3 w-3" />{isBn ? "জমা দিন" : "Submit"}
                 </Button>
               )}
-              {/* Approve — Superintendent/Admin on Submitted records */}
+              {/* Approve — Anyone with edit permission on Submitted records */}
               {canApprove && status === "Submitted" && (
                 <>
                   <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1 text-green-700 border-green-300 hover:bg-green-50" onClick={() => { setActionTarget(r); setActionType("approve"); }}>
@@ -188,12 +192,15 @@ export default function ReleaseRecordsList() {
                 </>
               )}
               {/* Edit Draft */}
-              {canManage && status === "Draft" && (
+              {canEdit && status === "Draft" && (
                 <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(r)}><Pencil className="h-3.5 w-3.5" /></Button>
               )}
               {/* Delete Draft only */}
-              {canManage && status === "Draft" && (
+              {canDelete && status === "Draft" && (
                 <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleting(r)}><Trash2 className="h-3.5 w-3.5" /></Button>
+              )}
+              {!canEdit && !canDelete && (
+                <Button variant="ghost" size="sm" onClick={() => navigate(`/release-records/${(r as any).id}`)}>{t("common.view")}</Button>
               )}
             </div>
           );
