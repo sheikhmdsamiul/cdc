@@ -54,6 +54,7 @@ import CaseTypesPage from "@/pages/admin/case-types";
 import FamilyTypesPage from "@/pages/admin/family-types";
 import EducationConfigPage from "@/pages/admin/education";
 import PermissionsPage from "@/pages/admin/permissions";
+import CenterUsersPage from "@/pages/admin/center-users";
 
 const queryClient = new QueryClient();
 
@@ -203,6 +204,7 @@ function ProtectedRoutes() {
         <AdminRoute path="/admin/family-types" component={FamilyTypesPage} />
         <AdminRoute path="/admin/education" component={EducationConfigPage} />
         <AdminRoute path="/admin/permissions" component={PermissionsPage} />
+        <AdminRoute path="/admin/center-users" component={CenterUsersPage} />
 
         <Route component={NotFound} />
       </Switch>

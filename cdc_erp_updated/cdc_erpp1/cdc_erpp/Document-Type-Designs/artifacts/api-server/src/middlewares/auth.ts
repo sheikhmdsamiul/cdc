@@ -87,18 +87,15 @@ export async function checkManageAccess(req: Request, res: Response, recordCente
   }
   if (user.roleName === "Super Admin" || user.roleName === "Head Office") return true;
 
-  // Roles that can manage records within their own center
-  const centerBoundRoles = [
-    "Center Admin", "DEO", "Superintendent",
-    "Case Worker", "District Facilitator", "Probation Officer",
-  ];
-
-  if (centerBoundRoles.includes(user.roleName ?? "")) {
+  // Check scope-based access instead of hardcoded names
+  if (user.roleScope === "Center") {
     if (recordCenterId == null || user.centerId === recordCenterId) return true;
     res.status(403).json({ error: "Forbidden: you can only manage your own center's records" });
     return false;
   }
 
+  // Global roles (Super Admin / Head Office) were already handled above.
+  // If we reach here, it's a role with no scope or no permission.
   res.status(403).json({ error: "Forbidden: insufficient permissions to manage records" });
   return false;
 }

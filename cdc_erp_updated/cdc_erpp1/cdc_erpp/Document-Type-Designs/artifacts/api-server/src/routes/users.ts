@@ -2,8 +2,8 @@ import { Router } from "express";
 import bcryptjs from "bcryptjs";
 import { db } from "@workspace/db";
 import { usersTable, rolesTable, centersTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
-import { requireAuth } from "../middlewares/auth";
+import { eq, and } from "drizzle-orm";
+import { requireAuth, getCurrentUser } from "../middlewares/auth";
 
 const router = Router();
 
@@ -27,7 +27,14 @@ const userQuery = () =>
   .leftJoin(centersTable, eq(usersTable.centerId, centersTable.id));
 
 router.get("/", requireAuth, async (req, res) => {
-  const users = await userQuery();
+  const user = await getCurrentUser(req);
+  let query = userQuery();
+
+  if (user?.roleName === "Center Admin" && user?.centerId) {
+    query = query.where(eq(usersTable.centerId, user.centerId));
+  }
+
+  const users = await query;
   res.json({ users, total: users.length });
 });
 
@@ -40,9 +47,23 @@ router.get("/:id", requireAuth, async (req, res) => {
 
 router.post("/", requireAuth, async (req, res) => {
   try {
+    const user = await getCurrentUser(req);
     const { username, fullName, email, password, roleId, centerId, administrativeUnitId } = req.body;
     if (!username || !fullName || !password) {
       res.status(400).json({ error: "username, fullName, and password required" });
+      return;
+    }
+
+    // Check authorization
+    if (user?.roleName === "Center Admin") {
+      // Center Admin can only create users for their own center
+      const targetCenterId = centerId ? Number(centerId) : null;
+      if (targetCenterId !== user.centerId) {
+        res.status(403).json({ error: "You can only create users for your center" });
+        return;
+      }
+    } else if (user?.roleName !== "Super Admin" && user?.roleName !== "Head Office") {
+      res.status(403).json({ error: "Forbidden" });
       return;
     }
 
@@ -60,7 +81,7 @@ router.post("/", requireAuth, async (req, res) => {
     const inserted = await db.insert(usersTable).values({
       username, fullName, email, passwordHash,
       roleId: roleId ? Number(roleId) : null,
-      centerId: centerId ? Number(centerId) : null,
+      centerId: centerId ? Number(centerId) : user?.centerId,
       administrativeUnitId: administrativeUnitId ? Number(administrativeUnitId) : null,
       isActive: true,
     }).returning({ id: usersTable.id });

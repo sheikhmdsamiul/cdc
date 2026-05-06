@@ -148,11 +148,12 @@ function SidebarContent({
           {!collapsed && canView("reports") && <NavSection label={t("nav.analytics")} />}
           {canView("reports") && <NavItem href="/reports" label={t("nav.reportsAnalytics")} icon={FileBarChart2} collapsed={collapsed} />}
 
-          {(canView("users") || canView("centers") || canView("org_structure") || canView("address") || canView("case_types") || canView("family_types") || canView("education") || canView("permissions")) && (
+{((canView("users") || canView("centers") || canView("org_structure") || canView("address") || canView("case_types") || canView("family_types") || canView("education") || canView("permissions")) || user?.roleName === "Center Admin") && (
             <>
               {!collapsed && <NavSection label={t("nav.administration")} />}
               {canView("users") && <NavItem href="/admin/users" label={t("nav.userManagement")} icon={Users} collapsed={collapsed} />}
               {canView("centers") && <NavItem href="/admin/centers" label={t("nav.centers")} icon={Building2} collapsed={collapsed} />}
+              {user?.roleName === "Center Admin" && <NavItem href="/admin/center-users" label={isBn ? "ব্যবহারকারী" : "Add User"} icon={Users} collapsed={collapsed} />}
               {canView("org_structure") && <NavItem href="/admin/org-structure" label={t("nav.orgStructure")} icon={Network} collapsed={collapsed} />}
               {canView("address") && <NavItem href="/admin/address" label={isBn ? "ঠিকানা ব্যবস্থাপনা" : "Address Management"} icon={Home} collapsed={collapsed} />}
               {canView("case_types") && <NavItem href="/admin/case-types" label={isBn ? "মামলার ধরন" : "Case Types"} icon={Tags} collapsed={collapsed} />}

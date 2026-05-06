@@ -211,6 +211,18 @@ export default function NewAdmissionFullProfile() {
       basicNeedsFulfilled: false,
       safetyEnsured: false,
       initialHealthCheckCompleted: false,
+      gender: "",
+      religion: "",
+      presentDivision: "",
+      presentDistrict: "",
+      presentUpazila: "",
+      permanentDivision: "",
+      permanentDistrict: "",
+      permanentUpazila: "",
+      caseType: "",
+      familyType: "",
+      parentsMaritalStatus: "",
+      guardianType: "",
     },
   });
 
@@ -521,7 +533,7 @@ export default function NewAdmissionFullProfile() {
                   <FormField control={form.control} name="gender" render={({ field }) => (
                     <FormItem>
                       <FormLabel>{isBn ? "লিঙ্গ" : "Gender"}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger></FormControl>
                         <SelectContent>
                           <SelectItem value="Boy">{isBn ? "ছেলে" : "Boy"}</SelectItem>
@@ -538,7 +550,7 @@ export default function NewAdmissionFullProfile() {
                   <FormField control={form.control} name="religion" render={({ field }) => (
                     <FormItem>
                       <FormLabel>{isBn ? "ধর্ম" : "Religion"}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger></FormControl>
                         <SelectContent>
                           <SelectItem value="ইসলাম">{isBn ? "ইসলাম" : "Islam"}</SelectItem>
@@ -756,7 +768,7 @@ export default function NewAdmissionFullProfile() {
                           form.setValue("presentDistrict", "");
                           form.setValue("presentUpazila", "");
                         }} 
-                        value={isBn ? divisionData.find(d => d.bn === field.value)?.id.toString() : divisionData.find(d => d.en === field.value)?.id.toString()}
+                        value={(isBn ? divisionData.find(d => d.bn === field.value)?.id.toString() : divisionData.find(d => d.en === field.value)?.id.toString()) || ""}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -786,7 +798,7 @@ export default function NewAdmissionFullProfile() {
                             field.onChange(isBn ? district?.bn : district?.en);
                             form.setValue("presentUpazila", "");
                           }} 
-                          value={isBn ? districts.find(d => d.bn === field.value)?.id.toString() : districts.find(d => d.en === field.value)?.id.toString()}
+                          value={(isBn ? districts.find(d => d.bn === field.value)?.id.toString() : districts.find(d => d.en === field.value)?.id.toString()) || ""}
                           disabled={!divisionName}
                         >
                           <FormControl>
@@ -815,7 +827,7 @@ export default function NewAdmissionFullProfile() {
                     return (
                       <FormItem>
                         <FormLabel>{isBn ? "উপজেলা" : "Upazila"}</FormLabel>
-                        <Select key={districtName || 'present-upazila'} onValueChange={field.onChange} value={field.value} disabled={!districtName}>
+                        <Select key={districtName || 'present-upazila'} onValueChange={field.onChange} value={field.value || ""} disabled={!districtName}>
                           <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "উপজেলা" : "Upazila"} /></SelectTrigger></FormControl>
                           <SelectContent>
                             {upazilas.map(u => {
@@ -933,7 +945,7 @@ export default function NewAdmissionFullProfile() {
                     return (
                       <FormItem>
                         <FormLabel>{isBn ? "উপজেলা" : "Upazila"}</FormLabel>
-                        <Select key={districtName || 'permanent-upazila'} onValueChange={field.onChange} value={field.value} disabled={!districtName}>
+                        <Select key={districtName || 'permanent-upazila'} onValueChange={field.onChange} value={field.value || ""} disabled={!districtName}>
                           <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "উপজেলা" : "Upazila"} /></SelectTrigger></FormControl>
                           <SelectContent>
                             {upazilas.map(u => {
@@ -1055,7 +1067,7 @@ export default function NewAdmissionFullProfile() {
               <FormField control={form.control} name="judicialStatus" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "শিশুর বিচারিক অবস্থা" : "Judicial Status"}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger></FormControl>
                     <SelectContent>
                       <SelectItem value="Under Trial">{isBn ? "বিচারাধীন" : "Under Trial"}</SelectItem>
@@ -1071,7 +1083,7 @@ export default function NewAdmissionFullProfile() {
               <FormField control={form.control} name="educationLevel" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "শিশুর শিক্ষাগত যোগ্যতা" : "Educational Qualification"}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger></FormControl>
                     <SelectContent>
                       {classes.map((c: any) => (
@@ -1084,7 +1096,7 @@ export default function NewAdmissionFullProfile() {
               <FormField control={form.control} name="childRisk" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{isBn ? "শিশুর ঝুঁকি" : "Child Risk"}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger></FormControl>
                     <SelectContent>
                       <SelectItem value="Low">{isBn ? "কম" : "Low"}</SelectItem>

@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { casesTable, childrenTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, getTableColumns } from "drizzle-orm";
 import { checkManageAccess, getCurrentUser, moduleGuard } from "../middlewares/auth";
 
 const router: IRouter = Router();
@@ -28,26 +28,8 @@ router.get("/", async (req, res) => {
 
     let query = db
       .select({
-        id: casesTable.id,
-        caseId: casesTable.caseId,
-        childId: casesTable.childId,
+        ...getTableColumns(casesTable),
         childName: childrenTable.fullName,
-        caseOpeningDate: casesTable.caseOpeningDate,
-        assignedCaseWorker: casesTable.assignedCaseWorker,
-        riskLevel: casesTable.riskLevel,
-        caseStatus: casesTable.caseStatus,
-        caseSummary: casesTable.caseSummary,
-        investigationNotes: casesTable.investigationNotes,
-        recommendation: casesTable.recommendation,
-        workflowState: casesTable.workflowState,
-        workflowNotes: casesTable.workflowNotes,
-        sentBackNotes: casesTable.sentBackNotes,
-        isSpecialCase: casesTable.isSpecialCase,
-        isPriorityCase: casesTable.isPriorityCase,
-        submittedById: casesTable.submittedById,
-        centerId: casesTable.centerId,
-        createdAt: casesTable.createdAt,
-        updatedAt: casesTable.updatedAt,
       })
       .from(casesTable)
       .leftJoin(childrenTable, eq(casesTable.childId, childrenTable.id));
@@ -89,29 +71,8 @@ router.get("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const [row] = await db
       .select({
-        id: casesTable.id,
-        caseId: casesTable.caseId,
-        childId: casesTable.childId,
+        ...getTableColumns(casesTable),
         childName: childrenTable.fullName,
-        caseOpeningDate: casesTable.caseOpeningDate,
-        assignedCaseWorker: casesTable.assignedCaseWorker,
-        riskLevel: casesTable.riskLevel,
-        caseStatus: casesTable.caseStatus,
-        caseSummary: casesTable.caseSummary,
-        investigationNotes: casesTable.investigationNotes,
-        recommendation: casesTable.recommendation,
-        workflowState: casesTable.workflowState,
-        workflowNotes: casesTable.workflowNotes,
-        sentBackNotes: casesTable.sentBackNotes,
-        isSpecialCase: casesTable.isSpecialCase,
-        isPriorityCase: casesTable.isPriorityCase,
-        submittedById: casesTable.submittedById,
-        reviewedByDfId: casesTable.reviewedByDfId,
-        reviewedByProbationId: casesTable.reviewedByProbationId,
-        approvedById: casesTable.approvedById,
-        centerId: casesTable.centerId,
-        createdAt: casesTable.createdAt,
-        updatedAt: casesTable.updatedAt,
       })
       .from(casesTable)
       .leftJoin(childrenTable, eq(casesTable.childId, childrenTable.id))

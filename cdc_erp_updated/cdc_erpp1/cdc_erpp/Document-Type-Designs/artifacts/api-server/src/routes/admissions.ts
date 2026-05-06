@@ -40,39 +40,46 @@ const ADMISSION_WORKFLOW = {
   REJECTED: "Rejected",
 } as const;
 
-function canCreateAdmission(roleName: string | null | undefined) {
-  return ["Data Entry Operator", "Center Admin", "Super Admin", "Head Office"].includes(roleName ?? "");
+function canCreateAdmission(user: any) {
+  // If it's a global role or a center-based role with create permission
+  return user.roleScope === "Global" || user.roleScope === "Center";
 }
 
-function canEditAdmissionByState(roleName: string | null | undefined, state: string | null | undefined) {
-  const role = roleName ?? "";
+function canEditAdmissionByState(user: any, state: string | null | undefined) {
+  const role = user.roleName ?? "";
+  const scope = user.roleScope ?? "";
   const currentState = state ?? ADMISSION_WORKFLOW.DRAFT;
-  if (role === "Super Admin" || role === "Head Office" || role === "Center Admin") return true;
-  if (role !== "Data Entry Operator") return false;
-  return [
-    ADMISSION_WORKFLOW.DRAFT,
-    ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_CW,
-    ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_PO,
-  ].includes(currentState as any);
+  
+  if (scope === "Global" || role === "Center Admin") return true;
+  
+  // Center-based roles (DEO, Social Worker, etc.) can only edit in specific states
+  if (scope === "Center") {
+    return [
+      ADMISSION_WORKFLOW.DRAFT,
+      ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_CW,
+      ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_PO,
+    ].includes(currentState as any);
+  }
+  return false;
 }
 
-function canDeleteAdmission(roleName: string | null | undefined) {
-  return ["Super Admin", "Head Office", "Center Admin"].includes(roleName ?? "");
+function canDeleteAdmission(user: any) {
+  return user.roleScope === "Global" || user.roleName === "Center Admin";
 }
 
 function canBulkCascadeDeleteAdmissions(roleName: string | null | undefined) {
   return roleName === "Super Admin";
 }
 
-function canAccessCenter(user: Awaited<ReturnType<typeof getCurrentUser>>, recordCenterId: number | null) {
+function canAccessCenter(user: any, recordCenterId: number | null) {
   if (!user) return false;
-  if (user.roleName === "Super Admin" || user.roleName === "Head Office") return true;
+  if (user.roleScope === "Global") return true;
   if (recordCenterId == null) return true;
   return user.centerId === recordCenterId;
 }
 
-function isGenderCenterValidationBypassed(roleName: string | null | undefined) {
-  return roleName === "Super Admin" || roleName === "Head Office";
+function isGenderCenterValidationBypassed(user: any) {
+  return user.roleScope === "Global";
 }
 
 function normalizeGender(value: unknown): string {
@@ -211,7 +218,9 @@ router.post("/", async (req, res) => {
   try {
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
-    if (!canCreateAdmission(user.roleName)) return res.status(403).json({ error: "Forbidden" });
+    // moduleGuard("admissions") handles the general 'canCreate' check.
+    // We just verify the user has a valid scope here.
+    if (!user.roleScope) return res.status(403).json({ error: "Forbidden: role has no scope" });
 
     const childId = parseInt(req.body.childId, 10);
     const [child] = await db
@@ -222,7 +231,7 @@ router.post("/", async (req, res) => {
     if (!child) return res.status(404).json({ error: "Child not found" });
     if (!canAccessCenter(user, child.centerId ?? null)) return res.status(403).json({ error: "Forbidden" });
 
-    if (user.roleName === "Data Entry Operator" && user.centerId != null) {
+    if (user.roleScope === "Center" && user.centerId != null) {
       const requestedCenterId = req.body?.centerId ? parseInt(req.body.centerId, 10) : null;
       if (requestedCenterId != null && requestedCenterId !== user.centerId) {
         return res.status(403).json({ error: "Forbidden: DEO can submit admissions only for their own center" });
@@ -232,7 +241,7 @@ router.post("/", async (req, res) => {
       }
     }
 
-    if (!isGenderCenterValidationBypassed(user.roleName)) {
+    if (!isGenderCenterValidationBypassed(user)) {
       const centerId = req.body?.centerId ? parseInt(req.body.centerId, 10) : child.centerId;
       let centerName = "";
       if (centerId) {
@@ -305,7 +314,7 @@ router.put("/:id", async (req, res) => {
       .limit(1);
 
     if (!existing) return res.status(404).json({ error: "Not found" });
-    if (!canEditAdmissionByState(user.roleName, existing.approvalStatus)) {
+    if (!canEditAdmissionByState(user, existing.approvalStatus)) {
       return res.status(403).json({ error: "Forbidden: role cannot edit in this workflow state" });
     }
 
@@ -317,7 +326,7 @@ router.put("/:id", async (req, res) => {
     if (!child) return res.status(404).json({ error: "Child not found" });
     if (!canAccessCenter(user, child.centerId ?? null)) return res.status(403).json({ error: "Forbidden" });
 
-    if (user.roleName === "Data Entry Operator" && user.centerId != null) {
+    if (user.roleScope === "Center" && user.centerId != null) {
       const requestedCenterId = req.body?.centerId ? parseInt(req.body.centerId, 10) : null;
       if (requestedCenterId != null && requestedCenterId !== user.centerId) {
         return res.status(403).json({ error: "Forbidden: DEO can submit admissions only for their own center" });
@@ -327,7 +336,7 @@ router.put("/:id", async (req, res) => {
       }
     }
 
-    if (!isGenderCenterValidationBypassed(user.roleName)) {
+    if (!isGenderCenterValidationBypassed(user)) {
       const centerId = req.body?.centerId ? parseInt(req.body.centerId, 10) : child.centerId;
       let centerName = "";
       if (centerId) {
@@ -458,7 +467,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
-    if (!canDeleteAdmission(user.roleName)) return res.status(403).json({ error: "Forbidden" });
+    if (!canDeleteAdmission(user)) return res.status(403).json({ error: "Forbidden" });
 
     const id = parseInt(req.params.id, 10);
     const [existing] = await db

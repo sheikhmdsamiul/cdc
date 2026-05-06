@@ -115,6 +115,62 @@ function getProblemsMap(isBn: boolean): Record<string, string> {
   };
 }
 
+const LIVING_WITH_OPTIONS = [
+  { value: "both_parents", label: "মাতাপিতা উভয়ের সাথে থাকে" },
+  { value: "mother_only", label: "শুধু মাতার সাথে থাকে" },
+  { value: "father_only", label: "শুধু পিতার সাথে থাকে" },
+  { value: "elder_sibling", label: "বড় ভাই/বোনের সাথে থাকে" },
+  { value: "other_family", label: "অন্য আত্মীয় পরিবারের সাথে থাকে" },
+  { value: "non_family", label: "আত্মীয় নয় এমন কোনো ব্যক্তির সাথে থাকে" },
+  { value: "alone_street", label: "একাকী পথে থাকে" },
+  { value: "parents_street", label: "মাতাপিতার সাথে পথে থাকে" },
+  { value: "institution", label: "কোনো একটি প্রতিষ্ঠানে থাকে" },
+];
+
+const CHILD_PROBLEMS = [
+  { value: "orphan", label: "১৪.১ মাতাপিতার যেকোনো একজন বা উভয়ে মৃত্যুবরণ করিয়াছে" },
+  { value: "no_guardian", label: "১৪.২ আইনানুগ বা বৈধ অভিভাবকহীন শিশু" },
+  { value: "homeless", label: "১৪.৩ নির্দিষ্ট কোনো গৃহ বা আবাসস্থলহীন এবং জীবনধারণের জন্য কঠোর পরিশ্রমকারী শিশু" },
+  { value: "begging", label: "১৪.৪ ভিক্ষাবৃত্তি বা শিশুর মঙ্গলের পরিপন্থী কোনো কাজে লিপ্ত শিশু" },
+  { value: "prison_dependent", label: "১৪.৫ কারাভোগরত মাতাপিতার উপর নির্ভরশীল বা মাতার সাথে কারাগারে অবস্থানরত শিশু" },
+  { value: "sexual_abuse", label: "১৪.৬ যৌন নির্যাতন বা হয়রানির শিকার শিশু" },
+  { value: "criminal_network", label: "১৪.৭ সমাজবিরোধী কার্যে নিয়োজিত ব্যক্তি বা অপরাধীর সাথে থাকা শিশু" },
+  { value: "anti_social_inst", label: "১৪.৮ বাসস্থান বা কর্মস্থলে অবস্থানকারী বা গণনাগমনকারী প্রতিষ্ঠান শিশু" },
+  { value: "substance_abuse", label: "১৪.৯ মাদক বা অন্য কোনো কারণে অস্বাভাবিক আচরণগত সমস্যাযুক্ত শিশু" },
+  { value: "crime_prone", label: "১৪.১০ অসৎ সঙ্গে পতিত বা নৈতিক অধঃপতনের ঝুঁকিতে বা অপরাধ জগতে প্রবেশের ঝুঁকিসম্পন্ন শিশু" },
+  { value: "slum", label: "১৪.১১ বস্তিতে বসবাসকারী শিশু" },
+  { value: "street_child", label: "১৪.১২ রাস্তাঘাটে বসবাসকারী গৃহহীন শিশু" },
+  { value: "hijra", label: "১৪.১৩ হিজড়া শিশু" },
+  { value: "nomadic", label: "১৪.১৪ বেদে ও হরিজন শিশু" },
+  { value: "hiv_aids", label: "১৪.১৫ এইচআইভি/এইডস-এ আক্রান্ত বা ক্ষতিগ্রস্ত শিশু" },
+  { value: "law_contact", label: "১৪.১৬ আইনের সম্পর্শে আসা শিশু" },
+  { value: "law_conflict", label: "১৪.১৭ আইনের সাথে সংঘাতে জড়িত শিশু" },
+];
+
+function CheckGroup({ options, values, onChange }: { options: { value: string; label: string }[]; values: string[]; onChange: (v: string[]) => void }) {
+  const { i18n } = useTranslation();
+  const isBn = i18n.language === "bn";
+  return (
+    <div className="space-y-2">
+      {options.map(opt => {
+        const checked = values.includes(opt.value);
+        return (
+          <label key={opt.value} className="flex items-start gap-2.5 cursor-pointer group">
+            <div className={`mt-0.5 h-4 w-4 rounded border flex-shrink-0 flex items-center justify-center ${checked ? "bg-primary border-primary" : "border-border"}`}>
+              {checked && <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground" />}
+            </div>
+            <span className="text-sm leading-snug">{opt.label}</span>
+            <input type="checkbox" className="sr-only" checked={checked} onChange={() => {
+              if (checked) onChange(values.filter(x => x !== opt.value));
+              else onChange([...values, opt.value]);
+            }} />
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
 
 /* ────── risk assessment domains ────── */
 function getRiskDomains(isBn: boolean): { key: string; label: string }[] {
@@ -213,6 +269,8 @@ function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => vo
       permanentAddressVillage: caseFile.permanentAddressVillage ?? "",
       guardianPhone: caseFile.guardianPhone ?? "",
       email: caseFile.email ?? "",
+      livingWith: parseSafe(caseFile.livingWith),
+      childProblems: parseSafe(caseFile.childProblems),
       otherProblems: caseFile.otherProblems ?? "",
       referralReason: caseFile.referralReason ?? "",
       referralContactName: caseFile.referralContactName ?? "",
@@ -253,7 +311,12 @@ function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => vo
   });
 
   function save() {
-    updateCaseMutation.mutate(form);
+    const payload = {
+      ...form,
+      livingWith: JSON.stringify(form.livingWith),
+      childProblems: JSON.stringify(form.childProblems),
+    };
+    updateCaseMutation.mutate(payload);
   }
 
   const living = parseSafe(caseFile.livingWith);
@@ -399,6 +462,12 @@ function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => vo
           <FL label={isBn ? "ইউনিয়ন/ওয়ার্ড" : "Union/Ward"}><Input {...inp("permanentAddressUnion")} /></FL>
           <FL label={isBn ? "বাড়ি/সড়ক/গ্রাম" : "House/Road/Village"}><Input {...inp("permanentAddressVillage")} /></FL>
         </div>
+      </SCard>
+      <SCard title={isBn ? "১৩. বাসস্থান অবস্থা" : "13. Living Situation"}>
+        <CheckGroup options={LIVING_WITH_OPTIONS} values={form.livingWith ?? []} onChange={v => set("livingWith", v)} />
+      </SCard>
+      <SCard title={isBn ? "১৪. শিশুর সমস্যা" : "14. Child's Problems"}>
+        <CheckGroup options={CHILD_PROBLEMS} values={form.childProblems ?? []} onChange={v => set("childProblems", v)} />
       </SCard>
       <SCard title={isBn ? "রেফার ও জরুরি সেবা" : "Referral & Urgent Services"}>
         <FL label={isBn ? "রেফার/প্রেরণের কারণ" : "Referral Reason"}><Textarea className="min-h-[60px]" {...inp("referralReason")} /></FL>
@@ -1001,7 +1070,7 @@ export default function CaseDetail() {
             <Button variant="ghost" size="sm" className="gap-1.5"><ArrowLeft className="h-4 w-4" />{isBn ? "সকল কেস" : "All Cases"}</Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold leading-tight">{isBn ? `কেস ফাইল — ${cf.child?.fullName ?? "শিশু"}` : `Case File — ${cf.child?.fullName ?? "Child"}`}</h1>
+            <h1 className="text-xl font-bold leading-tight">{isBn ? `কেস ফাইল — ${cf.childName ?? "শিশু"}` : `Case File — ${cf.childName ?? "Child"}`}</h1>
             <p className="text-sm text-muted-foreground">{isBn ? "কেস আইডি:" : "Case ID:"} {cf.caseId || cf.id} {cf.registrationNumber && `| ${isBn ? "নিবন্ধন:" : "Reg:"} ${cf.registrationNumber}`}</p>
           </div>
         </div>
