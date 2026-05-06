@@ -303,8 +303,18 @@ router.get("/children-breakdown", async (req, res) => {
       const ct = c.caseType || "Unknown";
       byCaseType[ct] = (byCaseType[ct] || 0) + 1;
 
-      const dob = c.verifiedDob || c.dateOfBirth;
-      const age = c.verifiedAge ?? c.ageAtAdmission ?? (dob ? calculateAge(new Date(dob), new Date(c.admissionDate || Date.now())) : 0);
+      const dobRaw = c.verifiedDob || c.dateOfBirth;
+      const dob = parseDate(dobRaw);
+      const admissionDate = parseDate(c.admissionDate);
+      
+      let age: number | null = c.verifiedAge;
+      if (age === null && dob && admissionDate) {
+          age = calculateAge(dob, admissionDate);
+      }
+      if (age === null) {
+          age = c.ageAtAdmission ?? 0;
+      }
+
       if (age <= 7) byAgeGroup["0–7"]++;
       else if (age <= 12) byAgeGroup["8–12"]++;
       else if (age <= 15) byAgeGroup["13–15"]++;
@@ -1128,45 +1138,52 @@ function normalizeHearingStatus(status: unknown): string {
 function parseCourtHearingRows(court: {
   hearingDate?: string | Date | null;
   currentCaseStatus?: string | null;
-  courtAttendanceDetails?: string | null;
+  courtAttendanceDetails?: string | null | any;
 }): ParsedHearingRow[] {
-  const fallback: ParsedHearingRow[] = (court.hearingDate || court.currentCaseStatus)
+  const fallbackDate = court.hearingDate instanceof Date 
+    ? court.hearingDate.toISOString().slice(0, 10) 
+    : (typeof court.hearingDate === "string" ? court.hearingDate.slice(0, 10) : null);
+
+  const fallback: ParsedHearingRow[] = (fallbackDate || court.currentCaseStatus)
     ? [{
-      hearingDate: typeof court.hearingDate === "string" ? court.hearingDate.slice(0, 10) : null,
+      hearingDate: fallbackDate,
       status: normalizeHearingStatus(court.currentCaseStatus),
       reason: "",
     }]
     : [];
 
   const raw = court.courtAttendanceDetails;
-  if (!raw || typeof raw !== "string") return fallback;
+  if (!raw) return fallback;
 
   try {
-    const parsed = JSON.parse(raw);
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
     const history = Array.isArray(parsed?.history) ? parsed.history : (Array.isArray(parsed) ? parsed : null);
+    
     if (!history) {
       const status = normalizeHearingStatus(
-        (parsed as any)?.appearanceStatus
-        ?? (parsed as any)?.status
-        ?? (parsed as any)?.currentCaseStatus
+        parsed?.appearanceStatus
+        ?? parsed?.status
+        ?? parsed?.currentCaseStatus
         ?? court.currentCaseStatus,
       );
       const reason =
-        typeof (parsed as any)?.reason === "string"
-          ? (parsed as any).reason.trim()
-          : (typeof (parsed as any)?.reasonForNonAppearance === "string"
-            ? (parsed as any).reasonForNonAppearance.trim()
-            : (typeof (parsed as any)?.absenceReason === "string"
-              ? (parsed as any).absenceReason.trim()
+        typeof parsed?.reason === "string"
+          ? parsed.reason.trim()
+          : (typeof parsed?.reasonForNonAppearance === "string"
+            ? parsed.reasonForNonAppearance.trim()
+            : (typeof parsed?.absenceReason === "string"
+              ? parsed.absenceReason.trim()
               : ""));
-      const hearingDate = typeof court.hearingDate === "string" ? court.hearingDate.slice(0, 10) : null;
+      const hearingDate = fallbackDate;
       if (!hearingDate && !status && !reason) return fallback;
       return [{ hearingDate, status, reason }];
     }
 
     return history
       .map((row: any) => ({
-        hearingDate: typeof row?.hearingDate === "string" ? row.hearingDate.slice(0, 10) : null,
+        hearingDate: row?.hearingDate instanceof Date 
+          ? row.hearingDate.toISOString().slice(0, 10) 
+          : (typeof row?.hearingDate === "string" ? row.hearingDate.slice(0, 10) : null),
         status: normalizeHearingStatus(row?.status),
         reason:
           typeof row?.reason === "string"
