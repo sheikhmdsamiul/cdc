@@ -74,10 +74,10 @@ export default function FamilySocioeconomicList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canView   = usePermission("socioeconomic", "view");
-  const canCreate = usePermission("socioeconomic", "create");
-  const canEdit   = usePermission("socioeconomic", "edit");
-  const canDelete = usePermission("socioeconomic", "delete");
+  const canView   = usePermission("family-socioeconomic", "view");
+  const canCreate = usePermission("family-socioeconomic", "create");
+  const canEdit   = usePermission("family-socioeconomic", "edit");
+  const canDelete = usePermission("family-socioeconomic", "delete");
   const canOpenRow = canView;
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();

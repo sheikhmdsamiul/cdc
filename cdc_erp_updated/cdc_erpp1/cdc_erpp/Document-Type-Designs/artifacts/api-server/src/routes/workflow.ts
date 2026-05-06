@@ -1,207 +1,130 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { casesTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
-import { requireAuth } from "../middlewares/auth";
+import { casesTable, courtCasesTable, workflowLogsTable, usersTable } from "@workspace/db/schema";
+import { eq, desc } from "drizzle-orm";
 import { getCurrentUser } from "../middlewares/auth";
 
 const router = Router();
 
-export const WORKFLOW_STATES = {
-  DRAFT: "Draft",
-  SUBMITTED_TO_DF: "Submitted to DF",
-  REVIEWED_BY_DF: "Reviewed by DF",
-  REVIEWED_BY_PO: "Reviewed by PO",
-  SENT_BACK_TO_PO: "Sent Back to PO",
-  APPROVED: "Approved",
-  REJECTED: "Rejected",
-};
+router.get("/:recordType/:recordId/logs", async (req, res) => {
+  try {
+    const { recordType, recordId } = req.params;
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
 
-type RolePerms = {
-  canSubmitToDf: boolean;
-  canReviewAsDf: boolean;
-  canReviewAsPo: boolean;
-  canResubmit: boolean;
-  canFinalApprove: boolean;
-  canSendBack: boolean;
-  canReject: boolean;
-  canReopen: boolean;
-};
+    const logs = await db
+      .select({
+        id: workflowLogsTable.id,
+        action: workflowLogsTable.action,
+        message: workflowLogsTable.message,
+        createdAt: workflowLogsTable.createdAt,
+        userRole: usersTable.roleId, // We might just want roleName, let's fetch it via a join or just username
+        userName: usersTable.username,
+        fullName: usersTable.fullName,
+      })
+      .from(workflowLogsTable)
+      .leftJoin(usersTable, eq(workflowLogsTable.userId, usersTable.id))
+      .where(eq(workflowLogsTable.recordType, recordType))
+      .where(eq(workflowLogsTable.recordId, parseInt(recordId)))
+      .orderBy(workflowLogsTable.createdAt);
 
-const ROLE_PERMS: Record<string, RolePerms> = {
-  "Case Worker": {
-    canSubmitToDf: true,
-    canReviewAsDf: false,
-    canReviewAsPo: false,
-    canResubmit: false,
-    canFinalApprove: false,
-    canSendBack: false,
-    canReject: false,
-    canReopen: false,
-  },
-  "District Facilitator": {
-    canSubmitToDf: false,
-    canReviewAsDf: true,
-    canReviewAsPo: false,
-    canResubmit: false,
-    canFinalApprove: false,
-    canSendBack: false,
-    canReject: true,
-    canReopen: false,
-  },
-  "Probation Officer": {
-    canSubmitToDf: false,
-    canReviewAsDf: false,
-    canReviewAsPo: true,
-    canResubmit: true,
-    canFinalApprove: false,
-    canSendBack: false,
-    canReject: true,
-    canReopen: false,
-  },
-  "Superintendent": {
-    canSubmitToDf: false,
-    canReviewAsDf: false,
-    canReviewAsPo: false,
-    canResubmit: false,
-    canFinalApprove: true,
-    canSendBack: true,
-    canReject: true,
-    canReopen: true,
-  },
-  "Center Admin": {
-    canSubmitToDf: true,
-    canReviewAsDf: true,
-    canReviewAsPo: true,
-    canResubmit: true,
-    canFinalApprove: true,
-    canSendBack: true,
-    canReject: true,
-    canReopen: true,
-  },
-  "Super Admin": {
-    canSubmitToDf: true,
-    canReviewAsDf: true,
-    canReviewAsPo: true,
-    canResubmit: true,
-    canFinalApprove: true,
-    canSendBack: true,
-    canReject: true,
-    canReopen: true,
-  },
-  "Head Office": {
-    canSubmitToDf: true,
-    canReviewAsDf: true,
-    canReviewAsPo: true,
-    canResubmit: true,
-    canFinalApprove: true,
-    canSendBack: true,
-    canReject: true,
-    canReopen: true,
-  },
-  "Worker": {
-    canSubmitToDf: false,
-    canReviewAsDf: false,
-    canReviewAsPo: false,
-    canResubmit: false,
-    canFinalApprove: false,
-    canSendBack: false,
-    canReject: false,
-    canReopen: false,
-  },
-  "House Parent": {
-    canSubmitToDf: false,
-    canReviewAsDf: false,
-    canReviewAsPo: false,
-    canResubmit: false,
-    canFinalApprove: false,
-    canSendBack: false,
-    canReject: false,
-    canReopen: false,
-  },
-};
-
-router.post("/cases/:id/action", requireAuth, async (req, res) => {
-  const caseId = Number(req.params.id);
-  const { action, notes } = req.body;
-  const user = await getCurrentUser(req);
-  if (!user) { res.status(401).json({ error: "Unauthorized" }); return; }
-
-  const cases = await db.select().from(casesTable).where(eq(casesTable.id, caseId)).limit(1);
-  const caseRecord = cases[0];
-  if (!caseRecord) { res.status(404).json({ error: "Case not found" }); return; }
-
-  const roleName = user.roleName ?? "";
-  const perms = ROLE_PERMS[roleName] ?? {
-    canSubmitToDf: false, canReviewAsDf: false, canReviewAsPo: false,
-    canResubmit: false, canFinalApprove: false, canSendBack: false,
-    canReject: false, canReopen: false,
-  };
-  const current = caseRecord.workflowState;
-  const S = WORKFLOW_STATES;
-
-  let newState: string | null = null;
-  const updates: Partial<typeof casesTable.$inferInsert> = {};
-
-  if (action === "submit_to_df" && perms.canSubmitToDf && current === S.DRAFT) {
-    newState = S.SUBMITTED_TO_DF;
-    updates.submittedById = user.id;
-  } else if (action === "review_by_df" && perms.canReviewAsDf && current === S.SUBMITTED_TO_DF) {
-    newState = S.REVIEWED_BY_DF;
-    updates.reviewedByDfId = user.id;
-  } else if (action === "review_by_po" && perms.canReviewAsPo && current === S.REVIEWED_BY_DF) {
-    newState = S.REVIEWED_BY_PO;
-    updates.reviewedByProbationId = user.id;
-  } else if (action === "resubmit" && perms.canResubmit && current === S.SENT_BACK_TO_PO) {
-    newState = S.REVIEWED_BY_PO;
-    updates.reviewedByProbationId = user.id;
-    updates.sentBackNotes = null;
-  } else if (action === "final_approve" && perms.canFinalApprove && current === S.REVIEWED_BY_PO) {
-    newState = S.APPROVED;
-    updates.approvedById = user.id;
-    updates.caseStatus = "Closed";
-  } else if (action === "send_back" && perms.canSendBack && current === S.REVIEWED_BY_PO) {
-    newState = S.SENT_BACK_TO_PO;
-    updates.sentBackNotes = notes || null;
-  } else if (action === "reject" && perms.canReject) {
-    newState = S.REJECTED;
-    updates.caseStatus = "Closed";
-  } else if (action === "reopen" && perms.canReopen) {
-    newState = S.DRAFT;
-    updates.caseStatus = "Open";
-    updates.submittedById = null;
-    updates.reviewedByDfId = null;
-    updates.reviewedByProbationId = null;
-    updates.approvedById = null;
-    updates.sentBackNotes = null;
-  } else {
-    res.status(403).json({ error: "Action not permitted in current state" });
-    return;
+    res.json(logs);
+  } catch (err) {
+    req.log.error({ err }, "Failed to get workflow logs");
+    res.status(500).json({ error: "Internal server error", message: String(err) });
   }
-
-  updates.workflowState = newState;
-  if (notes && action !== "send_back") updates.workflowNotes = notes;
-
-  await db.update(casesTable).set(updates).where(eq(casesTable.id, caseId));
-  const updated = await db.select().from(casesTable).where(eq(casesTable.id, caseId)).limit(1);
-  res.json(updated[0]);
 });
 
-router.get("/cases/:id/history", requireAuth, async (req, res) => {
-  const caseId = Number(req.params.id);
-  const cases = await db.select().from(casesTable).where(eq(casesTable.id, caseId)).limit(1);
-  const caseRecord = cases[0];
-  if (!caseRecord) { res.status(404).json({ error: "Not found" }); return; }
-  res.json({
-    workflowState: caseRecord.workflowState,
-    workflowNotes: caseRecord.workflowNotes,
-    sentBackNotes: caseRecord.sentBackNotes,
-    submittedById: caseRecord.submittedById,
-    reviewedByDfId: caseRecord.reviewedByDfId,
-    reviewedByCaseworkerId: caseRecord.reviewedByCaseworkerId,
-    reviewedByProbationId: caseRecord.reviewedByProbationId,
-    approvedById: caseRecord.approvedById,
-  });
+router.post("/:recordType/:recordId/transition", async (req, res) => {
+  try {
+    const { recordType, recordId } = req.params;
+    const { action, message, hearingDate } = req.body;
+    
+    const user = await getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const parsedId = parseInt(recordId);
+    let table: any;
+    let existing: any;
+
+    if (recordType === "case") {
+      table = casesTable;
+      const [row] = await db.select().from(casesTable).where(eq(casesTable.id, parsedId));
+      existing = row;
+    } else if (recordType === "court_case") {
+      table = courtCasesTable;
+      const [row] = await db.select().from(courtCasesTable).where(eq(courtCasesTable.id, parsedId));
+      existing = row;
+    } else {
+      return res.status(400).json({ error: "Invalid record type" });
+    }
+
+    if (!existing) return res.status(404).json({ error: "Record not found" });
+
+    let newState = existing.workflowState;
+    const updates: any = {};
+
+    switch (action) {
+      case "submit_to_df":
+        newState = "submitted_to_df";
+        updates.submittedById = user.id;
+        break;
+      case "send_back_to_cw_by_df":
+        newState = "sent_back_to_cw_by_df";
+        updates.reviewedByDfId = user.id;
+        updates.sentBackNotes = message;
+        break;
+      case "send_back_to_cw_by_po":
+        newState = "sent_back_to_cw_by_po";
+        updates.reviewedByProbationId = user.id;
+        updates.sentBackNotes = message;
+        break;
+      case "submit_to_po":
+        newState = "submitted_to_po";
+        updates.reviewedByDfId = user.id;
+        if (recordType === "court_case" && hearingDate) {
+          updates.hearingDate = new Date(hearingDate);
+        }
+        break;
+      case "submit_to_supt":
+        newState = "submitted_to_supt";
+        updates.reviewedByProbationId = user.id;
+        break;
+      case "approve":
+        newState = "approved";
+        updates.approvedById = user.id;
+        break;
+      case "reject":
+        newState = "rejected";
+        updates.approvedById = user.id;
+        updates.workflowNotes = message;
+        break;
+      default:
+        return res.status(400).json({ error: "Invalid action" });
+    }
+
+    updates.workflowState = newState;
+
+    // Additional handling for CW submitting court case hearing date
+    if (action === "submit_to_df" && recordType === "court_case" && hearingDate) {
+      updates.hearingDate = new Date(hearingDate);
+    }
+
+    await db.update(table).set(updates).where(eq(table.id, parsedId));
+
+    await db.insert(workflowLogsTable).values({
+      recordType,
+      recordId: parsedId,
+      userId: user.id,
+      action,
+      message: message || null,
+    });
+
+    res.json({ ok: true, workflowState: newState });
+  } catch (err) {
+    req.log.error({ err }, "Failed to transition workflow");
+    res.status(500).json({ error: "Internal server error", message: String(err) });
+  }
 });
 
 export default router;

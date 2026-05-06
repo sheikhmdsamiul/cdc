@@ -21,8 +21,13 @@ router.post("/login", async (req, res) => {
     .limit(1);
 
   const user = users[0];
-  if (!user || !user.isActive) {
+  if (!user) {
     res.status(401).json({ error: "Invalid credentials" });
+    return;
+  }
+
+  if (!user.isActive) {
+    res.status(401).json({ error: "অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে। (Account is deactivated)" });
     return;
   }
 

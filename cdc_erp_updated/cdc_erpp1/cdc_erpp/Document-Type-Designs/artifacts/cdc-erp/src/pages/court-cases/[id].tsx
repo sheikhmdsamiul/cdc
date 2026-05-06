@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { useGetCourtCase, getGetCourtCaseQueryKey, getListCourtCasesQueryKey } from "@workspace/api-client-react";
-import { Loader2, ArrowLeft, Scale, Trash2, CalendarDays } from "lucide-react";
+import { Loader2, ArrowLeft, Scale, Trash2, Pencil, AlertTriangle, X, Save } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,9 @@ import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { getCourtOutcomeLabel } from "@/i18n/labels";
 import { useToast } from "@/hooks/use-toast";
+import { WorkflowTimeline } from "@/components/WorkflowTimeline";
+import { WorkflowActions } from "@/components/WorkflowActions";
+import { useAuth } from "@/contexts/AuthContext";
 
 type HearingStatus = "Appeared" | "Absent" | "Pending" | "";
 
@@ -23,6 +26,23 @@ type HearingRow = {
   rescheduled: "Yes" | "No";
   nextHearingDate: string;
 };
+
+function getWorkflowLabel(state: string, isBn: boolean) {
+  const w = state || "Draft";
+  const labelBn: Record<string, string> = {
+    Draft: "খসড়া", submitted_to_df: "DF এ পাঠানো হয়েছে", reviewed_by_df: "DF কর্তৃক পর্যালোচিত",
+    sent_back_to_cw_by_df: "DF কর্তৃক ফেরত", submitted_to_po: "PO এ পাঠানো হয়েছে",
+    reviewed_by_po: "PO কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "PO কর্তৃক ফেরত",
+    submitted_to_supt: "তত্ত্বাবধায়কের কাছে", approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত"
+  };
+  const labelEn: Record<string, string> = {
+    Draft: "Draft", submitted_to_df: "Submitted to DF", reviewed_by_df: "Reviewed by DF",
+    sent_back_to_cw_by_df: "Sent Back by DF", submitted_to_po: "Submitted to PO",
+    reviewed_by_po: "Reviewed by PO", sent_back_to_cw_by_po: "Sent Back by PO",
+    submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected"
+  };
+  return isBn ? (labelBn[w] || w) : (labelEn[w] || w);
+}
 
 const EMPTY_HEARING: HearingRow = {
   hearingDate: "",
@@ -82,6 +102,14 @@ export default function CourtCaseDetail() {
 
   const [hearingForm, setHearingForm] = useState<HearingRow>(EMPTY_HEARING);
   const [hearingRows, setHearingRows] = useState<HearingRow[]>([]);
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
+  const { user } = useAuth();
+  const role = (user as any)?.roleName;
+  const isCW = role === "Case Worker" || role === "Super Admin" || role === "Admin";
+  const workflowState = (courtCase as any)?.workflowState || "Draft";
+  const isSentBack = workflowState === "sent_back_to_cw_by_df" || workflowState === "sent_back_to_cw_by_po";
+  const sentBackNotes = (courtCase as any)?.sentBackNotes;
 
   useEffect(() => {
     if (!courtCase) return;
@@ -96,7 +124,6 @@ export default function CourtCaseDetail() {
         nextHearingDate: normalizeDate(courtCase.nextHearingDate),
       }));
     } else {
-      // Subsequent row logic: pre-populate hearingDate from last row's nextHearingDate
       const lastRow = historyRows[historyRows.length - 1];
       setHearingForm(prev => ({
         ...prev,
@@ -132,6 +159,31 @@ export default function CourtCaseDetail() {
     },
     onError: () => {
       toast({ title: isBn ? "সংরক্ষণ ব্যর্থ" : "Save failed", variant: "destructive" });
+    },
+  });
+
+  const updateCaseMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetch(`/api/court-cases/${caseId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to save");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getGetCourtCaseQueryKey(caseId) });
+      queryClient.invalidateQueries({ queryKey: getListCourtCasesQueryKey({}) });
+      setEditing(false);
+      toast({ title: isBn ? "মামলা আপডেট হয়েছে" : "Court case updated" });
+    },
+    onError: (err: any) => {
+      toast({ title: isBn ? "ব্যর্থ হয়েছে" : "Update failed", description: err.message, variant: "destructive" });
     },
   });
 
@@ -230,7 +282,85 @@ export default function CourtCaseDetail() {
             {" · "}{courtCase.courtName}
           </p>
         </div>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-muted-foreground">{isBn ? "অনুমোদন অবস্থা:" : "Approval Status:"}</span>
+            <span className="font-medium px-2 py-0.5 rounded-full bg-slate-100">{getWorkflowLabel((courtCase as any).workflowState, isBn)}</span>
+          </div>
+          {isCW && (
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
+              setEditForm({
+                courtName: courtCase.courtName ?? "",
+                policeStationName: (courtCase as any).policeStationName ?? "",
+                caseNo: courtCase.caseNo ?? "",
+                legalSection: (courtCase as any).legalSection ?? "",
+                lawyerName: courtCase.lawyerName ?? "",
+                legalAidType: (courtCase as any).legalAidType ?? "",
+                hearingDate: courtCase.hearingDate ?? "",
+                nextHearingDate: courtCase.nextHearingDate ?? "",
+                outcome: courtCase.outcome ?? "",
+              });
+              setEditing(true);
+            }}>
+              <Pencil className="h-3.5 w-3.5" />{isBn ? "সম্পাদন করুন" : "Edit Case"}
+            </Button>
+          )}
+        </div>
       </div>
+
+      <WorkflowActions recordType="court_case" recordId={courtCase.id} currentStatus={(courtCase as any).workflowState || "Draft"} onSuccess={() => { queryClient.invalidateQueries({ queryKey: getGetCourtCaseQueryKey(caseId) }) }} />
+
+      {/* Sent-back message banner for CW */}
+      {isSentBack && sentBackNotes && (
+        <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
+          <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-orange-800">
+              {workflowState === "sent_back_to_cw_by_df"
+                ? (isBn ? "DF কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by DF — Update Required")
+                : (isBn ? "PO কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by PO — Update Required")}
+            </p>
+            <p className="text-sm text-orange-700 mt-1">{sentBackNotes}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Inline edit form */}
+      {editing && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-blue-900">{isBn ? "মামলা সম্পাদন করুন" : "Edit Court Case"}</h3>
+            <Button size="icon" variant="ghost" onClick={() => setEditing(false)}><X className="h-4 w-4" /></Button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div><Label>{isBn ? "আদালতের নাম" : "Court Name"} *</Label>
+              <Input value={editForm.courtName} onChange={e => setEditForm((f: any) => ({ ...f, courtName: e.target.value }))} /></div>
+            <div><Label>{isBn ? "থানা" : "Police Station"}</Label>
+              <Input value={editForm.policeStationName} onChange={e => setEditForm((f: any) => ({ ...f, policeStationName: e.target.value }))} /></div>
+            <div><Label>{isBn ? "মামলা নম্বর" : "Case No"} *</Label>
+              <Input value={editForm.caseNo} onChange={e => setEditForm((f: any) => ({ ...f, caseNo: e.target.value }))} /></div>
+            <div><Label>{isBn ? "আইন ধারা" : "Legal Section"}</Label>
+              <Input value={editForm.legalSection} onChange={e => setEditForm((f: any) => ({ ...f, legalSection: e.target.value }))} /></div>
+            <div><Label>{isBn ? "আইনজীবীর নাম" : "Lawyer Name"}</Label>
+              <Input value={editForm.lawyerName} onChange={e => setEditForm((f: any) => ({ ...f, lawyerName: e.target.value }))} /></div>
+            <div><Label>{isBn ? "শুনানির তারিখ" : "Hearing Date"}</Label>
+              <Input type="date" value={editForm.hearingDate} onChange={e => setEditForm((f: any) => ({ ...f, hearingDate: e.target.value }))} /></div>
+            <div><Label>{isBn ? "পরবর্তী শুনানির তারিখ" : "Next Hearing Date"}</Label>
+              <Input type="date" value={editForm.nextHearingDate} onChange={e => setEditForm((f: any) => ({ ...f, nextHearingDate: e.target.value }))} /></div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setEditing(false)}>{isBn ? "বাতিল" : "Cancel"}</Button>
+            <Button
+              onClick={() => updateCaseMutation.mutate({ ...editForm, childId: courtCase.childId })}
+              disabled={updateCaseMutation.isPending}
+              className="gap-1.5"
+            >
+              <Save className="h-4 w-4" />
+              {updateCaseMutation.isPending ? (isBn ? "সংরক্ষণ হচ্ছে..." : "Saving...") : (isBn ? "সংরক্ষণ করুন" : "Save Changes")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] lg:grid-cols-[1fr_2fr] gap-4">
         <SectionCard title={isBn ? "আদালতের তথ্য" : "Court Information"}>
@@ -385,6 +515,10 @@ export default function CourtCaseDetail() {
           <DetailField label={t("timestamps.lastUpdated")} value={courtCase.updatedAt ? new Date(courtCase.updatedAt).toLocaleString() : undefined} />
         </div>
       </SectionCard>
+
+      <div className="max-w-2xl mt-8">
+        <WorkflowTimeline recordType="court_case" recordId={courtCase.id} />
+      </div>
     </div>
   );
 }

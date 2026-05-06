@@ -45,6 +45,13 @@ const SELECT_FIELDS = {
   educationTraining: courtCasesTable.educationTraining,
   centerFacilities: courtCasesTable.centerFacilities,
   caseComments: courtCasesTable.caseComments,
+  workflowState: courtCasesTable.workflowState,
+  workflowNotes: courtCasesTable.workflowNotes,
+  sentBackNotes: courtCasesTable.sentBackNotes,
+  submittedById: courtCasesTable.submittedById,
+  reviewedByDfId: courtCasesTable.reviewedByDfId,
+  reviewedByProbationId: courtCasesTable.reviewedByProbationId,
+  approvedById: courtCasesTable.approvedById,
   createdAt: courtCasesTable.createdAt,
   updatedAt: courtCasesTable.updatedAt,
 };
@@ -151,7 +158,10 @@ router.put("/:id", async (req, res) => {
     const allowed = await checkManageAccess(req, res, child?.centerId ?? null);
     if (!allowed) return;
 
-    const [courtCase] = await db.update(courtCasesTable).set(req.body).where(eq(courtCasesTable.id, id)).returning();
+    // Strip workflow-controlled fields so regular edits cannot overwrite them
+    const { workflowState, workflowNotes, sentBackNotes, submittedById, reviewedByDfId, reviewedByProbationId, approvedById, ...safeBody } = req.body;
+
+    const [courtCase] = await db.update(courtCasesTable).set(safeBody).where(eq(courtCasesTable.id, id)).returning();
     if (!courtCase) return res.status(404).json({ error: "Not found" });
     const [childFull] = await db.select().from(childrenTable).where(eq(childrenTable.id, courtCase.childId));
     res.json({ ...courtCase, childName: childFull?.fullName });
@@ -160,6 +170,7 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: "Internal server error", message: String(err) });
   }
 });
+
 
 router.delete("/:id", async (req, res) => {
   try {

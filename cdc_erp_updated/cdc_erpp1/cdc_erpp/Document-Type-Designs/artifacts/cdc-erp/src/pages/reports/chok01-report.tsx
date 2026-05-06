@@ -403,12 +403,15 @@ function Chok01ReportTable({
   return (
     <div className="rounded-2xl border border-teal-100 bg-white shadow-[0_18px_40px_-24px_rgba(15,118,110,0.35)] overflow-hidden">
       <div ref={sheetRef} className="max-h-[72vh] overflow-auto overscroll-contain bg-[linear-gradient(180deg,#fdfefe_0%,#f9fffd_100%)] p-4">
-        <div className="text-center mb-4 text-sm leading-6 text-slate-900 whitespace-pre-line" style={{ fontFamily: "NikoshBAN, 'Noto Sans Bengali', sans-serif" }}>
-          {`গণপ্রজাতন্ত্রী বাংলাদেশ সরকার\nসমাজসেবা অধিদপ্তর\n${centerTitle}\nবিষয়ঃ আইনের সংঘাতে জড়িত/ আইনের সংস্পর্শে আসা শিশুদের “ছক” মোতাবেক তথ্যাবলী প্রেরণ।\nছক-০১ | ${monthName} ${toBnDigits(report.year)} | তারিখ: ${reportDateText}`}
-        </div>
+
 
         <table className="w-full text-xs border-collapse" style={{ fontFamily: "NikoshBAN, 'Noto Sans Bengali', sans-serif" }}>
           <thead>
+            <tr>
+              <th colSpan={14} className="border-none px-2 py-4 text-center text-sm leading-6 text-slate-900 whitespace-pre-line font-bold">
+                {`গণপ্রজাতন্ত্রী বাংলাদেশ সরকার\nসমাজসেবা অধিদপ্তর\n${centerTitle}\nবিষয়ঃ আইনের সংঘাতে জড়িত/ আইনের সংস্পর্শে আসা শিশুদের “ছক” মোতাবেক তথ্যাবলী প্রেরণ।\nছক-০১ | ${monthName} ${toBnDigits(report.year)} | তারিখ: ${reportDateText}`}
+              </th>
+            </tr>
             <tr className="bg-[#e8f4f4] text-[11px] font-bold text-teal-900">
               <th className="border border-slate-400 px-2 py-2">প্রতিষ্ঠানের নাম</th>
               <th className="border border-slate-400 px-2 py-2">বর্তমান নিবাসীসংখ্যা</th>

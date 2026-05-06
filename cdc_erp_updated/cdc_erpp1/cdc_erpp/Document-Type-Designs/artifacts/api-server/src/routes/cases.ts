@@ -134,10 +134,13 @@ router.put("/:id", async (req, res) => {
     const allowed = await checkManageAccess(req, res, child?.centerId ?? null);
     if (!allowed) return;
 
-    const [caseFile] = await db.update(casesTable).set(req.body).where(eq(casesTable.id, id)).returning();
+    // Strip workflow-controlled fields so regular edits cannot overwrite them
+    const { workflowState, workflowNotes, sentBackNotes, submittedById, reviewedByDfId, reviewedByProbationId, approvedById, ...safeBody } = req.body;
+
+    const [caseFile] = await db.update(casesTable).set(safeBody).where(eq(casesTable.id, id)).returning();
     if (!caseFile) return res.status(404).json({ error: "Not found", message: "Case not found" });
     const [childFull] = await db.select().from(childrenTable).where(eq(childrenTable.id, caseFile.childId));
-    res.json({ ...caseFile, childName: childFull?.fullName });
+    res.json({ ...caseFile, childName: childFull?.fullName, _debug_reqBody: req.body, _debug_safeBody: safeBody });
   } catch (err) {
     req.log.error({ err }, "Failed to update case");
     res.status(500).json({ error: "Internal server error", message: String(err) });

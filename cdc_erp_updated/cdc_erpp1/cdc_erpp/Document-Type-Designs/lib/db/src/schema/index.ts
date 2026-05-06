@@ -27,3 +27,4 @@ export * from "./classes";
 export * from "./trainings";
 export * from "./role_permissions";
 export * from "./role_center_access";
+export * from "./workflow_logs";

@@ -1,6 +1,6 @@
 import { useParams, useLocation } from "wouter";
-import { useGetCase, getGetCaseQueryKey, useUpdateCase } from "@workspace/api-client-react";
-import { Loader2, ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Send, Edit2, Save, X, Plus } from "lucide-react";
+import { useGetCase, getGetCaseQueryKey, customFetch } from "@workspace/api-client-react";
+import { Loader2, ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Send, Edit2, Save, X, Plus, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,9 +11,11 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTranslation } from "react-i18next";
+import { WorkflowTimeline } from "@/components/WorkflowTimeline";
+import { WorkflowActions } from "@/components/WorkflowActions";
 
 /* ────── helpers ────── */
-type TabId = "intake" | "risk" | "detail" | "plan" | "agreement";
+type TabId = "intake" | "risk" | "detail" | "plan" | "agreement" | "timeline";
 
 function getTabs(isBn: boolean): { id: TabId; label: string; sub: string }[] {
   return [
@@ -22,7 +24,25 @@ function getTabs(isBn: boolean): { id: TabId; label: string; sub: string }[] {
     { id: "detail", label: isBn ? "বিশদ যাচাই" : "Detailed Assessment", sub: "Form 3" },
     { id: "plan", label: isBn ? "হস্তক্ষেপ পরিকল্পনা" : "Intervention Plan", sub: "Form 4" },
     { id: "agreement", label: isBn ? "বাস্তবায়ন চুক্তি" : "Implementation Agreement", sub: "Form 5" },
+    { id: "timeline", label: isBn ? "সময়রেখা" : "Timeline", sub: "Workflow" },
   ];
+}
+
+function getWorkflowLabel(state: string, isBn: boolean) {
+  const w = state || "Draft";
+  const labelBn: Record<string, string> = {
+    Draft: "খসড়া", submitted_to_df: "DF এ পাঠানো হয়েছে", reviewed_by_df: "DF কর্তৃক পর্যালোচিত",
+    sent_back_to_cw_by_df: "DF কর্তৃক ফেরত", submitted_to_po: "PO এ পাঠানো হয়েছে",
+    reviewed_by_po: "PO কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "PO কর্তৃক ফেরত",
+    submitted_to_supt: "তত্ত্বাবধায়কের কাছে", approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত"
+  };
+  const labelEn: Record<string, string> = {
+    Draft: "Draft", submitted_to_df: "Submitted to DF", reviewed_by_df: "Reviewed by DF",
+    sent_back_to_cw_by_df: "Sent Back by DF", submitted_to_po: "Submitted to PO",
+    reviewed_by_po: "Reviewed by PO", sent_back_to_cw_by_po: "Sent Back by PO",
+    submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected"
+  };
+  return isBn ? (labelBn[w] || w) : (labelEn[w] || w);
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -147,55 +167,14 @@ function getRiskScoreLabels(isBn: boolean): Record<number, string> {
   };
 }
 
-/* ────── workflow ────── */
-function WorkflowBar({ caseFile, onAction }: { caseFile: any; onAction: () => void }) {
-  const { user } = useAuth();
-  const canEdit = usePermission("cases", "edit");
-  const { toast } = useToast();
-  const { t, i18n } = useTranslation();
-  const isBn = i18n.language === "bn";
-  const [loading, setLoading] = useState(false);
-
-  async function act(action: string, comment?: string) {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/workflow/cases/${caseFile.id}/action`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, comment }),
-      });
-      if (!res.ok) throw new Error();
-      toast({ title: isBn ? "সফল" : "Success", description: isBn ? "অনুমোদনের পদক্ষেপ সম্পন্ন হয়েছে।" : "Workflow action completed." });
-      onAction();
-    } catch {
-      toast({ title: isBn ? "ত্রুটি" : "Error", description: isBn ? "পদক্ষেপ নিতে ব্যর্থ হয়েছে।" : "Failed to perform action.", variant: "destructive" });
-    } finally { setLoading(false); }
-  }
-
-  const st = caseFile.approvalStatus;
-  const canSubmit = canEdit && st === "Draft";
-  const canReview = canEdit && st === "Pending";
-
-  return (
-    <div className="flex items-center gap-3 text-sm flex-wrap">
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[caseFile.caseStatus] || "bg-muted"}`}>{caseFile.caseStatus}</span>
-      <span className="text-muted-foreground">{isBn ? "অনুমোদন অবস্থা:" : "Approval Status:"}</span>
-      <span className="font-medium">{st || "Draft"}</span>
-      {canSubmit && <Button size="sm" onClick={() => act("submit")} disabled={loading}><Send className="h-3.5 w-3.5 mr-1.5" />{isBn ? "জমা দিন" : "Submit"}</Button>}
-      {canReview && <>
-        <Button size="sm" onClick={() => act("approve")} disabled={loading} className="bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />{isBn ? "অনুমোদন" : "Approve"}</Button>
-        <Button size="sm" variant="destructive" onClick={() => act("reject")} disabled={loading}><XCircle className="h-3.5 w-3.5 mr-1.5" />{isBn ? "প্রত্যাখ্যান" : "Reject"}</Button>
-      </>}
-      {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-    </div>
-  );
-}
+/* ────── Workflow replaced by components ────── */
 
 /* ────── Form 1 (Intake) view/edit ────── */
 function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => void }) {
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
-  const updateCase = useUpdateCase();
+  const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<any>({});
   
@@ -255,11 +234,26 @@ function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => vo
   const set = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
   const inp = (k: string) => ({ value: form[k] ?? "", onChange: (e: any) => set(k, e.target.value) });
 
+  const updateCaseMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return customFetch(`/api/cases/${caseFile.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      toast({ title: isBn ? "সফল" : "Success", description: isBn ? "তথ্য সংরক্ষিত হয়েছে।" : "Data saved successfully." });
+      setEditing(false);
+      onRefresh();
+    },
+    onError: (err: any) => {
+      toast({ title: isBn ? "ত্রুটি" : "Error", description: err.message || (isBn ? "সংরক্ষণ ব্যর্থ হয়েছে।" : "Failed to save."), variant: "destructive" });
+    }
+  });
+
   function save() {
-    updateCase.mutate({ id: caseFile.id, data: form }, {
-      onSuccess: () => { toast({ title: isBn ? "সফল" : "Success", description: isBn ? "তথ্য সংরক্ষিত হয়েছে।" : "Data saved successfully." }); setEditing(false); onRefresh(); },
-      onError: () => toast({ title: isBn ? "ত্রুটি" : "Error", description: isBn ? "সংরক্ষণ ব্যর্থ হয়েছে।" : "Failed to save.", variant: "destructive" }),
-    });
+    updateCaseMutation.mutate(form);
   }
 
   const living = parseSafe(caseFile.livingWith);
@@ -346,8 +340,8 @@ function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => vo
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => setEditing(false)} className="gap-1.5"><X className="h-3.5 w-3.5" />{isBn ? "বাতিল" : "Cancel"}</Button>
-        <Button size="sm" onClick={save} disabled={updateCase.isPending} className="gap-1.5">
-          {updateCase.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{isBn ? "সংরক্ষণ" : "Save"}
+        <Button size="sm" onClick={save} disabled={updateCaseMutation.isPending} className="gap-1.5">
+          {updateCaseMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{isBn ? "সংরক্ষণ" : "Save"}
         </Button>
       </div>
       <SCard title={isBn ? "শিশুর পরিচয়" : "Child Identity"}>
@@ -359,7 +353,7 @@ function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => vo
                 <Loader2 className="h-4 w-4 animate-spin" /> {isBn ? "লোড হচ্ছে..." : "Loading..."}
               </div>
             ) : (
-              <Select value={form.caseType} onValueChange={v => set("caseType", v)}>
+              <Select value={form.caseType || ""} onValueChange={v => set("caseType", v)}>
                 <SelectTrigger><SelectValue placeholder={isBn ? "বেছে নিন" : "Select"} /></SelectTrigger>
                 <SelectContent>
                   {caseTypes.map((ct: any) => (
@@ -425,7 +419,7 @@ function IntakeTab({ caseFile, onRefresh }: { caseFile: any; onRefresh: () => vo
           <FL label={isBn ? "তত্ত্বাবধানকারী" : "Supervisor"}><Input {...inp("supervisorName")} /></FL>
           <FL label={isBn ? "নিয়োজিত কেস ওয়ার্কার" : "Assigned Case Worker"}><Input {...inp("assignedCaseWorker")} /></FL>
           <FL label={isBn ? "কেস অবস্থা" : "Case Status"}>
-            <Select value={form.caseStatus} onValueChange={v => set("caseStatus", v)}>
+            <Select value={form.caseStatus || ""} onValueChange={v => set("caseStatus", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {["Open","Active","Closed","Transferred"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -1011,8 +1005,32 @@ export default function CaseDetail() {
             <p className="text-sm text-muted-foreground">{isBn ? "কেস আইডি:" : "Case ID:"} {cf.caseId || cf.id} {cf.registrationNumber && `| ${isBn ? "নিবন্ধন:" : "Reg:"} ${cf.registrationNumber}`}</p>
           </div>
         </div>
-        <WorkflowBar caseFile={cf} onAction={refresh} />
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-3 text-sm">
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[cf.caseStatus] || "bg-muted"}`}>{cf.caseStatus}</span>
+            <span className="text-muted-foreground">{isBn ? "অনুমোদন অবস্থা:" : "Approval Status:"}</span>
+            <span className="font-medium px-2 py-0.5 rounded-full bg-slate-100">{getWorkflowLabel(cf.workflowState, isBn)}</span>
+          </div>
+        </div>
       </div>
+      
+      <WorkflowActions recordType="case" recordId={cf.id} currentStatus={cf.workflowState || "Draft"} onSuccess={refresh} />
+
+      {/* Sent-back message banner for CW */}
+      {(cf.workflowState === "sent_back_to_cw_by_df" || cf.workflowState === "sent_back_to_cw_by_po") && cf.sentBackNotes && (
+        <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
+          <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-orange-800">
+              {cf.workflowState === "sent_back_to_cw_by_df"
+                ? (isBn ? "DF কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by DF — Update Required")
+                : (isBn ? "PO কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by PO — Update Required")}
+            </p>
+            <p className="text-sm text-orange-700 mt-1">{cf.sentBackNotes}</p>
+            <p className="text-xs text-orange-500 mt-2">{isBn ? "নিচের ফরম ট্যাবে বিরতিত তথ্য সম্পাদনা করুন।" : "Edit the required information in the form tabs below, then resubmit to DF."}</p>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 border-b overflow-x-auto">
@@ -1031,6 +1049,7 @@ export default function CaseDetail() {
         {activeTab === "detail" && <DetailTab caseId={cf.id} />}
         {activeTab === "plan" && <PlanTab caseId={cf.id} />}
         {activeTab === "agreement" && <AgreementTab caseId={cf.id} />}
+        {activeTab === "timeline" && <div className="max-w-2xl"><WorkflowTimeline recordType="case" recordId={cf.id} /></div>}
       </div>
     </div>
   );

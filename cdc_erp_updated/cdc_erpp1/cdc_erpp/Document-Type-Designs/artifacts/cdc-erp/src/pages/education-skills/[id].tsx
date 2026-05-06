@@ -90,10 +90,10 @@ export default function EducationSkillsDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const canView   = usePermission("education", "view");
-  const canCreate = usePermission("education", "create");
-  const canEdit   = usePermission("education", "edit");
-  const canDelete = usePermission("education", "delete");
+  const canView   = usePermission("education-skills", "view");
+  const canCreate = usePermission("education-skills", "create");
+  const canEdit   = usePermission("education-skills", "edit");
+  const canDelete = usePermission("education-skills", "delete");
 
   const canManage = canCreate || canEdit || canDelete;
   const canOpenRow = canView;

@@ -44,10 +44,10 @@ export default function SurveysList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canView   = usePermission("surveys", "view");
-  const canCreate = usePermission("surveys", "create");
-  const canEdit   = usePermission("surveys", "edit");
-  const canDelete = usePermission("surveys", "delete");
+  const canView   = usePermission("measurement-surveys", "view");
+  const canCreate = usePermission("measurement-surveys", "create");
+  const canEdit   = usePermission("measurement-surveys", "edit");
+  const canDelete = usePermission("measurement-surveys", "delete");
 
   const [deleting, setDeleting] = useState<Survey | null>(null);
   const [editing, setEditing] = useState<Survey | null>(null);

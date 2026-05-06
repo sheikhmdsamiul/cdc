@@ -23,10 +23,10 @@ export default function FollowUpsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canView   = usePermission("followups", "view");
-  const canCreate = usePermission("followups", "create");
-  const canEdit   = usePermission("followups", "edit");
-  const canDelete = usePermission("followups", "delete");
+  const canView   = usePermission("follow-ups", "view");
+  const canCreate = usePermission("follow-ups", "create");
+  const canEdit   = usePermission("follow-ups", "edit");
+  const canDelete = usePermission("follow-ups", "delete");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);

@@ -54,10 +54,10 @@ export default function PoliceRequisitionsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canView   = usePermission("police", "view");
-  const canCreate = usePermission("police", "create");
-  const canEdit   = usePermission("police", "edit");
-  const canDelete = usePermission("police", "delete");
+  const canView   = usePermission("police-requisitions", "view");
+  const canCreate = usePermission("police-requisitions", "create");
+  const canEdit   = usePermission("police-requisitions", "edit");
+  const canDelete = usePermission("police-requisitions", "delete");
 
   const [deleting, setDeleting] = useState<PoliceReq | null>(null);
   const [editing, setEditing] = useState<PoliceReq | null>(null);

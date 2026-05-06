@@ -39,21 +39,37 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 router.post("/", requireAuth, async (req, res) => {
-  const { username, fullName, email, password, roleId, centerId, administrativeUnitId } = req.body;
-  if (!username || !fullName || !password) {
-    res.status(400).json({ error: "username, fullName, and password required" });
-    return;
+  try {
+    const { username, fullName, email, password, roleId, centerId, administrativeUnitId } = req.body;
+    if (!username || !fullName || !password) {
+      res.status(400).json({ error: "username, fullName, and password required" });
+      return;
+    }
+
+    const existing = await db.select().from(usersTable).where(eq(usersTable.username, username)).limit(1);
+    if (existing.length > 0) {
+      if (!existing[0].isActive) {
+        res.status(400).json({ error: "এই ব্যবহারকারীর নাম (username) আগে থেকেই আছে কিন্তু মুছে ফেলা হয়েছে। নতুন করে তৈরি করার বদলে এটি পুনরায় সক্রিয় (reactivate) করুন।" });
+        return;
+      }
+      res.status(400).json({ error: "Username already exists." });
+      return;
+    }
+
+    const passwordHash = await bcryptjs.hash(password, 12);
+    const inserted = await db.insert(usersTable).values({
+      username, fullName, email, passwordHash,
+      roleId: roleId ? Number(roleId) : null,
+      centerId: centerId ? Number(centerId) : null,
+      administrativeUnitId: administrativeUnitId ? Number(administrativeUnitId) : null,
+      isActive: true,
+    }).returning({ id: usersTable.id });
+    const newUser = await userQuery().where(eq(usersTable.id, inserted[0].id)).limit(1);
+    res.status(201).json(newUser[0]);
+  } catch (err: any) {
+    console.error("Error creating user:", err);
+    res.status(500).json({ error: err.message || "Internal server error" });
   }
-  const passwordHash = await bcryptjs.hash(password, 12);
-  const inserted = await db.insert(usersTable).values({
-    username, fullName, email, passwordHash,
-    roleId: roleId ? Number(roleId) : null,
-    centerId: centerId ? Number(centerId) : null,
-    administrativeUnitId: administrativeUnitId ? Number(administrativeUnitId) : null,
-    isActive: true,
-  }).returning({ id: usersTable.id });
-  const newUser = await userQuery().where(eq(usersTable.id, inserted[0].id)).limit(1);
-  res.status(201).json(newUser[0]);
 });
 
 router.put("/:id", requireAuth, async (req, res) => {

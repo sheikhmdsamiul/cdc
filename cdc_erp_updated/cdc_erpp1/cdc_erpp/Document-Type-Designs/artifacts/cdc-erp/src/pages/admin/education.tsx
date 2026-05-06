@@ -218,10 +218,10 @@ export default function EducationConfigPage() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const isBn = i18n.language === "bn";
-  const canView   = usePermission("education", "view");
-  const canCreate = usePermission("education", "create");
-  const canEdit   = usePermission("education", "edit");
-  const canDelete = usePermission("education", "delete");
+  const canView   = usePermission("education-skills", "view");
+  const canCreate = usePermission("education-skills", "create");
+  const canEdit   = usePermission("education-skills", "edit");
+  const canDelete = usePermission("education-skills", "delete");
 
   const canManage = canCreate || canEdit || canDelete;
 

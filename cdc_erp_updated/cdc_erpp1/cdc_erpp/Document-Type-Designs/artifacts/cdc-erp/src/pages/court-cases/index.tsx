@@ -41,6 +41,26 @@ const CHILD_CASE_TYPES = [
   "সন্ত্রাস বিরোধী আইন",
   "বৈদেশিক নাগরিক আইন",
 ];
+
+const WORKFLOW_LABEL: Record<string, string> = {
+  Draft: "খসড়া", submitted_to_df: "DF এ পাঠানো হয়েছে", reviewed_by_df: "DF কর্তৃক পর্যালোচিত",
+  sent_back_to_cw_by_df: "DF কর্তৃক ফেরত", submitted_to_po: "PO এ পাঠানো হয়েছে",
+  reviewed_by_po: "PO কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "PO কর্তৃক ফেরত",
+  submitted_to_supt: "তত্ত্বাবধায়কের কাছে", approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত",
+};
+const WORKFLOW_LABEL_EN: Record<string, string> = {
+  Draft: "Draft", submitted_to_df: "Submitted to DF", reviewed_by_df: "Reviewed by DF",
+  sent_back_to_cw_by_df: "Sent Back by DF", submitted_to_po: "Submitted to PO",
+  reviewed_by_po: "Reviewed by PO", sent_back_to_cw_by_po: "Sent Back by PO",
+  submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected",
+};
+const WORKFLOW_COLOR: Record<string, string> = {
+  Draft: "bg-gray-100 text-gray-800",
+  submitted_to_df: "bg-blue-100 text-blue-800", reviewed_by_df: "bg-blue-100 text-blue-800",
+  sent_back_to_cw_by_df: "bg-orange-100 text-orange-800", submitted_to_po: "bg-blue-100 text-blue-800",
+  reviewed_by_po: "bg-blue-100 text-blue-800", sent_back_to_cw_by_po: "bg-orange-100 text-orange-800",
+  submitted_to_supt: "bg-blue-100 text-blue-800", approved: "bg-green-100 text-green-800", rejected: "bg-red-100 text-red-800",
+};
 const EMPTY_FORM = {
   childId: "",
   courtName: "",
@@ -106,10 +126,10 @@ export default function CourtCasesList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canView   = usePermission("court", "view");
-  const canCreate = usePermission("court", "create");
-  const canEdit   = usePermission("court", "edit");
-  const canDelete = usePermission("court", "delete");
+  const canView   = usePermission("court-cases", "view");
+  const canCreate = usePermission("court-cases", "create");
+  const canEdit   = usePermission("court-cases", "edit");
+  const canDelete = usePermission("court-cases", "delete");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -125,9 +145,13 @@ export default function CourtCasesList() {
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) =>
-      fetch(`/api/court-cases/${id}`, { method: "PUT", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(r => r.json()),
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const res = await fetch(`/api/court-cases/${id}`, { method: "PUT", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.message || e.error || "Update failed"); }
+      return res.json();
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListCourtCasesQueryKey({}) }); closeDialog(); toast({ title: isBn ? "আপডেট হয়েছে" : "Updated" }); },
+    onError: (err: any) => { toast({ title: isBn ? "ব্যর্থ হয়েছে" : "Update failed", description: err.message, variant: "destructive" }); },
   });
 
   const deleteMutation = useMutation({
@@ -234,6 +258,16 @@ export default function CourtCasesList() {
     { key: "hearingDate", label: "Hearing Date", labelBn: "শুনানির তারিখ", exportValue: r => r.hearingDate ?? "" },
     { key: "nextHearingDate", label: "Next Hearing Date", labelBn: "পরবর্তী শুনানির তারিখ", exportValue: r => r.nextHearingDate ?? "" },
     { key: "outcome", label: "Outcome", labelBn: "ফলাফল", filterType: "select", filterOptions: OUTCOMES.map(o => ({ value: o, label: o, labelBn: OUTCOME_LABEL[o] ?? o })), exportValue: r => r.outcome ?? "", render: r => <span className="px-2 py-1 rounded-full text-xs bg-purple-50 text-purple-700">{OUTCOME_LABEL[r.outcome ?? ""] ?? r.outcome}</span> },
+    {
+      key: "workflowState", label: "Approval", labelBn: "অনুমোদন অবস্থা",
+      exportValue: r => (r as any).workflowState ?? "",
+      render: (r, isBn) => {
+        const w = (r as any).workflowState || "Draft";
+        const label = isBn ? (WORKFLOW_LABEL[w] || w) : (WORKFLOW_LABEL_EN[w] || w);
+        const color = WORKFLOW_COLOR[w] || "bg-gray-100 text-gray-800";
+        return <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${color}`}>{label}</span>;
+      }
+    },
   ];
 
   return (

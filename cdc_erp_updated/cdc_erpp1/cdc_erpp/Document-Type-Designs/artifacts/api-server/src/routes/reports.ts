@@ -277,6 +277,7 @@ router.get("/children-breakdown", async (req, res) => {
     const query = db.select({
       id: childrenTable.id, gender: childrenTable.gender, currentStatus: childrenTable.currentStatus,
       admissionDate: childrenTable.admissionDate, ageAtAdmission: childrenTable.ageAtAdmission,
+      verifiedAge: childrenTable.verifiedAge, verifiedDob: childrenTable.verifiedDob,
       centerId: childrenTable.centerId, admissionSource: childrenTable.admissionSource,
       presentDivision: childrenTable.presentDivision, caseType: childrenTable.caseType,
       centerName: centersTable.centerName,
@@ -302,7 +303,8 @@ router.get("/children-breakdown", async (req, res) => {
       const ct = c.caseType || "Unknown";
       byCaseType[ct] = (byCaseType[ct] || 0) + 1;
 
-      const age = c.ageAtAdmission ?? 0;
+      const dob = c.verifiedDob || c.dateOfBirth;
+      const age = c.verifiedAge ?? c.ageAtAdmission ?? (dob ? calculateAge(new Date(dob), new Date(c.admissionDate || Date.now())) : 0);
       if (age <= 7) byAgeGroup["0–7"]++;
       else if (age <= 12) byAgeGroup["8–12"]++;
       else if (age <= 15) byAgeGroup["13–15"]++;
@@ -911,7 +913,7 @@ router.get("/monthly-report", async (req, res) => {
         riskRow?.childNature ?? "",
         riskRow?.communicationSkill ?? "",
         riskRow?.communicationWithGuardian ?? "",
-        joinLines(admissionEligibleFor, trainingNames).replace(/\n/g, ", ") || riskRow?.educationTrainingInfo || joinLines(child.educationLevel, child.skills).replace(/\n/g, ", "),
+        admissionEligibleFor ?? "",
         riskRow?.childCounselingStatus ?? "",
         riskRow?.familyCounselingStatus ?? "",
         riskRow?.recreationArrangement ?? "",
@@ -1201,8 +1203,10 @@ router.get("/chok01", async (req, res) => {
         motherName: childrenTable.motherName,
         fatherName: childrenTable.fatherName,
         dateOfBirth: childrenTable.dateOfBirth,
+        ageAtAdmission: childrenTable.ageAtAdmission,
         verifiedAge: childrenTable.verifiedAge,
         verifiedDob: childrenTable.verifiedDob,
+        verifiedAgeDate: childrenTable.verifiedAgeDate,
         admissionDate: childrenTable.admissionDate,
         currentStatus: childrenTable.currentStatus,
         presentAddress: childrenTable.presentAddress,
@@ -1331,7 +1335,18 @@ router.get("/chok01", async (req, res) => {
       const admissionDate = parseDate(child.admissionDate);
       if (!admissionDate) return;
 
-      const age = child.verifiedAge ?? (dob ? calculateAge(dob, reportDate) : null);
+      // Calculate "CW Age" (Verified Age) logic
+      let age: number | null = child.verifiedAge;
+      
+      if (age === null && child.verifiedDob) {
+          const vDob = parseDate(child.verifiedDob);
+          if (vDob) age = calculateAge(vDob, admissionDate); // Use age at admission to stay within <18 if admitted as minor
+      }
+      
+      if (age === null) {
+          age = child.ageAtAdmission ?? (dob && admissionDate ? calculateAge(dob, admissionDate) : null);
+      }
+
       const ageGroup = getAgeGroup(age);
       ageGroupCounts[ageGroup] = (ageGroupCounts[ageGroup] || 0) + 1;
 

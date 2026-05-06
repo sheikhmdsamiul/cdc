@@ -68,10 +68,10 @@ export default function EducationSkillsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const canView   = usePermission("education", "view");
-  const canCreate = usePermission("education", "create");
-  const canEdit   = usePermission("education", "edit");
-  const canDelete = usePermission("education", "delete");
+  const canView   = usePermission("education-skills", "view");
+  const canCreate = usePermission("education-skills", "create");
+  const canEdit   = usePermission("education-skills", "edit");
+  const canDelete = usePermission("education-skills", "delete");
 
   const activeTab: ProgramType = "Admission Form";
   const [open, setOpen] = useState(false);

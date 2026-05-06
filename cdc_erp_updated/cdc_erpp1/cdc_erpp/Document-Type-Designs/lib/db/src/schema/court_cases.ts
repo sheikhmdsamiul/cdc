@@ -32,6 +32,14 @@ export const courtCasesTable = pgTable("court_cases", {
   centerFacilities: text("center_facilities"), // কেন্দ্র থেকে প্রদত্ত সুযোগ সুবিধা
   caseComments: text("case_comments"), // মন্তব্য
 
+  workflowState: text("workflow_state").notNull().default("Draft"),
+  workflowNotes: text("workflow_notes"),
+  sentBackNotes: text("sent_back_notes"),
+  submittedById: integer("submitted_by_id"),
+  reviewedByDfId: integer("reviewed_by_df_id"),
+  reviewedByProbationId: integer("reviewed_by_probation_id"),
+  approvedById: integer("approved_by_id"),
+
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

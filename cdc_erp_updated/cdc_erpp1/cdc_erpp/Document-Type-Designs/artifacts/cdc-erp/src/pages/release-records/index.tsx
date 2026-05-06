@@ -31,10 +31,10 @@ export default function ReleaseRecordsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canView    = usePermission("release", "view");
-  const canCreate  = usePermission("release", "create");
-  const canEdit    = usePermission("release", "edit");
-  const canDelete  = usePermission("release", "delete");
+  const canView    = usePermission("release-records", "view");
+  const canCreate  = usePermission("release-records", "create");
+  const canEdit    = usePermission("release-records", "edit");
+  const canDelete  = usePermission("release-records", "delete");
   // In this system, "Approve" is treated as an "edit" action on the record status.
   const canApprove = canEdit;
 

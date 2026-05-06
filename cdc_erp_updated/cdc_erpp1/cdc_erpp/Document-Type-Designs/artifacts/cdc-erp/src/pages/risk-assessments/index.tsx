@@ -30,10 +30,10 @@ export default function RiskAssessmentsList() {
   const isBn = i18n.language === "bn";
   const { user } = useAuth();
   const { toast } = useToast();
-  const canView   = usePermission("risk", "view");
-  const canCreate = usePermission("risk", "create");
-  const canEdit   = usePermission("risk", "edit");
-  const canDelete = usePermission("risk", "delete");
+  const canView   = usePermission("risk-assessments", "view");
+  const canCreate = usePermission("risk-assessments", "create");
+  const canEdit   = usePermission("risk-assessments", "edit");
+  const canDelete = usePermission("risk-assessments", "delete");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);

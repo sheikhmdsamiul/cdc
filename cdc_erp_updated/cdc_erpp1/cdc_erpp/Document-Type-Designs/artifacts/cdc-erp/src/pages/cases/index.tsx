@@ -19,6 +19,26 @@ const STATUS_COLOR: Record<string, string> = {
   Review: "bg-purple-100 text-purple-800", Closed: "bg-gray-100 text-gray-800",
 };
 
+const WORKFLOW_LABEL: Record<string, string> = {
+  Draft: "খসড়া", submitted_to_df: "DF এ পাঠানো হয়েছে", reviewed_by_df: "DF কর্তৃক পর্যালোচিত",
+  sent_back_to_cw_by_df: "DF কর্তৃক ফেরত", submitted_to_po: "PO এ পাঠানো হয়েছে",
+  reviewed_by_po: "PO কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "PO কর্তৃক ফেরত",
+  submitted_to_supt: "তত্ত্বাবধায়কের কাছে", approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত",
+};
+const WORKFLOW_LABEL_EN: Record<string, string> = {
+  Draft: "Draft", submitted_to_df: "Submitted to DF", reviewed_by_df: "Reviewed by DF",
+  sent_back_to_cw_by_df: "Sent Back by DF", submitted_to_po: "Submitted to PO",
+  reviewed_by_po: "Reviewed by PO", sent_back_to_cw_by_po: "Sent Back by PO",
+  submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected",
+};
+const WORKFLOW_COLOR: Record<string, string> = {
+  Draft: "bg-gray-100 text-gray-800",
+  submitted_to_df: "bg-blue-100 text-blue-800", reviewed_by_df: "bg-blue-100 text-blue-800",
+  sent_back_to_cw_by_df: "bg-orange-100 text-orange-800", submitted_to_po: "bg-blue-100 text-blue-800",
+  reviewed_by_po: "bg-blue-100 text-blue-800", sent_back_to_cw_by_po: "bg-orange-100 text-orange-800",
+  submitted_to_supt: "bg-blue-100 text-blue-800", approved: "bg-green-100 text-green-800", rejected: "bg-red-100 text-red-800",
+};
+
 export default function CasesList() {
   const { t, i18n } = useTranslation();
   const [, navigate] = useLocation();
@@ -99,6 +119,16 @@ export default function CasesList() {
           {STATUS_LABEL[r.caseStatus] ?? r.caseStatus}
         </span>
       ),
+    },
+    {
+      key: "workflowState", label: "Approval", labelBn: "অনুমোদন অবস্থা",
+      exportValue: r => (r as any).workflowState ?? "",
+      render: (r, isBn) => {
+        const w = (r as any).workflowState || "Draft";
+        const label = isBn ? (WORKFLOW_LABEL[w] || w) : (WORKFLOW_LABEL_EN[w] || w);
+        const color = WORKFLOW_COLOR[w] || "bg-gray-100 text-gray-800";
+        return <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${color}`}>{label}</span>;
+      }
     },
   ];
 

@@ -35,6 +35,7 @@ const DEMO_GROUPS: Group[] = [
       { u: "cw_tongi",           r: "কেস ওয়ার্কার",       rEn: "Case Worker",       badge: "bg-green-100 text-green-700", avatar: "bg-green-600" },
       { u: "deo_tongi",          r: "ডাটা এন্ট্রি অপারেটর", rEn: "Data Entry Operator", badge: "bg-cyan-100 text-cyan-700", avatar: "bg-cyan-600" },
       { u: "houseparent_tongi",  r: "হাউস প্যারেন্ট",     rEn: "House Parent",      badge: "bg-orange-100 text-orange-700", avatar: "bg-orange-500" },
+      { u: "df_tongi",           r: "জেলা ফ্যাসিলিটেটর",  rEn: "District Facilitator", badge: "bg-purple-100 text-purple-700", avatar: "bg-purple-500" },
     ],
   },
   {
@@ -48,6 +49,7 @@ const DEMO_GROUPS: Group[] = [
       { u: "po_konabari",          r: "প্রবেশন কর্মকর্তা", rEn: "Probation Officer", badge: "bg-amber-100 text-amber-700", avatar: "bg-amber-500" },
       { u: "cw_konabari",          r: "কেস ওয়ার্কার",      rEn: "Case Worker",       badge: "bg-green-100 text-green-700", avatar: "bg-green-600" },
       { u: "deo_konabari",         r: "ডাটা এন্ট্রি অপারেটর", rEn: "Data Entry Operator", badge: "bg-cyan-100 text-cyan-700", avatar: "bg-cyan-600" },
+      { u: "df_konabari",          r: "জেলা ফ্যাসিলিটেটর",  rEn: "District Facilitator", badge: "bg-purple-100 text-purple-700", avatar: "bg-purple-500" },
     ],
   },
   {
@@ -61,6 +63,7 @@ const DEMO_GROUPS: Group[] = [
       { u: "po_fulerhat",          r: "প্রবেশন কর্মকর্তা", rEn: "Probation Officer", badge: "bg-amber-100 text-amber-700", avatar: "bg-amber-500" },
       { u: "cw_fulerhat",          r: "কেস ওয়ার্কার",      rEn: "Case Worker",       badge: "bg-green-100 text-green-700", avatar: "bg-green-600" },
       { u: "deo_fulerhat",         r: "ডাটা এন্ট্রি অপারেটর", rEn: "Data Entry Operator", badge: "bg-cyan-100 text-cyan-700", avatar: "bg-cyan-600" },
+      { u: "df_fulerhat",          r: "জেলা ফ্যাসিলিটেটর",  rEn: "District Facilitator", badge: "bg-purple-100 text-purple-700", avatar: "bg-purple-500" },
     ],
   },
 ];
