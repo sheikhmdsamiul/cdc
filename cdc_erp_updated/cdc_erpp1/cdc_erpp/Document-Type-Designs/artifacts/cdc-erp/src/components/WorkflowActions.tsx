@@ -26,50 +26,127 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
 
   const [loading, setLoading] = useState(false);
   const [dialogAction, setDialogAction] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
-  const [hearingDate, setHearingDate] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   if (!user) return null;
 
   const role = (user as any).roleName;
 
-  // Determine available actions
+  // Helper to check if user can do CW actions
+  const isCaseWorker = role === "Case Worker" || role === "worker" || role === "Data Entry Operator";
+  const isProbationOfficer = role === "Probation Officer";
+  const isSuperintendent = role === "Superintendent" || role === "Center Admin";
+  const isSuperAdmin = role === "Super Admin" || role === "Head Office";
+
+  // Map status to readable labels
+  const statusLabels: Record<string, { en: string; bn: string }> = {
+    "Draft": { en: "Draft", bn: "খসড়া" },
+    "submitted_to_po": { en: "Submitted to PO", bn: "PO এ পাঠানো হয়েছে" },
+    "reviewed_by_po": { en: "Reviewed by PO", bn: "PO পর্যালোচনা করেছেন" },
+    "submitted_to_supt": { en: "Submitted to Supt", bn: "তত্ত্বাবধায়কের কাছে পাঠানো হয়েছে" },
+    "approved": { en: "Approved", bn: "অনুমোদিত" },
+    "rejected": { en: "Rejected", bn: "প্রত্যাখ্যানিত" },
+    "sent_back_to_cw": { en: "Sent Back to CW", bn: "CW কে ফেরত পাঠানো হয়েছে" },
+  };
+
+  const currentLabel = statusLabels[currentStatus] || { en: currentStatus, bn: currentStatus };
+
+  // Determine available actions based on role and current status
   const availableActions: { id: string; labelEn: string; labelBn: string; icon: any; intent: string }[] = [];
 
-  if (role === "Case Worker") {
-    if (!currentStatus || currentStatus === "Draft" || currentStatus === "sent_back_to_cw_by_df" || currentStatus === "sent_back_to_cw_by_po") {
-      availableActions.push({ id: "submit_to_df", labelEn: "Submit to DF", labelBn: "DF এ পাঠান", icon: Send, intent: "primary" });
-    }
-  } else if (role === "District Facilitator") {
-    if (currentStatus === "submitted_to_df") {
-      availableActions.push({ id: "submit_to_po", labelEn: "Forward to PO", labelBn: "PO এ পাঠান", icon: Send, intent: "primary" });
-      availableActions.push({ id: "send_back_to_cw_by_df", labelEn: "Send Back to CW", labelBn: "CW কে ফেরত দিন", icon: CornerDownLeft, intent: "warning" });
-    }
-  } else if (role === "Probation Officer") {
-    if (currentStatus === "submitted_to_po") {
-      availableActions.push({ id: "submit_to_supt", labelEn: "Forward to Supt", labelBn: "তত্ত্বাবধায়কের কাছে পাঠান", icon: Send, intent: "primary" });
-      availableActions.push({ id: "send_back_to_cw_by_po", labelEn: "Send Back to CW", labelBn: "CW কে ফেরত দিন", icon: CornerDownLeft, intent: "warning" });
-    }
-  } else if (role === "Superintendent" || role === "Center Admin") {
-    // Center admin acts as Supt usually or manages them
-    if (currentStatus === "submitted_to_supt") {
-      availableActions.push({ id: "approve", labelEn: "Approve", labelBn: "অনুমোদন করুন", icon: CheckCircle2, intent: "success" });
-      availableActions.push({ id: "reject", labelEn: "Reject", labelBn: "প্রত্যাখ্যান করুন", icon: XCircle, intent: "danger" });
+  // Case Worker can submit to PO
+  if (isCaseWorker) {
+    if (!currentStatus || currentStatus === "Draft" || currentStatus === "sent_back_to_cw") {
+      availableActions.push({ 
+        id: "submit_to_po", 
+        labelEn: "Submit to PO", 
+        labelBn: "PO এ পাঠান", 
+        icon: Send, 
+        intent: "primary" 
+      });
     }
   }
 
-  if (role === "Super Admin" || role === "Admin") {
-    if (!currentStatus || currentStatus === "Draft" || currentStatus === "sent_back_to_cw_by_df" || currentStatus === "sent_back_to_cw_by_po") {
-      if (!availableActions.some(a => a.id === "submit_to_df")) availableActions.push({ id: "submit_to_df", labelEn: "Submit to DF", labelBn: "DF এ পাঠান", icon: Send, intent: "primary" });
-    } else if (currentStatus === "submitted_to_df") {
-      if (!availableActions.some(a => a.id === "submit_to_po")) availableActions.push({ id: "submit_to_po", labelEn: "Forward to PO", labelBn: "PO এ পাঠান", icon: Send, intent: "primary" });
-      if (!availableActions.some(a => a.id === "send_back_to_cw_by_df")) availableActions.push({ id: "send_back_to_cw_by_df", labelEn: "Send Back to CW", labelBn: "CW কে ফেরত দিন", icon: CornerDownLeft, intent: "warning" });
+  // Probation Officer actions
+  if (isProbationOfficer) {
+    if (currentStatus === "submitted_to_po") {
+      availableActions.push({ 
+        id: "submit_to_supt", 
+        labelEn: "Forward to Supt", 
+        labelBn: "তত্ত্বাবধায়কের কাছে পাঠান", 
+        icon: Send, 
+        intent: "primary" 
+      });
+      availableActions.push({ 
+        id: "send_back_to_cw", 
+        labelEn: "Update Needed", 
+        labelBn: "আপডেট প্রয়োজন", 
+        icon: CornerDownLeft, 
+        intent: "warning" 
+      });
+    }
+  }
+
+  // Superintendent actions
+  if (isSuperintendent) {
+    if (currentStatus === "submitted_to_supt") {
+      availableActions.push({ 
+        id: "approve", 
+        labelEn: "Approve", 
+        labelBn: "অনুমোদন করুন", 
+        icon: CheckCircle2, 
+        intent: "success" 
+      });
+      availableActions.push({ 
+        id: "reject", 
+        labelEn: "Reject", 
+        labelBn: "প্রত্যাখ্যান করুন", 
+        icon: XCircle, 
+        intent: "danger" 
+      });
+    }
+  }
+
+  // Super Admin has full access for testing
+  if (isSuperAdmin) {
+    if (!currentStatus || currentStatus === "Draft" || currentStatus === "sent_back_to_cw") {
+      availableActions.push({ 
+        id: "submit_to_po", 
+        labelEn: "Submit to PO", 
+        labelBn: "PO এ পাঠান", 
+        icon: Send, 
+        intent: "primary" 
+      });
     } else if (currentStatus === "submitted_to_po") {
-      if (!availableActions.some(a => a.id === "submit_to_supt")) availableActions.push({ id: "submit_to_supt", labelEn: "Forward to Supt", labelBn: "তত্ত্বাবধায়কের কাছে পাঠান", icon: Send, intent: "primary" });
-      if (!availableActions.some(a => a.id === "send_back_to_cw_by_po")) availableActions.push({ id: "send_back_to_cw_by_po", labelEn: "Send Back to CW", labelBn: "CW কে ফেরত দিন", icon: CornerDownLeft, intent: "warning" });
+      availableActions.push({ 
+        id: "submit_to_supt", 
+        labelEn: "Forward to Supt", 
+        labelBn: "তত্ত্বাবধায়কের কাছে পাঠান", 
+        icon: Send, 
+        intent: "primary" 
+      });
+      availableActions.push({ 
+        id: "send_back_to_cw", 
+        labelEn: "Update Needed", 
+        labelBn: "আপডেট প্রয়োজন", 
+        icon: CornerDownLeft, 
+        intent: "warning" 
+      });
     } else if (currentStatus === "submitted_to_supt") {
-      if (!availableActions.some(a => a.id === "approve")) availableActions.push({ id: "approve", labelEn: "Approve", labelBn: "অনুমোদন করুন", icon: CheckCircle2, intent: "success" });
-      if (!availableActions.some(a => a.id === "reject")) availableActions.push({ id: "reject", labelEn: "Reject", labelBn: "প্রত্যাখ্যান করুন", icon: XCircle, intent: "danger" });
+      availableActions.push({ 
+        id: "approve", 
+        labelEn: "Approve", 
+        labelBn: "অনুমোদন করুন", 
+        icon: CheckCircle2, 
+        intent: "success" 
+      });
+      availableActions.push({ 
+        id: "reject", 
+        labelEn: "Reject", 
+        labelBn: "প্রত্যাখ্যান করুন", 
+        icon: XCircle, 
+        intent: "danger" 
+      });
     }
   }
 
@@ -78,11 +155,11 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
   const handleAction = async () => {
     if (!dialogAction) return;
     
-    const isRejectionOrBack = dialogAction.includes("send_back") || dialogAction === "reject";
-    if (isRejectionOrBack && !message.trim()) {
+    const needsFeedback = dialogAction === "send_back_to_cw" || dialogAction === "reject";
+    if (needsFeedback && !feedback.trim()) {
       toast({
         title: isBn ? "ত্রুটি" : "Error",
-        description: isBn ? "এই কাজের জন্য মন্তব্য আবশ্যক।" : "A note is required for this action.",
+        description: isBn ? "মতামত আবশ্যক।" : "Feedback is required.",
         variant: "destructive"
       });
       return;
@@ -95,8 +172,8 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: dialogAction,
-          message,
-          hearingDate: hearingDate || undefined,
+          feedback: feedback || undefined,
+          message: feedback || undefined,
         }),
       });
 
@@ -111,8 +188,7 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
       });
       
       setDialogAction(null);
-      setMessage("");
-      setHearingDate("");
+      setFeedback("");
       
       queryClient.invalidateQueries({ queryKey: [`/api/workflow/${recordType}/${recordId}/logs`] });
       
@@ -129,18 +205,17 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
   };
 
   const getDialogDetails = (actionId: string) => {
-    const isRejectionOrBack = actionId.includes("send_back") || actionId === "reject";
+    const needsFeedback = actionId === "send_back_to_cw" || actionId === "reject";
     const actionInfo = availableActions.find(a => a.id === actionId);
     return {
       title: isBn ? actionInfo?.labelBn : actionInfo?.labelEn,
-      desc: isRejectionOrBack 
-        ? (isBn ? "অনুগ্রহ করে ফেরত বা প্রত্যাখ্যানের কারণ উল্লেখ করুন।" : "Please provide a reason for sending back or rejecting.")
+      desc: needsFeedback 
+        ? (isBn ? "মতামত দিন যা CW কে জানানো হবে।" : "Provide feedback for the Case Worker.")
         : (isBn ? "আপনি কি এই কাজটি করতে নিশ্চিত?" : "Are you sure you want to proceed?"),
       btnColor: actionInfo?.intent === "danger" ? "bg-red-600 hover:bg-red-700" : 
                 actionInfo?.intent === "warning" ? "bg-orange-500 hover:bg-orange-600" :
                 "#166534",
-      needsNote: isRejectionOrBack,
-      canAddHearingDate: recordType === "court_case" && actionId === "submit_to_po"
+      needsFeedback,
     };
   };
 
@@ -179,25 +254,20 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            {dialogAction && getDialogDetails(dialogAction).canAddHearingDate && (
+            {dialogAction && getDialogDetails(dialogAction).needsFeedback && (
               <div className="space-y-2">
-                <Label>{isBn ? "শুনানির তারিখ (ঐচ্ছিক)" : "Hearing Date (Optional)"}</Label>
-                <Input type="date" value={hearingDate} onChange={e => setHearingDate(e.target.value)} />
+                <Label>
+                  {isBn ? "মতামত" : "Feedback"} 
+                  <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Textarea 
+                  value={feedback} 
+                  onChange={e => setFeedback(e.target.value)} 
+                  placeholder={isBn ? "আপনার মতামত লিখুন..." : "Type your feedback here..."} 
+                  className="min-h-[100px]"
+                />
               </div>
             )}
-            
-            <div className="space-y-2">
-              <Label>
-                {isBn ? "মন্তব্য" : "Notes"} 
-                {dialogAction && getDialogDetails(dialogAction).needsNote && <span className="text-red-500 ml-1">*</span>}
-              </Label>
-              <Textarea 
-                value={message} 
-                onChange={e => setMessage(e.target.value)} 
-                placeholder={isBn ? "আপনার মন্তব্য লিখুন..." : "Type your notes here..."} 
-                className="min-h-[100px]"
-              />
-            </div>
           </div>
 
           <DialogFooter>

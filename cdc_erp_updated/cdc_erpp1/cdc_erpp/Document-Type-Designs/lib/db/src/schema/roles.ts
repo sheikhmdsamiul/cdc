@@ -5,8 +5,8 @@ import { z } from "zod/v4";
 export const rolesTable = pgTable("roles", {
   id: serial("id").primaryKey(),
   roleName: text("role_name").notNull().unique(),
-  scope: text("scope").notNull(),
-  accessType: text("access_type").notNull(),
+  scope: text("scope"),
+  accessType: text("access_type"),
   description: text("description"),
   centerId: integer("center_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -268,7 +268,7 @@ router.get("/age-alerts", async (req, res) => {
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
 
-    const isGlobal = user.roleScope === "Global";
+    const isGlobal = user.roleScope === "Global" || user.roleName === "Super Admin" || user.roleName === "Head Office";
     const userCenterId = user.centerId;
 
     if (!isGlobal && !userCenterId) return res.json({ over18: [], turning18Soon: [] });
@@ -341,7 +341,7 @@ router.get("/", async (req, res) => {
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
 
-    const isGlobal = user.roleScope === "Global";
+    const isGlobal = user.roleScope === "Global" || user.roleName === "Super Admin" || user.roleName === "Head Office";
     const userCenterId = user.centerId;
 
     if (!isGlobal && !userCenterId) return res.json({ data: [], total: 0, page: pageNum, limit: limitNum });
@@ -418,7 +418,7 @@ router.post("/", async (req, res) => {
     const requestedCenterId = body.centerId != null && body.centerId !== ""
       ? Number(body.centerId)
       : null;
-    const resolvedCenterId = user?.roleScope === "Global"
+    const resolvedCenterId = (user?.roleScope === "Global" || user?.roleName === "Super Admin" || user?.roleName === "Head Office")
       ? requestedCenterId
       : (user?.centerId ?? requestedCenterId);
 

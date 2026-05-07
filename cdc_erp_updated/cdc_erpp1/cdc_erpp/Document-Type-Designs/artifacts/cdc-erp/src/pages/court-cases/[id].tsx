@@ -30,16 +30,13 @@ type HearingRow = {
 function getWorkflowLabel(state: string, isBn: boolean) {
   const w = state || "Draft";
   const labelBn: Record<string, string> = {
-    Draft: "খসড়া", submitted_to_df: "DF এ পাঠানো হয়েছে", reviewed_by_df: "DF কর্তৃক পর্যালোচিত",
-    sent_back_to_cw_by_df: "DF কর্তৃক ফেরত", submitted_to_po: "PO এ পাঠানো হয়েছে",
-    reviewed_by_po: "PO কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "PO কর্তৃক ফেরত",
-    submitted_to_supt: "তত্ত্বাবধায়কের কাছে", approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত"
+    Draft: "খসড়া", submitted_to_po: "PO এ পাঠানো হয়েছে", reviewed_by_po: "PO পর্যালোচনা করেছেন",
+    sent_back_to_cw: "CW কে ফেরত", submitted_to_supt: "তত্ত্বাবধায়কের কাছে পাঠানো হয়েছে",
+    approved: "অনুমোদিত", rejected: "প্রত্যাখ্যানিত"
   };
   const labelEn: Record<string, string> = {
-    Draft: "Draft", submitted_to_df: "Submitted to DF", reviewed_by_df: "Reviewed by DF",
-    sent_back_to_cw_by_df: "Sent Back by DF", submitted_to_po: "Submitted to PO",
-    reviewed_by_po: "Reviewed by PO", sent_back_to_cw_by_po: "Sent Back by PO",
-    submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected"
+    Draft: "Draft", submitted_to_po: "Submitted to PO", reviewed_by_po: "Reviewed by PO",
+    sent_back_to_cw: "Sent Back to CW", submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected"
   };
   return isBn ? (labelBn[w] || w) : (labelEn[w] || w);
 }
@@ -108,7 +105,7 @@ export default function CourtCaseDetail() {
   const role = (user as any)?.roleName;
   const isCW = role === "Case Worker" || role === "Super Admin" || role === "Admin";
   const workflowState = (courtCase as any)?.workflowState || "Draft";
-  const isSentBack = workflowState === "sent_back_to_cw_by_df" || workflowState === "sent_back_to_cw_by_po";
+  const isSentBack = workflowState === "sent_back_to_cw" || workflowState === "sent_back_to_cw_by_df" || workflowState === "sent_back_to_cw_by_po";
   const sentBackNotes = (courtCase as any)?.sentBackNotes;
 
   useEffect(() => {
@@ -316,9 +313,7 @@ export default function CourtCaseDetail() {
           <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-semibold text-orange-800">
-              {workflowState === "sent_back_to_cw_by_df"
-                ? (isBn ? "DF কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by DF — Update Required")
-                : (isBn ? "PO কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by PO — Update Required")}
+              {isBn ? "আপডেট প্রয়োজন — সংশোধন করুন" : "Update Required"}
             </p>
             <p className="text-sm text-orange-700 mt-1">{sentBackNotes}</p>
           </div>

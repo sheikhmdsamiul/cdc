@@ -31,16 +31,13 @@ function getTabs(isBn: boolean): { id: TabId; label: string; sub: string }[] {
 function getWorkflowLabel(state: string, isBn: boolean) {
   const w = state || "Draft";
   const labelBn: Record<string, string> = {
-    Draft: "খসড়া", submitted_to_df: "DF এ পাঠানো হয়েছে", reviewed_by_df: "DF কর্তৃক পর্যালোচিত",
-    sent_back_to_cw_by_df: "DF কর্তৃক ফেরত", submitted_to_po: "PO এ পাঠানো হয়েছে",
-    reviewed_by_po: "PO কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "PO কর্তৃক ফেরত",
-    submitted_to_supt: "তত্ত্বাবধায়কের কাছে", approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত"
+    Draft: "খসড়া", submitted_to_po: "PO এ পাঠানো হয়েছে", reviewed_by_po: "PO পর্যালোচনা করেছেন",
+    sent_back_to_cw: "CW কে ফেরত", submitted_to_supt: "তত্ত্বাবধায়কের কাছে পাঠানো হয়েছে",
+    approved: "অনুমোদিত", rejected: "প্রত্যাখ্যানিত"
   };
   const labelEn: Record<string, string> = {
-    Draft: "Draft", submitted_to_df: "Submitted to DF", reviewed_by_df: "Reviewed by DF",
-    sent_back_to_cw_by_df: "Sent Back by DF", submitted_to_po: "Submitted to PO",
-    reviewed_by_po: "Reviewed by PO", sent_back_to_cw_by_po: "Sent Back by PO",
-    submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected"
+    Draft: "Draft", submitted_to_po: "Submitted to PO", reviewed_by_po: "Reviewed by PO",
+    sent_back_to_cw: "Sent Back to CW", submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected"
   };
   return isBn ? (labelBn[w] || w) : (labelEn[w] || w);
 }
@@ -1086,17 +1083,15 @@ export default function CaseDetail() {
       <WorkflowActions recordType="case" recordId={cf.id} currentStatus={cf.workflowState || "Draft"} onSuccess={refresh} />
 
       {/* Sent-back message banner for CW */}
-      {(cf.workflowState === "sent_back_to_cw_by_df" || cf.workflowState === "sent_back_to_cw_by_po") && cf.sentBackNotes && (
+      {(cf.workflowState === "sent_back_to_cw" || cf.workflowState === "sent_back_to_cw_by_df" || cf.workflowState === "sent_back_to_cw_by_po") && cf.sentBackNotes && (
         <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
           <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-semibold text-orange-800">
-              {cf.workflowState === "sent_back_to_cw_by_df"
-                ? (isBn ? "DF কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by DF — Update Required")
-                : (isBn ? "PO কর্তৃক প্রত্যাবর্তিত — সংশোধন প্রয়োজন" : "Sent back by PO — Update Required")}
+              {isBn ? "আপডেট প্রয়োজন — সংশোধন করুন" : "Update Required"}
             </p>
             <p className="text-sm text-orange-700 mt-1">{cf.sentBackNotes}</p>
-            <p className="text-xs text-orange-500 mt-2">{isBn ? "নিচের ফরম ট্যাবে বিরতিত তথ্য সম্পাদনা করুন।" : "Edit the required information in the form tabs below, then resubmit to DF."}</p>
+            <p className="text-xs text-orange-500 mt-2">{isBn ? "নিচের ফরম ট্যাবে বিরতিত তথ্য সম্পাদনা করুন।" : "Edit the required information in the form tabs below, then resubmit."}</p>
           </div>
         </div>
       )}

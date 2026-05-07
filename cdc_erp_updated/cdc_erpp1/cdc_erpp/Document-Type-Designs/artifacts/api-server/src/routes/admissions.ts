@@ -42,7 +42,7 @@ const ADMISSION_WORKFLOW = {
 
 function canCreateAdmission(user: any) {
   // If it's a global role or a center-based role with create permission
-  return user.roleScope === "Global" || user.roleScope === "Center";
+  return user.roleScope === "Global" || user.roleScope === "Center" || user.roleName === "Super Admin" || user.roleName === "Head Office";
 }
 
 function canEditAdmissionByState(user: any, state: string | null | undefined) {
@@ -64,22 +64,22 @@ function canEditAdmissionByState(user: any, state: string | null | undefined) {
 }
 
 function canDeleteAdmission(user: any) {
-  return user.roleScope === "Global" || user.roleName === "Center Admin";
+  return user.roleScope === "Global" || user.roleName === "Super Admin" || user.roleName === "Head Office" || user.roleName === "Center Admin";
 }
 
 function canBulkCascadeDeleteAdmissions(roleName: string | null | undefined) {
-  return roleName === "Super Admin";
+  return roleName === "Super Admin" || roleName === "Head Office";
 }
 
 function canAccessCenter(user: any, recordCenterId: number | null) {
   if (!user) return false;
-  if (user.roleScope === "Global") return true;
+  if (user.roleScope === "Global" || user.roleName === "Super Admin" || user.roleName === "Head Office" || user.roleName === "Center Admin") return true;
   if (recordCenterId == null) return true;
   return user.centerId === recordCenterId;
 }
 
 function isGenderCenterValidationBypassed(user: any) {
-  return user.roleScope === "Global";
+  return user.roleScope === "Global" || user.roleName === "Super Admin" || user.roleName === "Head Office";
 }
 
 function normalizeGender(value: unknown): string {

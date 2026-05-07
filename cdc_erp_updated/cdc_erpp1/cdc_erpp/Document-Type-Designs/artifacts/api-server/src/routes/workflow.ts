@@ -1,10 +1,20 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { casesTable, courtCasesTable, workflowLogsTable, usersTable } from "@workspace/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getCurrentUser } from "../middlewares/auth";
 
 const router = Router();
+
+const WORKFLOW_STATES = {
+  DRAFT: "Draft",
+  SUBMITTED_TO_PO: "submitted_to_po",
+  REVIEWED_BY_PO: "reviewed_by_po",
+  SUBMITTED_TO_SUPT: "submitted_to_supt",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  SENT_BACK_TO_CW: "sent_back_to_cw",
+};
 
 router.get("/:recordType/:recordId/logs", async (req, res) => {
   try {
@@ -18,7 +28,6 @@ router.get("/:recordType/:recordId/logs", async (req, res) => {
         action: workflowLogsTable.action,
         message: workflowLogsTable.message,
         createdAt: workflowLogsTable.createdAt,
-        userRole: usersTable.roleId, // We might just want roleName, let's fetch it via a join or just username
         userName: usersTable.username,
         fullName: usersTable.fullName,
       })
@@ -38,7 +47,7 @@ router.get("/:recordType/:recordId/logs", async (req, res) => {
 router.post("/:recordType/:recordId/transition", async (req, res) => {
   try {
     const { recordType, recordId } = req.params;
-    const { action, message, hearingDate } = req.body;
+    const { action, message, feedback } = req.body;
     
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
@@ -64,51 +73,53 @@ router.post("/:recordType/:recordId/transition", async (req, res) => {
     let newState = existing.workflowState;
     const updates: any = {};
 
+    // Role-based actions (no separate actions needed - role determines what user can do)
+    const userRole = user.roleName;
+
     switch (action) {
-      case "submit_to_df":
-        newState = "submitted_to_df";
+      // CW submits to PO
+      case "submit_to_po":
+        newState = WORKFLOW_STATES.SUBMITTED_TO_PO;
         updates.submittedById = user.id;
         break;
-      case "send_back_to_cw_by_df":
-        newState = "sent_back_to_cw_by_df";
-        updates.reviewedByDfId = user.id;
-        updates.sentBackNotes = message;
-        break;
-      case "send_back_to_cw_by_po":
-        newState = "sent_back_to_cw_by_po";
-        updates.reviewedByProbationId = user.id;
-        updates.sentBackNotes = message;
-        break;
-      case "submit_to_po":
-        newState = "submitted_to_po";
-        updates.reviewedByDfId = user.id;
-        if (recordType === "court_case" && hearingDate) {
-          updates.hearingDate = new Date(hearingDate);
-        }
-        break;
+      
+      // PO reviews and sends to Supt
       case "submit_to_supt":
-        newState = "submitted_to_supt";
+        newState = WORKFLOW_STATES.SUBMITTED_TO_SUPT;
         updates.reviewedByProbationId = user.id;
         break;
+      
+      // PO sends back to CW with feedback
+      case "send_back_to_cw":
+        newState = WORKFLOW_STATES.SENT_BACK_TO_CW;
+        updates.reviewedByProbationId = user.id;
+        updates.sentBackNotes = feedback || message;
+        break;
+      
+      // PO has reviewed (intermediate state)
+      case "mark_reviewed":
+        newState = WORKFLOW_STATES.REVIEWED_BY_PO;
+        updates.reviewedByProbationId = user.id;
+        break;
+      
+      // Supt approves
       case "approve":
-        newState = "approved";
+        newState = WORKFLOW_STATES.APPROVED;
         updates.approvedById = user.id;
         break;
+      
+      // Supt rejects
       case "reject":
-        newState = "rejected";
+        newState = WORKFLOW_STATES.REJECTED;
         updates.approvedById = user.id;
-        updates.workflowNotes = message;
+        updates.workflowNotes = message || feedback;
         break;
+      
       default:
         return res.status(400).json({ error: "Invalid action" });
     }
 
     updates.workflowState = newState;
-
-    // Additional handling for CW submitting court case hearing date
-    if (action === "submit_to_df" && recordType === "court_case" && hearingDate) {
-      updates.hearingDate = new Date(hearingDate);
-    }
 
     await db.update(table).set(updates).where(eq(table.id, parsedId));
 
@@ -117,7 +128,7 @@ router.post("/:recordType/:recordId/transition", async (req, res) => {
       recordId: parsedId,
       userId: user.id,
       action,
-      message: message || null,
+      message: feedback || message || null,
     });
 
     res.json({ ok: true, workflowState: newState });
