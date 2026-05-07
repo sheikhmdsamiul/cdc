@@ -175,7 +175,7 @@ function getRiskDomains(isBn: boolean): { key: string; label: string }[] {
     { key: "rights_identity", label: "১. অধিকার ও পরিচিতি" },
     { key: "family_environment", label: "২. পারিবারিক পরিবেশ" },
     { key: "safety", label: "৩. নিরাপত্তা" },
-    { key: "healthcare_psychosocial", label: "৪. স্বাস্থ্যসেবা ও মনোসামাজিক" },
+    { key: "healthcare_psychosocial", label: "৪. স্বাস্থ্যসেবা ও মনোসামাসিক" },
     { key: "emotional_warmth", label: "৫. আবেগীয় উষ্ণতা" },
     { key: "guidance_boundaries", label: "৬. নির্দেশনা, সীমা ও উৎসাহ" },
     { key: "education_development", label: "৭. শিক্ষা, কর্মসংস্থান ও শিশু বিকাশ" },

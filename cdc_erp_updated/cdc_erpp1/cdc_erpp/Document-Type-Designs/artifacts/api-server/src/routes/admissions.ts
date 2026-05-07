@@ -40,6 +40,35 @@ const ADMISSION_WORKFLOW = {
   REJECTED: "Rejected",
 } as const;
 
+const ADMISSION_TRANSITIONS: Record<string, Record<string, { roles: string[]; next: string }>> = {
+  [ADMISSION_WORKFLOW.DRAFT]: {
+    submit_to_cw: { roles: ["DEO", "CW"], next: ADMISSION_WORKFLOW.SUBMITTED_TO_CW },
+  },
+  [ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_CW]: {
+    submit_to_cw: { roles: ["DEO", "CW"], next: ADMISSION_WORKFLOW.SUBMITTED_TO_CW },
+  },
+  [ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_PO]: {
+    submit_to_cw: { roles: ["DEO", "CW"], next: ADMISSION_WORKFLOW.SUBMITTED_TO_CW },
+  },
+  [ADMISSION_WORKFLOW.SUBMITTED_TO_CW]: {
+    forward_to_po: { roles: ["CW"], next: ADMISSION_WORKFLOW.SUBMITTED_TO_PO },
+    update_needed_cw: { roles: ["CW"], next: ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_CW },
+  },
+  // Map "Pending" to "Submitted to CW" for legacy records
+  Pending: {
+    forward_to_po: { roles: ["CW"], next: ADMISSION_WORKFLOW.SUBMITTED_TO_PO },
+    update_needed_cw: { roles: ["CW"], next: ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_CW },
+  },
+  [ADMISSION_WORKFLOW.SUBMITTED_TO_PO]: {
+    forward_to_supt: { roles: ["PO"], next: ADMISSION_WORKFLOW.SUBMITTED_TO_SUPT },
+    update_needed_po: { roles: ["PO"], next: ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_PO },
+  },
+  [ADMISSION_WORKFLOW.SUBMITTED_TO_SUPT]: {
+    approve: { roles: ["SUPT"], next: ADMISSION_WORKFLOW.APPROVED },
+    reject: { roles: ["SUPT"], next: ADMISSION_WORKFLOW.REJECTED },
+  },
+};
+
 function canCreateAdmission(user: any) {
   // If it's a global role or a center-based role with create permission
   return user.roleScope === "Global" || user.roleScope === "Center" || user.roleName === "Super Admin" || user.roleName === "Head Office";
@@ -526,86 +555,49 @@ router.post("/:id/action", async (req, res) => {
     if (!canAccessCenter(user, child.centerId ?? null)) return res.status(403).json({ error: "Forbidden" });
 
     const role = user.roleName ?? "";
+    const workflowRole = user.workflowRole ?? "";
     const state = existing.approvalStatus ?? ADMISSION_WORKFLOW.DRAFT;
-    const isAdminOverride = role === "Super Admin" || role === "Head Office" || role === "Center Admin";
+    const isAdmin = role === "Super Admin" || role === "Head Office" || role === "Center Admin";
+    
+    const transition = ADMISSION_TRANSITIONS[state]?.[action!];
+    if (!transition) {
+      return res.status(403).json({ error: "Invalid action for current state", state, action });
+    }
+
+    if (!isAdmin && !transition.roles.includes(workflowRole)) {
+      return res.status(403).json({ error: `Action '${action}' requires one of these workflow roles: ${transition.roles.join(", ")}` });
+    }
+
+    const nextState = transition.next;
     const trimmedFeedback = feedback?.trim();
     const trimmedNote = note?.trim();
     const updates: Partial<typeof admissionsTable.$inferInsert> = {};
-    let nextState: string | null = null;
 
-    if (
-      action === "submit_to_cw" &&
-      (isAdminOverride || role === "Data Entry Operator") &&
-      [ADMISSION_WORKFLOW.DRAFT, ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_CW, ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_PO].includes(state as any)
-    ) {
-      nextState = ADMISSION_WORKFLOW.SUBMITTED_TO_CW;
+    // Apply specific field updates based on action
+    if (action === "submit_to_cw") {
       updates.cwFeedback = null;
       updates.poFeedback = null;
       updates.rejectionNote = null;
-      updates.rejectedByName = null;
-      updates.authorityRemarks = null;
-    } else if (
-      action === "update_needed_cw" &&
-      (isAdminOverride || role === "Case Worker") &&
-      state === ADMISSION_WORKFLOW.SUBMITTED_TO_CW
-    ) {
+    } else if (action === "update_needed_cw") {
       if (!trimmedFeedback) return res.status(400).json({ error: "Feedback is required" });
-      nextState = ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_CW;
       updates.cwFeedback = trimmedFeedback;
-      updates.poFeedback = null;
       updates.authorityRemarks = trimmedFeedback;
-    } else if (
-      action === "forward_to_po" &&
-      (isAdminOverride || role === "Case Worker") &&
-      state === ADMISSION_WORKFLOW.SUBMITTED_TO_CW
-    ) {
-      nextState = ADMISSION_WORKFLOW.SUBMITTED_TO_PO;
+    } else if (action === "forward_to_po") {
       updates.verifiedBy = user.fullName;
       updates.verificationDate = new Date().toISOString().split("T")[0] as any;
-      updates.cwFeedback = null;
-    } else if (
-      action === "update_needed_po" &&
-      (isAdminOverride || role === "Probation Officer") &&
-      state === ADMISSION_WORKFLOW.SUBMITTED_TO_PO
-    ) {
+    } else if (action === "update_needed_po") {
       if (!trimmedFeedback) return res.status(400).json({ error: "Feedback is required" });
-      nextState = ADMISSION_WORKFLOW.UPDATE_NEEDED_BY_PO;
       updates.poFeedback = trimmedFeedback;
       updates.authorityRemarks = trimmedFeedback;
-    } else if (
-      action === "forward_to_supt" &&
-      (isAdminOverride || role === "Probation Officer") &&
-      state === ADMISSION_WORKFLOW.SUBMITTED_TO_PO
-    ) {
-      nextState = ADMISSION_WORKFLOW.SUBMITTED_TO_SUPT;
-      updates.poFeedback = null;
-    } else if (
-      action === "approve" &&
-      (isAdminOverride || role === "Superintendent") &&
-      state === ADMISSION_WORKFLOW.SUBMITTED_TO_SUPT
-    ) {
-      nextState = ADMISSION_WORKFLOW.APPROVED;
+    } else if (action === "approve") {
       updates.documentsVerified = true;
       updates.approvedByName = user.fullName;
-      updates.rejectionNote = null;
-      updates.rejectedByName = null;
-      updates.authorityRemarks = null;
-      await db
-        .update(childrenTable)
-        .set({ currentStatus: "Admitted" })
-        .where(eq(childrenTable.id, existing.childId));
-    } else if (
-      action === "reject" &&
-      (isAdminOverride || role === "Superintendent") &&
-      state === ADMISSION_WORKFLOW.SUBMITTED_TO_SUPT
-    ) {
+      await db.update(childrenTable).set({ currentStatus: "Admitted" }).where(eq(childrenTable.id, existing.childId));
+    } else if (action === "reject") {
       if (!trimmedNote) return res.status(400).json({ error: "Rejection note is required" });
-      nextState = ADMISSION_WORKFLOW.REJECTED;
       updates.rejectionNote = trimmedNote;
       updates.rejectedByName = user.fullName;
       updates.authorityRemarks = trimmedNote;
-    } else {
-      return res.status(403).json({ error: "Action not permitted in current workflow state" });
     }
 
     updates.approvalStatus = nextState;

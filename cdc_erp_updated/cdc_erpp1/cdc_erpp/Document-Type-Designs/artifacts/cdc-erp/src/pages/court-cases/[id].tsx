@@ -102,8 +102,9 @@ export default function CourtCaseDetail() {
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
   const { user } = useAuth();
-  const role = (user as any)?.roleName;
-  const isCW = role === "Case Worker" || role === "Super Admin" || role === "Admin";
+  const role = user?.roleName || "";
+  const isAdmin = ["Super Admin", "Head Office", "Center Admin"].includes(role);
+  const isCW = user?.workflowRole === "CW" || isAdmin;
   const workflowState = (courtCase as any)?.workflowState || "Draft";
   const isSentBack = workflowState === "sent_back_to_cw" || workflowState === "sent_back_to_cw_by_df" || workflowState === "sent_back_to_cw_by_po";
   const sentBackNotes = (courtCase as any)?.sentBackNotes;

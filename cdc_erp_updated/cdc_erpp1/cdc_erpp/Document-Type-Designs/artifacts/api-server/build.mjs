@@ -20,6 +20,7 @@ async function buildAll() {
       path.resolve(artifactDir, "src/seed-auth.ts"),
       path.resolve(artifactDir, "src/seed-demo.ts"),
       path.resolve(artifactDir, "src/seed-admin.ts"),
+      path.resolve(artifactDir, "src/scripts/seed-permissions.ts"),
     ],
     platform: "node",
     bundle: true,
@@ -34,6 +35,8 @@ async function buildAll() {
     // - use path traversal to read files (e.g. @google-cloud/secret-manager loads sibling .proto files)
     external: [
       "*.node",
+      "pg",
+      "pg-native",
       "sharp",
       "better-sqlite3",
       "sqlite3",

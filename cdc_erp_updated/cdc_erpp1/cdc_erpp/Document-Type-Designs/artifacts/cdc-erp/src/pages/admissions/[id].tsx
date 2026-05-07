@@ -93,17 +93,22 @@ export default function AdmissionDetail() {
 
   const record = admission as any;
   const status = record.approvalStatus;
+  const role = user?.roleName || "";
+  const isAdmin = ["Super Admin", "Head Office", "Center Admin"].includes(role);
 
   // In this workflow, "edit" permission generally covers the review/forward/approve steps.
   // "create" permission covers the initial submission and draft edits.
-  const canSubmit = ["Draft", "Update Needed by CW", "Update Needed by PO"].includes(status) && (canCreate || canEdit);
+  const canSubmit = ["Draft", "Update Needed by CW", "Update Needed by PO"].includes(status) && (isAdmin || user?.workflowRole === "DEO" || user?.workflowRole === "CW");
   const canEditProfile = canSubmit;
   const canViewFullForm = canView;
-  const canForwardToPo = status === "Submitted to CW" && canEdit;
+  
+  const canForwardToPo = (status === "Submitted to CW" || status === "Pending") && (isAdmin || user?.workflowRole === "CW");
   const canUpdateNeededCw = canForwardToPo;
-  const canForwardToSupt = status === "Submitted to PO" && canEdit;
+  
+  const canForwardToSupt = (status === "Submitted to PO" || status === "Pending") && (isAdmin || user?.workflowRole === "PO");
   const canUpdateNeededPo = canForwardToSupt;
-  const canApprove = status === "Submitted to SUPT" && canEdit;
+  
+  const canApprove = status === "Submitted to SUPT" && (isAdmin || user?.workflowRole === "SUPT");
   const canReject = canApprove;
 
   function submitDialogAction() {

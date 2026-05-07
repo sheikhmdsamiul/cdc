@@ -26,6 +26,7 @@ export async function getCurrentUser(req: Request) {
       centerId: usersTable.centerId,
       centerName: centersTable.centerName,
       administrativeUnitId: usersTable.administrativeUnitId,
+      workflowRole: usersTable.workflowRole,
       isActive: usersTable.isActive,
     })
     .from(usersTable)
@@ -35,6 +36,42 @@ export async function getCurrentUser(req: Request) {
     .limit(1);
   return rows[0] ?? null;
 }
+
+const ALL_MODULES = [
+  "dashboard", "admissions", "children", "cases", "family-socioeconomic",
+  "health", "counseling", "education-skills", "guardians", "court-cases",
+  "police-requisitions", "risk-assessments", "release-records", "follow-ups", "reports",
+  "measurement-surveys"
+];
+
+const VIEW_ONLY = { view: true, create: false, edit: false, delete: false };
+const FULL_ACCESS = { view: true, create: true, edit: true, delete: true };
+const NO_ACCESS = { view: false, create: false, edit: false, delete: false };
+
+/**
+ * Hardcoded permissions for specific workflow roles to ensure system stability.
+ * These bypass the dynamic database check.
+ */
+const WORKFLOW_PERMISSIONS: Record<string, Record<string, { view: boolean; create: boolean; edit: boolean; delete: boolean }>> = {
+  DEO: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: NO_ACCESS }), {}),
+    admissions: FULL_ACCESS,
+    children: FULL_ACCESS,
+  },
+  CW: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: FULL_ACCESS }), {}),
+  },
+  PO: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: VIEW_ONLY }), {}),
+    "court-cases": FULL_ACCESS,
+    cases: FULL_ACCESS,
+    reports: VIEW_ONLY,
+  },
+  SUPT: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: VIEW_ONLY }), {}),
+    reports: VIEW_ONLY,
+  },
+};
 
 /**
  * Middleware factory that enforces module-level permissions based on HTTP method:
@@ -46,28 +83,64 @@ export function moduleGuard(module: string) {
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
 
-    // Super Admin & Head Office bypass all module checks
+    // 1. Super Admin & Head Office bypass
     if (user.roleName === "Super Admin" || user.roleName === "Head Office") return next();
 
-    if (!user.roleId) return res.status(403).json({ error: "Forbidden: no role assigned" });
+    // 2. Hardcoded Workflow Role bypass
+    const wfRole = user.workflowRole;
+    let perm = null;
 
-    const [perm] = await db
-      .select()
-      .from(rolePermissionsTable)
-      .where(and(eq(rolePermissionsTable.roleId, user.roleId), eq(rolePermissionsTable.module, module)))
-      .limit(1);
+    if (wfRole && WORKFLOW_PERMISSIONS[wfRole]) {
+      const wfPerms = WORKFLOW_PERMISSIONS[wfRole][module];
+      if (wfPerms) {
+        perm = {
+          canView: wfPerms.view,
+          canCreate: wfPerms.create,
+          canEdit: wfPerms.edit,
+          canDelete: wfPerms.delete,
+        };
+      }
+    }
 
-    if (!perm) return res.status(403).json({ error: `Access denied for module: ${module}` });
+    // 3. Dynamic DB check (if no hardcoded match)
+    if (!perm) {
+      if (!user.roleId) return res.status(403).json({ error: "Forbidden: no role assigned" });
+
+      const [dbPerm] = await db
+        .select()
+        .from(rolePermissionsTable)
+        .where(and(eq(rolePermissionsTable.roleId, user.roleId), eq(rolePermissionsTable.module, module)))
+        .limit(1);
+
+      if (!dbPerm) return res.status(403).json({ error: `Access denied for module: ${module}` });
+      perm = dbPerm;
+    }
 
     const method = req.method.toUpperCase();
+    let action: "view" | "create" | "edit" | "delete";
+
+    if (method === "GET") {
+      action = "view";
+    } else if (method === "POST") {
+      // Heuristic: POST to root is "create", POST to sub-path is "edit"
+      // This allows workflow actions like /:id/action to be treated as edits.
+      const path = req.path || "/";
+      action = (path === "/" || path === "") ? "create" : "edit";
+    } else if (method === "PUT" || method === "PATCH") {
+      action = "edit";
+    } else if (method === "DELETE") {
+      action = "delete";
+    } else {
+      action = "view";
+    }
+
     const denied =
-      (method === "GET"                    && !perm.canView)   ||
-      (method === "POST"                   && !perm.canCreate) ||
-      ((method === "PUT" || method === "PATCH") && !perm.canEdit) ||
-      (method === "DELETE"                 && !perm.canDelete);
+      (action === "view"   && !perm.canView)   ||
+      (action === "create" && !perm.canCreate) ||
+      (action === "edit"   && !perm.canEdit)   ||
+      (action === "delete" && !perm.canDelete);
 
     if (denied) {
-      const action = method === "GET" ? "view" : method === "POST" ? "create" : method === "DELETE" ? "delete" : "edit";
       return res.status(403).json({ error: `Forbidden: no ${action} permission for module "${module}"` });
     }
 

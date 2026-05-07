@@ -121,8 +121,13 @@ function ProtectedRoutes() {
   };
 
   useEffect(() => {
-    if (!loading && user && location === "/login") {
-      navigate(getDefaultRoute(), { replace: true } as any);
+    if (!loading && user) {
+      const defaultRoute = getDefaultRoute();
+      if (location === "/login") {
+        navigate(defaultRoute, { replace: true } as any);
+      } else if (location === "/" && defaultRoute !== "/") {
+        navigate(defaultRoute, { replace: true } as any);
+      }
     }
   }, [loading, user, location, navigate, permissions]);
 

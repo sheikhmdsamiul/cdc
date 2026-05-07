@@ -19,6 +19,7 @@ const userQuery = () =>
     centerName: centersTable.centerName,
     centerNameBn: centersTable.centerNameBn,
     administrativeUnitId: usersTable.administrativeUnitId,
+    workflowRole: usersTable.workflowRole,
     isActive: usersTable.isActive,
     createdAt: usersTable.createdAt,
   })

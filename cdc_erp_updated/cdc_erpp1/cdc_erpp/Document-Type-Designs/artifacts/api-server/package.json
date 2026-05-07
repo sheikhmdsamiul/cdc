@@ -10,6 +10,7 @@
     "seed-auth": "set -a; [ -f ./.env ] && . ./.env; set +a; npm run build && node --enable-source-maps ./dist/seed-auth.mjs",
     "seed-demo": "set -a; [ -f ./.env ] && . ./.env; set +a; npm run build && node --enable-source-maps ./dist/seed-demo.mjs",
     "seed-admin": "set -a; [ -f ./.env ] && . ./.env; set +a; npm run build && node --enable-source-maps ./dist/seed-admin.mjs",
+    "seed-permissions": "set -a; [ -f ./.env ] && . ./.env; set +a; npm run build && node --enable-source-maps ./dist/scripts/seed-permissions.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -35,8 +36,10 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "catalog:",
+    "@types/pg": "^8.20.0",
     "esbuild": "^0.27.3",
     "esbuild-plugin-pino": "^2.3.3",
+    "pg": "^8.20.0",
     "pino-pretty": "^13",
     "thread-stream": "3.1.0"
   }

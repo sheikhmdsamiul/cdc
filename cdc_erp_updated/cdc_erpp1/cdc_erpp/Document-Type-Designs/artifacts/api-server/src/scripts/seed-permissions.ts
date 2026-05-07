@@ -42,11 +42,14 @@ const MODULES = [
 const DEFAULTS: Record<string, { canView: boolean; canCreate: boolean; canEdit: boolean; canDelete: boolean }> = {
   "Super Admin":        { canView: true,  canCreate: true,  canEdit: true,  canDelete: true  },
   "Head Office":        { canView: true,  canCreate: true,  canEdit: true,  canDelete: true  },
+  "DD Division":        { canView: true,  canCreate: false, canEdit: false, canDelete: false },
+  "DD District":        { canView: true,  canCreate: false, canEdit: false, canDelete: false },
   "Center Admin":       { canView: true,  canCreate: true,  canEdit: true,  canDelete: false },
   "Data Entry Operator":{ canView: true,  canCreate: true,  canEdit: true,  canDelete: false },
   "Case Worker":        { canView: true,  canCreate: true,  canEdit: true,  canDelete: false },
-  "Probation Officer":  { canView: true,  canCreate: false, canEdit: false, canDelete: false },
-  "Superintendent":     { canView: true,  canCreate: false, canEdit: false, canDelete: false },
+  "District Facilitator":{ canView: true,  canCreate: false, canEdit: true,  canDelete: false },
+  "Probation Officer":  { canView: true,  canCreate: false, canEdit: true,  canDelete: false },
+  "Superintendent":     { canView: true,  canCreate: false, canEdit: true,  canDelete: false },
   "Worker":             { canView: true,  canCreate: false, canEdit: false, canDelete: false },
   "House Parent":       { canView: true,  canCreate: false, canEdit: false, canDelete: false },
 };
@@ -54,9 +57,8 @@ const DEFAULTS: Record<string, { canView: boolean; canCreate: boolean; canEdit: 
 // Module-specific overrides: [roleName][module] = { ... }
 const OVERRIDES: Record<string, Record<string, Partial<{ canView: boolean; canCreate: boolean; canEdit: boolean; canDelete: boolean }>>> = {
   "Data Entry Operator": {
-    "admissions": { canCreate: true, canEdit: true },
-    "children":   { canCreate: true, canEdit: true },
-    // DEO cannot access admin/reports
+    "admissions": { canView: true, canCreate: true, canEdit: true, canDelete: true },
+    "children":   { canView: true, canCreate: false, canEdit: false, canDelete: false },
     "reports":    { canView: false },
   },
   "Case Worker": {
@@ -70,9 +72,22 @@ const OVERRIDES: Record<string, Record<string, Partial<{ canView: boolean; canCr
     "risk-assessments": { canCreate: true, canEdit: true },
     "follow-ups":   { canCreate: true, canEdit: true },
   },
+  "District Facilitator": {
+    "admissions":      { canView: true, canEdit: true },
+    "cases":           { canView: true, canEdit: true },
+    "court-cases":     { canView: true, canEdit: true },
+    "release-records": { canView: true, canEdit: true },
+  },
+  "Probation Officer": {
+    "admissions":      { canView: true, canEdit: true },
+    "cases":           { canView: true, canEdit: true },
+    "court-cases":     { canView: true, canEdit: true },
+    "release-records": { canView: true, canEdit: true },
+  },
   "Superintendent": {
-    "admissions": { canView: true },
-    "reports":    { canView: true },
+    "admissions":      { canView: true, canEdit: true },
+    "release-records": { canView: true, canEdit: true },
+    "reports":         { canView: true },
   },
 };
 

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Save, Loader2, Building2, Lock, Plus, Trash2, User } from "lucide-react";
+import { ShieldCheck, Save, Loader2, Building2, Lock, Plus, Trash2, User, Pencil, Shield } from "lucide-react";
 
 // ─── Module Groups ────────────────────────────────────────────────────────────
 const MODULE_GROUPS = [
@@ -278,6 +278,7 @@ export default function PermissionsPage() {
           {canAdmin && (
             <div className="flex gap-2">
               <AddRoleDialog isBn={isBn} onCreated={() => qc.invalidateQueries({ queryKey: ["roles"] })} />
+              <EditRoleDialog isBn={isBn} roles={roles} centers={centers} onUpdated={() => qc.invalidateQueries({ queryKey: ["roles"] })} />
               <AddUserDialog isBn={isBn} roles={roles} centers={centers} onCreated={(id) => { qc.invalidateQueries({ queryKey: ["users"] }); setSelectedUserId(String(id)); }} />
             </div>
           )}
@@ -531,6 +532,212 @@ function AddUserDialog({ isBn, roles, centers, onCreated }: { isBn: boolean; rol
 }
 
 // ─── Add Role Dialog ──────────────────────────────────────────────────────────
+// Reusable form for role with permissions
+function RoleForm({
+  isBn,
+  roles,
+  centers,
+  editRole,
+  onSubmit,
+  loading,
+}: {
+  isBn: boolean;
+  roles: Role[];
+  centers: Center[];
+  editRole?: { role: any; permissions: PermRow[]; centerName: any };
+  onSubmit: (data: any) => void;
+  loading: boolean;
+}) {
+  const { toast } = useToast();
+  const [form, setForm] = useState({
+    roleName: "",
+    scope: "Center",
+    centerId: "",
+    description: "",
+  });
+  const [matrix, setMatrix] = useState<Record<string, PermRow>>({});
+
+  // Update form when editRole data loads
+  useEffect(() => {
+    if (editRole?.role) {
+      setForm({
+        roleName: editRole.role.roleName || "",
+        scope: editRole.role.scope || "Center",
+        centerId: editRole.role.centerId?.toString() || "",
+        description: editRole.role.description || "",
+      });
+      
+      // Also load permissions into matrix
+      if (editRole.permissions) {
+        const m: Record<string, PermRow> = {};
+        for (const p of editRole.permissions) {
+          m[p.module] = p;
+        }
+        setMatrix(m);
+      }
+    }
+  }, [editRole]);
+
+  const togglePerm = (moduleKey: string, action: Action) => {
+    setMatrix((prev) => ({
+      ...prev,
+      [moduleKey]: {
+        ...(prev[moduleKey] ?? { module: moduleKey, labelBn: "", labelEn: "", canView: false, canCreate: false, canEdit: false, canDelete: false }),
+        [action]: !prev[moduleKey]?.[action],
+      },
+    }));
+  };
+
+  const toggleAllForModule = (moduleKey: string, value: boolean) => {
+    setMatrix((prev) => ({
+      ...prev,
+      [moduleKey]: {
+        ...(prev[moduleKey] ?? { module: moduleKey, labelBn: "", labelEn: "", canView: false, canCreate: false, canEdit: false, canDelete: false }),
+        canView: value, canCreate: value, canEdit: value, canDelete: value,
+      },
+    }));
+  };
+
+  const hasAnyPermission = Object.values(matrix).some((m) => m.canView || m.canCreate || m.canEdit || m.canDelete);
+
+  const handleSubmit = () => {
+    if (!form.roleName.trim()) {
+      toast({ title: isBn ? "ভূমিকার নাম দিন" : "Enter role name", variant: "destructive" });
+      return;
+    }
+    if (form.scope === "Center" && !form.centerId) {
+      toast({ title: isBn ? "কেন্দ্র নির্বাচন করুন" : "Select a center", variant: "destructive" });
+      return;
+    }
+    if (!hasAnyPermission) {
+      toast({ title: isBn ? "অনুমতি সেট করুন" : "Set at least one permission", variant: "destructive" });
+      return;
+    }
+
+    const permissions = ALL_MODULES.map((m) => ({
+      module: m.key,
+      canView: matrix[m.key]?.canView ?? false,
+      canCreate: matrix[m.key]?.canCreate ?? false,
+      canEdit: matrix[m.key]?.canEdit ?? false,
+      canDelete: matrix[m.key]?.canDelete ?? false,
+    }));
+
+    onSubmit({
+      roleName: form.roleName,
+      scope: form.scope,
+      centerId: form.centerId ? parseInt(form.centerId) : null,
+      description: form.description,
+      permissions,
+    });
+  };
+
+  useEffect(() => {
+    if (editRole?.permissions) {
+      const m: Record<string, PermRow> = {};
+      for (const p of editRole.permissions) {
+        m[p.module] = p;
+      }
+      setMatrix(m);
+    }
+  }, [editRole]);
+
+  return (
+    <div className="space-y-4 pt-2">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <Label>{isBn ? "ভূমিকার নাম*" : "Role Name*"}</Label>
+          <Input
+            value={form.roleName}
+            onChange={(e) => setForm({ ...form, roleName: e.target.value })}
+            placeholder="e.g. Social Worker"
+            disabled={!!editRole}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label>{isBn ? "ব্যাপ্তি (Scope)*" : "Scope*"}</Label>
+          <Select value={form.scope} onValueChange={(v) => setForm({ ...form, scope: v, centerId: v === "Center" ? form.centerId : "" })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">{isBn ? "সকল কেন্দ্র (Global)" : "All Centers (Global)"}</SelectItem>
+              <SelectItem value="Center">{isBn ? "কেন্দ্র ভিত্তিক (Center-based)" : "Center-based"}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      {form.scope === "Center" && (
+        <div className="space-y-1">
+          <Label>{isBn ? "কেন্দ্র*" : "Center*"}</Label>
+          <Select value={form.centerId} onValueChange={(v) => setForm({ ...form, centerId: v })}>
+            <SelectTrigger><SelectValue placeholder={isBn ? "কেন্দ্র বেছে নিন" : "Choose center"} /></SelectTrigger>
+            <SelectContent position="popper" className="max-h-60 overflow-y-auto" sideOffset={4}>
+              {centers.map((c) => <SelectItem key={c.id} value={String(c.id)}>{isBn ? c.centerNameBn ?? c.centerName : c.centerName}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      <div className="space-y-1">
+        <Label>{isBn ? "বিবরণ" : "Description"}</Label>
+        <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="..." />
+      </div>
+
+      <div className="space-y-2 pt-2">
+        <div className="flex items-center justify-between">
+          <Label>{isBn ? "মডিউল অনুমতি*" : "Module Permissions*"}</Label>
+          {!hasAnyPermission && <span className="text-xs text-amber-600">{isBn ? "অনুমতি সেট করুন" : "Set permissions to continue"}</span>}
+        </div>
+        <div className="border rounded-md overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="text-left py-2 px-3 font-medium w-48">{isBn ? "মডিউল" : "Module"}</th>
+                <th className="text-center py-2 px-2 font-medium">{isBn ? "দেখুন" : "View"}</th>
+                <th className="text-center py-2 px-2 font-medium">{isBn ? "তৈরি" : "Create"}</th>
+                <th className="text-center py-2 px-2 font-medium">{isBn ? "সম্পাদনা" : "Edit"}</th>
+                <th className="text-center py-2 px-2 font-medium">{isBn ? "মুছুন" : "Delete"}</th>
+                <th className="text-center py-2 px-2 font-medium">{isBn ? "সব" : "All"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MODULE_GROUPS.map((group) => (
+                <React.Fragment key={group.groupEn}>
+                  <tr>
+                    <td colSpan={6} className="py-1 px-2 text-xs font-bold bg-muted/30 text-muted-foreground">
+                      {isBn ? group.groupBn : group.groupEn}
+                    </td>
+                  </tr>
+                  {group.modules.map((mod) => {
+                    const row = matrix[mod.key];
+                    const allOn = ACTIONS.every((a) => row?.[a]);
+                    return (
+                      <tr key={mod.key} className="border-b">
+                        <td className="py-2 px-3 font-medium">{isBn ? mod.labelBn : mod.labelEn}</td>
+                        {ACTIONS.map((a) => (
+                          <td key={a} className="text-center py-1 px-1">
+                            <Checkbox checked={!!row?.[a]} onCheckedChange={() => togglePerm(mod.key, a)} />
+                          </td>
+                        ))}
+                        <td className="text-center py-1 px-1">
+                          <Checkbox checked={allOn} onCheckedChange={(v) => toggleAllForModule(mod.key, !!v)} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Button className="w-full" onClick={handleSubmit} disabled={loading || !hasAnyPermission}>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+        {editRole ? (isBn ? "আপডেট করুন" : "Update Role") : (isBn ? "তৈরি করুন" : "Create Role")}
+      </Button>
+    </div>
+  );
+}
+
+// ─── Add Role Dialog ──────────────────────────────────────────────────────────
 function AddRoleDialog({ isBn, onCreated }: { isBn: boolean; onCreated: () => void }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -723,6 +930,100 @@ function AddRoleDialog({ isBn, onCreated }: { isBn: boolean; onCreated: () => vo
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {isBn ? "তৈরি করুন" : "Create Role"}
           </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Edit Role Dialog ──────────────────────────────────────────────────────────
+function EditRoleDialog({ isBn, roles, centers, onUpdated }: { isBn: boolean; roles: Role[]; centers: Center[]; onUpdated: () => void }) {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedRoleId, setSelectedRoleId] = useState("");
+  const [editData, setEditData] = useState<{ role: any; permissions: PermRow[]; centerName: any } | null>(null);
+  const qc = useQueryClient();
+
+  const selectedRole = roles.find((r) => String(r.id) === selectedRoleId);
+
+  const { data: roleData, isLoading: loadingRole } = useQuery({
+    queryKey: ["role", selectedRoleId],
+    queryFn: () => fetchJson(`/api/roles/${selectedRoleId}`),
+    enabled: !!selectedRoleId,
+  });
+
+  useEffect(() => {
+    if (roleData?.role) {
+      setEditData(roleData);
+    }
+  }, [roleData]);
+
+  const handleUpdate = async (data: any) => {
+    if (!selectedRoleId) return;
+    setLoading(true);
+    try {
+      const r = await fetch(`/api/roles/${selectedRoleId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const res = await r.json();
+      if (!r.ok) throw new Error(res.error ?? "Failed to update role");
+      toast({ title: isBn ? "ভূমিকা আপডেট হয়েছে" : "Role updated successfully" });
+      onUpdated();
+      setOpen(false);
+      setSelectedRoleId("");
+      setEditData(null);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setSelectedRoleId(""); setEditData(null); } }}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="gap-2">
+          <ShieldCheck className="h-4 w-4" />
+          {isBn ? "ভূমিকা সম্পাদনা" : "Edit Role"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{isBn ? "ভূমিকা সম্পাদনা করুন" : "Edit Role"}</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            {isBn ? "ভূমিকার তথ্য ও অনুমতি আপডেট করুন।" : "Update role details and permissions."}
+          </p>
+        </DialogHeader>
+        <div className="space-y-4 pt-2">
+          <div className="space-y-1">
+            <Label>{isBn ? "ভূমিকা নির্বাচন করুন" : "Select Role"}</Label>
+            <Select value={selectedRoleId} onValueChange={setSelectedRoleId}>
+              <SelectTrigger><SelectValue placeholder={isBn ? "ভূমিকা বেছে নিন" : "Choose role"} /></SelectTrigger>
+              <SelectContent position="popper" className="max-h-60 overflow-y-auto">
+                {roles
+                  .filter(r => r.roleName !== "Super Admin")
+                  .map((r) => <SelectItem key={r.id} value={String(r.id)}>{r.roleName}</SelectItem>)
+                }
+              </SelectContent>
+            </Select>
+          </div>
+
+          {loadingRole && <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>}
+
+          {editData && !loadingRole && (
+            <RoleForm
+              isBn={isBn}
+              roles={roles}
+              centers={centers}
+              editRole={editData}
+              onSubmit={handleUpdate}
+              loading={loading}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

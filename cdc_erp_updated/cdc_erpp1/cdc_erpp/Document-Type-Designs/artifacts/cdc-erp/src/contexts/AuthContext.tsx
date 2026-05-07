@@ -14,6 +14,7 @@ export type CurrentUser = {
   centerId: number | null;
   centerName: string | null;
   administrativeUnitId: number | null;
+  workflowRole: string | null;
   isActive: boolean | null;
 };
 
@@ -34,6 +35,39 @@ type AuthState = {
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshPermissions: () => Promise<void>;
+};
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+const ALL_MODULES = [
+  "dashboard", "admissions", "children", "cases", "family-socioeconomic",
+  "health", "counseling", "education-skills", "guardians", "court-cases",
+  "police-requisitions", "risk-assessments", "release-records", "follow-ups", "reports",
+  "measurement-surveys"
+];
+
+const VIEW_ONLY = { view: true, create: false, edit: false, delete: false };
+const FULL_ACCESS = { view: true, create: true, edit: true, delete: true };
+const NO_ACCESS = { view: false, create: false, edit: false, delete: false };
+
+const WORKFLOW_PERMISSIONS: Record<string, Record<string, { view: boolean; create: boolean; edit: boolean; delete: boolean }>> = {
+  DEO: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: NO_ACCESS }), {}),
+    admissions: FULL_ACCESS,
+    children: FULL_ACCESS,
+  },
+  CW: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: FULL_ACCESS }), {}),
+  },
+  PO: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: VIEW_ONLY }), {}),
+    "court-cases": FULL_ACCESS,
+    cases: FULL_ACCESS,
+    reports: VIEW_ONLY,
+  },
+  SUPT: {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: VIEW_ONLY }), {}),
+    reports: VIEW_ONLY,
+  },
 };
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -58,19 +92,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [permissions, setPermissions] = useState<PermissionMatrix>({});
   const [allowedCenterIds, setAllowedCenterIds] = useState<number[]>([]);
 
-  const fetchPermissions = useCallback(async () => {
+  const refreshPermissions = useCallback(async () => {
     try {
       const res = await fetch("/api/permissions/my-permissions", { credentials: "include" });
-      if (!res.ok) return;
-      const data = await readJsonSafely<{ matrix: PermissionMatrix; centerIds: number[] }>(res);
-      if (data) {
-        setPermissions(data.matrix ?? {});
-        setAllowedCenterIds(data.centerIds ?? []);
+      if (res.ok) {
+        const data = await readJsonSafely<{ matrix: PermissionMatrix; centerIds: number[] }>(res);
+        const map: PermissionMatrix = data?.matrix ? { ...data.matrix } : {};
+        setAllowedCenterIds(data?.centerIds ?? []);
+
+        // ─── Apply Hardcoded Workflow Overrides ──────────────────────────────
+        const wfRole = user?.workflowRole;
+        if (wfRole && WORKFLOW_PERMISSIONS[wfRole]) {
+          const overrides = WORKFLOW_PERMISSIONS[wfRole];
+          
+          ALL_MODULES.forEach(module => {
+            const h = overrides[module];
+            if (h) {
+              map[module] = {
+                canView: h.view,
+                canCreate: h.create,
+                canEdit: h.edit,
+                canDelete: h.delete
+              };
+            } else if (wfRole === "DEO") {
+               delete map[module];
+            }
+          });
+        }
+
+        setPermissions(map);
       }
-    } catch {
-      // silently fail — permissions stay empty
+    } catch (err) {
+      console.error("Failed to fetch permissions", err);
     }
-  }, []);
+  }, [user?.workflowRole, user?.roleId]);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
@@ -78,13 +133,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(async (data) => {
         const u = data?.user ?? null;
         if (u) {
-          await fetchPermissions();
+          await refreshPermissions();
         }
         setUser(u);
       })
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
-  }, [fetchPermissions]);
+  }, [refreshPermissions]);
 
   const login = async (username: string, password: string) => {
     const res = await fetch("/api/auth/login", {
@@ -111,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loggedInUser = meData.user;
     }
 
-    await fetchPermissions();
+    await refreshPermissions();
     setUser(loggedInUser);
   };
 
@@ -120,10 +175,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setPermissions({});
     setAllowedCenterIds([]);
-  };
-
-  const refreshPermissions = async () => {
-    await fetchPermissions();
   };
 
   return (
@@ -149,8 +200,26 @@ export function useAuth() {
 export function usePermission(module: string, action: "view" | "create" | "edit" | "delete"): boolean {
   const { user, permissions } = useAuth();
   if (!user) return false;
-  // Super Admin & Head Office always have full access
+
+  // 1. Super Admin & Head Office bypass
   if (user.roleName === "Super Admin" || user.roleName === "Head Office") return true;
+
+  // 2. Hardcoded Workflow Role bypass
+  const wfRole = user.workflowRole;
+  if (wfRole && WORKFLOW_PERMISSIONS[wfRole]) {
+    const wfPerms = WORKFLOW_PERMISSIONS[wfRole][module];
+    if (wfPerms) {
+      switch (action) {
+        case "view":   return wfPerms.view;
+        case "create": return wfPerms.create;
+        case "edit":   return wfPerms.edit;
+        case "delete": return wfPerms.delete;
+        default:       return false;
+      }
+    }
+  }
+
+  // 3. Dynamic DB check
   const modPerms = permissions[module];
   if (!modPerms) return false;
   switch (action) {

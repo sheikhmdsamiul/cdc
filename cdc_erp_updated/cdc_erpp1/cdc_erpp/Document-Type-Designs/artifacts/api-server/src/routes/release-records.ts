@@ -10,9 +10,33 @@ router.use(moduleGuard("release-records"));
 
 const WORKFLOW = {
   DRAFT: "Draft",
-  SUBMITTED: "Submitted",
+  SUBMITTED_TO_PO: "Submitted to PO",
+  UPDATE_NEEDED_BY_CW: "Update Needed by CW",
+  SUBMITTED_TO_SUPT: "Submitted to SUPT",
   APPROVED: "Approved",
   REJECTED: "Rejected",
+};
+
+const RELEASE_TRANSITIONS: Record<string, Record<string, { roles: string[]; next: string }>> = {
+  [WORKFLOW.DRAFT]: {
+    submit_to_po: { roles: ["CW"], next: WORKFLOW.SUBMITTED_TO_PO },
+  },
+  [WORKFLOW.UPDATE_NEEDED_BY_CW]: {
+    submit_to_po: { roles: ["CW"], next: WORKFLOW.SUBMITTED_TO_PO },
+  },
+  // Map "Pending" to "Submitted to PO" for legacy records
+  Pending: {
+    forward_to_supt: { roles: ["PO"], next: WORKFLOW.SUBMITTED_TO_SUPT },
+    update_needed_po: { roles: ["PO"], next: WORKFLOW.UPDATE_NEEDED_BY_CW },
+  },
+  [WORKFLOW.SUBMITTED_TO_PO]: {
+    forward_to_supt: { roles: ["PO"], next: WORKFLOW.SUBMITTED_TO_SUPT },
+    update_needed_po: { roles: ["PO"], next: WORKFLOW.UPDATE_NEEDED_BY_CW },
+  },
+  [WORKFLOW.SUBMITTED_TO_SUPT]: {
+    approve: { roles: ["SUPT"], next: WORKFLOW.APPROVED },
+    reject: { roles: ["SUPT"], next: WORKFLOW.REJECTED },
+  },
 };
 
 function generateReleaseId(): string {
@@ -33,7 +57,10 @@ const SELECT_FIELDS = {
   remarks: releaseRecordsTable.remarks,
   approvalStatus: releaseRecordsTable.approvalStatus,
   submittedBy: releaseRecordsTable.submittedBy,
+  cwFeedback: releaseRecordsTable.cwFeedback,
+  poFeedback: releaseRecordsTable.poFeedback,
   approvedByName: releaseRecordsTable.approvedByName,
+  rejectedByName: releaseRecordsTable.rejectedByName,
   rejectionNote: releaseRecordsTable.rejectionNote,
   createdAt: releaseRecordsTable.createdAt,
 };
@@ -124,9 +151,10 @@ router.put("/:id", async (req, res) => {
     const [existing] = await db.select().from(releaseRecordsTable).where(eq(releaseRecordsTable.id, id));
     if (!existing) return res.status(404).json({ error: "Not found" });
 
-    // Only allow editing Draft records
-    if (existing.approvalStatus !== WORKFLOW.DRAFT) {
-      return res.status(400).json({ error: "Cannot edit a record that has been submitted or approved" });
+    // Only allow editing Draft or Update Needed records
+    const editableStatuses = [WORKFLOW.DRAFT, WORKFLOW.UPDATE_NEEDED_BY_CW];
+    if (!editableStatuses.includes(existing.approvalStatus)) {
+      return res.status(400).json({ error: "Cannot edit a record that is currently under review or finalized" });
     }
 
     const [child] = await db.select({ centerId: childrenTable.centerId }).from(childrenTable).where(eq(childrenTable.id, existing.childId));
@@ -156,33 +184,44 @@ router.post("/:id/action", async (req, res) => {
     if (!existing) return res.status(404).json({ error: "Not found" });
 
     const role = user.roleName ?? "";
-    const state = existing.approvalStatus;
-    const updates: Record<string, any> = {};
-    let nextState = state;
-
-    // DEO or Center Admin submits Draft → Submitted
-    if (action === "submit" && state === WORKFLOW.DRAFT) {
-      nextState = WORKFLOW.SUBMITTED;
-      updates.submittedBy = user.fullName ?? user.username;
+    const workflowRole = user.workflowRole ?? "";
+    const state = existing.approvalStatus ?? WORKFLOW.DRAFT;
+    const isAdmin = role === "Super Admin" || role === "Head Office" || role === "Center Admin";
+    
+    const transition = RELEASE_TRANSITIONS[state]?.[action!];
+    if (!transition) {
+      return res.status(403).json({ error: "Invalid action for current state", state, action });
     }
-    // Superintendent or Super Admin approves Submitted → Approved
-    else if (action === "approve" && state === WORKFLOW.SUBMITTED && ["Superintendent", "Super Admin", "Center Admin"].includes(role)) {
-      nextState = WORKFLOW.APPROVED;
-      updates.authorityApproval = true;
+
+    if (!isAdmin && !transition.roles.includes(workflowRole)) {
+      return res.status(403).json({ error: `Action '${action}' requires one of these workflow roles: ${transition.roles.join(", ")}` });
+    }
+
+    const nextState = transition.next;
+    const updates: Record<string, any> = {};
+    const feedback = req.body.feedback?.trim();
+
+    // Apply specific field updates based on action
+    if (action === "submit_to_po") {
+      updates.submittedBy = user.fullName ?? user.username;
+      updates.cwFeedback = null;
+      updates.poFeedback = null;
+      updates.rejectionNote = null;
+    } else if (action === "update_needed_po") {
+      if (!feedback) return res.status(400).json({ error: "Feedback is required" });
+      updates.poFeedback = feedback;
+    } else if (action === "forward_to_supt") {
+      updates.poFeedback = feedback || null;
+    } else if (action === "approve") {
+      updates.authorityApproval = "Yes";
       updates.approvedByName = user.fullName ?? user.username;
       updates.rejectionNote = null;
-      // Update child status to Released
       await db.update(childrenTable).set({ currentStatus: "Released" }).where(eq(childrenTable.id, existing.childId!));
-    }
-    // Reject Submitted → Draft (send back for revision)
-    else if (action === "reject" && state === WORKFLOW.SUBMITTED && ["Superintendent", "Super Admin", "Center Admin"].includes(role)) {
-      if (!note?.trim()) return res.status(400).json({ error: "Rejection note is required" });
-      nextState = WORKFLOW.DRAFT;
-      updates.rejectionNote = note.trim();
-      updates.authorityApproval = false;
-    }
-    else {
-      return res.status(403).json({ error: "Action not permitted in current workflow state or role" });
+    } else if (action === "reject") {
+      if (!feedback) return res.status(400).json({ error: "Rejection note is required" });
+      updates.rejectionNote = feedback;
+      updates.rejectedByName = user.fullName ?? user.username;
+      updates.authorityApproval = "Reject";
     }
 
     updates.approvalStatus = nextState;

@@ -986,16 +986,16 @@ function PendingApprovalTable({ isBn }: { isBn: boolean }) {
   const allCases: any[] = Array.isArray(data) ? data : [];
 
   const role = user?.roleName ?? "";
-  const isSuperintendent = role === "Superintendent";
-  const isProbation = role === "Probation Officer";
-  const isDf = role === "District Facilitator";
-  const isCaseWorker = role === "Case Worker";
+  const isCaseWorker = user?.workflowRole === "CW";
+  const isProbationOfficer = user?.workflowRole === "PO";
+  const isSuperintendent = user?.workflowRole === "SUPT";
+  const isDEO = user?.workflowRole === "DEO";
   const isWorkerOrParent = role === "Worker" || role === "House Parent";
 
   const pending = allCases.filter((c: any) => {
     if (isSuperintendent) return c.workflowState === "Reviewed by PO";
-    if (isProbation) return c.workflowState === "Reviewed by DF" || c.workflowState === "Sent Back to PO";
-    if (isDf) return c.workflowState === "Submitted to DF";
+    if (isProbationOfficer) return c.workflowState === "Reviewed by DF" || c.workflowState === "Sent Back to PO";
+    if (isDEO) return c.workflowState === "Submitted to DF";
     if (isCaseWorker) return c.workflowState === "Draft";
     if (isWorkerOrParent) return c.workflowState === "Draft";
     return false;
@@ -1004,13 +1004,13 @@ function PendingApprovalTable({ isBn }: { isBn: boolean }) {
   if (pending.length === 0) return null;
 
   const titleBn = isSuperintendent ? "চূড়ান্ত অনুমোদনের অপেক্ষায়"
-    : isProbation ? "আপনার পর্যালোচনার অপেক্ষায়"
-    : isDf ? "জেলা সহায়ক পর্যালোচনার অপেক্ষায়"
+    : isProbationOfficer ? "আপনার পর্যালোচনার অপেক্ষায়"
+    : isDEO ? "জেলা সহায়ক পর্যালোচনার অপেক্ষায়"
     : "অনুমোদনের অপেক্ষায় মামলা";
 
   const titleEn = isSuperintendent ? "Pending Final Approval"
-    : isProbation ? "Awaiting Your Review"
-    : isDf ? "Pending DF Review"
+    : isProbationOfficer ? "Awaiting Your Review"
+    : isDEO ? "Pending DF Review"
     : "Cases Pending Approval";
 
   const riskBadge = (risk: string) => {
@@ -1091,20 +1091,26 @@ export default function Dashboard() {
         <StatCard title={t("dashboard.totalChildren")} value={stats?.totalChildren ?? 0} icon={Users}
           description={`${stats?.admittedChildren ?? 0} ${t("dashboard.currentlyAdmitted")}`}
           isLoading={statsLoading} accent="stat-card-teal" />
-        <StatCard title={t("dashboard.openCases")} value={stats?.openCases ?? 0} icon={FileText}
-          isLoading={statsLoading} accent="stat-card-blue" />
-        <StatCard title={t("dashboard.highRiskAlerts")} value={stats?.highRiskChildren ?? 0} icon={ShieldAlert}
-          isLoading={statsLoading} accent="stat-card-red" />
-        <StatCard title={t("dashboard.upcomingHearings")} value={stats?.upcomingHearings ?? 0} icon={Scale}
-          isLoading={statsLoading} accent="stat-card-amber" />
+        {usePermission("cases", "view") && (
+          <StatCard title={t("dashboard.openCases")} value={stats?.openCases ?? 0} icon={FileText}
+            isLoading={statsLoading} accent="stat-card-blue" />
+        )}
+        {usePermission("risk-assessments", "view") && (
+          <StatCard title={t("dashboard.highRiskAlerts")} value={stats?.highRiskChildren ?? 0} icon={ShieldAlert}
+            isLoading={statsLoading} accent="stat-card-red" />
+        )}
+        {usePermission("court-cases", "view") && (
+          <StatCard title={t("dashboard.upcomingHearings")} value={stats?.upcomingHearings ?? 0} icon={Scale}
+            isLoading={statsLoading} accent="stat-card-amber" />
+        )}
       </div>
 
       {/* Alert Tables — 4 sections */}
       <div className="space-y-4">
-        <Over18Table isBn={isBn} />
-        <Turning18Table isBn={isBn} />
-        <UpcomingHearingsTable isBn={isBn} />
-        <PendingApprovalTable isBn={isBn} />
+        {usePermission("children", "view") && <Over18Table isBn={isBn} />}
+        {usePermission("children", "view") && <Turning18Table isBn={isBn} />}
+        {usePermission("court-cases", "view") && <UpcomingHearingsTable isBn={isBn} />}
+        {usePermission("admissions", "view") && <PendingApprovalTable isBn={isBn} />}
       </div>
 
       {/* Charts + Recent Activity */}

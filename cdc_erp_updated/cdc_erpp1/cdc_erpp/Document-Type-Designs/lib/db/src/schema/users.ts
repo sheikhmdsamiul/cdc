@@ -14,6 +14,7 @@ export const usersTable = pgTable("users", {
   roleId: integer("role_id").references(() => rolesTable.id),
   centerId: integer("center_id").references(() => centersTable.id),
   administrativeUnitId: integer("administrative_unit_id").references(() => administrativeUnitsTable.id),
+  workflowRole: text("workflow_role"), // DEO, CW, PO, SUPT
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

@@ -19,10 +19,12 @@ const RELEASE_TYPES = ["Court Order", "Guardian Request", "Transfer", "Escape", 
 const EMPTY_FORM = { childId: "", releaseDate: "", releaseType: "Court Order", handedOverTo: "", remarks: "" };
 
 const STATUS_BADGE: Record<string, { label: string; labelBn: string; className: string }> = {
-  Draft:     { label: "Draft",     labelBn: "খসড়া",        className: "bg-gray-100 text-gray-700" },
-  Submitted: { label: "Submitted", labelBn: "জমা দেওয়া হয়েছে", className: "bg-amber-100 text-amber-700" },
-  Approved:  { label: "Approved",  labelBn: "অনুমোদিত",     className: "bg-green-100 text-green-700" },
-  Rejected:  { label: "Rejected",  labelBn: "প্রত্যাখ্যাত",   className: "bg-red-100 text-red-700" },
+  Draft:                   { label: "Draft",                   labelBn: "খসড়া",        className: "bg-gray-100 text-gray-700" },
+  "Submitted to PO":       { label: "Submitted to PO",       labelBn: "PO-এ জমা",      className: "bg-indigo-100 text-indigo-700" },
+  "Update Needed by CW":   { label: "Update Needed by CW",   labelBn: "আপডেট প্রয়োজন", className: "bg-orange-100 text-orange-800" },
+  "Submitted to SUPT":     { label: "Submitted to SUPT",     labelBn: "SUPT-এ জমা",    className: "bg-purple-100 text-purple-700" },
+  Approved:                { label: "Approved",                labelBn: "অনুমোদিত",     className: "bg-green-100 text-green-700" },
+  Rejected:                { label: "Rejected",                labelBn: "প্রত্যাখ্যাত",   className: "bg-red-100 text-red-700" },
 };
 
 export default function ReleaseRecordsList() {
@@ -80,11 +82,13 @@ export default function ReleaseRecordsList() {
     onSuccess: (_data, vars) => {
       invalidate();
       setActionTarget(null); setActionType(null); setRejectNote("");
-      const successMsg = vars.action === "submit"
-        ? (isBn ? "জমা দেওয়া হয়েছে" : "Submitted for approval")
-        : vars.action === "approve"
-          ? (isBn ? "অনুমোদন দেওয়া হয়েছে" : "Approved — child marked as Released")
-          : (isBn ? "প্রত্যাখ্যাত হয়েছে" : "Rejected — sent back for revision");
+      const successMsg = vars.action === "submit_to_po"
+        ? (isBn ? "PO-এ জমা দেওয়া হয়েছে" : "Submitted to Probation Officer")
+        : vars.action === "forward_to_supt"
+          ? (isBn ? "SUPT-এ পাঠানো হয়েছে" : "Forwarded to Superintendent")
+          : vars.action === "approve"
+            ? (isBn ? "অনুমোদন দেওয়া হয়েছে" : "Approved — child marked as Released")
+            : (isBn ? "প্রত্যাখ্যাত হয়েছে" : "Rejected");
       toast({ title: isBn ? "সফল" : "Success", description: successMsg });
     },
     onError: (e: any) => toast({ title: isBn ? "ত্রুটি" : "Error", description: e?.message, variant: "destructive" }),
@@ -96,8 +100,9 @@ export default function ReleaseRecordsList() {
 
   function openCreate() { setEditing(null); setForm(EMPTY_FORM); setOpen(true); }
   function openEdit(r: any) {
-    if (r.approvalStatus !== "Draft") {
-      toast({ title: isBn ? "সম্পাদনা করা যাবে না" : "Cannot edit", description: isBn ? "শুধুমাত্র খসড়া রেকর্ড সম্পাদনা করা যায়।" : "Only Draft records can be edited.", variant: "destructive" });
+    const editableStatuses = ["Draft", "Update Needed by CW"];
+    if (!editableStatuses.includes(r.approvalStatus)) {
+      toast({ title: isBn ? "সম্পাদনা করা যাবে না" : "Cannot edit", description: isBn ? "শুধুমাত্র খসড়া বা আপডেট প্রয়োজন এমন রেকর্ড সম্পাদনা করা যায়।" : "Only Draft or records needing update can be edited.", variant: "destructive" });
       return;
     }
     setForm({ childId: String(r.childId), releaseDate: r.releaseDate ?? "", releaseType: r.releaseType ?? "Court Order", handedOverTo: r.handedOverTo ?? "", remarks: r.remarks ?? "" });
@@ -175,21 +180,21 @@ export default function ReleaseRecordsList() {
           return (
             <div className="flex gap-1" onClick={e => e.stopPropagation()}>
               {/* Submit for approval — anyone with create/edit permission on Draft records */}
-              {(canCreate || canEdit) && status === "Draft" && (
-                <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1" onClick={() => { setActionTarget(r); setActionType(null); actionMutation.mutate({ id: (r as any).id, action: "submit" }); }}>
+              {(canCreate || canEdit) && ["Draft", "Update Needed by CW"].includes(status) && (
+                <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1" onClick={() => actionMutation.mutate({ id: (r as any).id, action: "submit_to_po" })}>
                   <Send className="h-3 w-3" />{isBn ? "জমা দিন" : "Submit"}
                 </Button>
               )}
-              {/* Approve — Anyone with edit permission on Submitted records */}
-              {canApprove && status === "Submitted" && (
-                <>
-                  <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1 text-green-700 border-green-300 hover:bg-green-50" onClick={() => { setActionTarget(r); setActionType("approve"); }}>
-                    <CheckCircle2 className="h-3 w-3" />{isBn ? "অনুমোদন" : "Approve"}
-                  </Button>
-                  <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1 text-red-600 border-red-300 hover:bg-red-50" onClick={() => { setActionTarget(r); setActionType("reject"); setRejectNote(""); }}>
-                    <XCircle className="h-3 w-3" />{isBn ? "প্রত্যাখ্যান" : "Reject"}
-                  </Button>
-                </>
+              {/* Approve/Forward logic is complex, better to handle in detail page for secondary reviewers */}
+              {canEdit && status === "Submitted to PO" && (
+                <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1" onClick={() => actionMutation.mutate({ id: (r as any).id, action: "forward_to_supt" })}>
+                  {isBn ? "SUPT-এ পাঠান" : "Forward"}
+                </Button>
+              )}
+              {canApprove && status === "Submitted to SUPT" && (
+                <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1 text-green-700 border-green-300 hover:bg-green-50" onClick={() => { setActionTarget(r); setActionType("approve"); }}>
+                  <CheckCircle2 className="h-3 w-3" />{isBn ? "অনুমোদন" : "Approve"}
+                </Button>
               )}
               {/* Edit Draft */}
               {canEdit && status === "Draft" && (

@@ -19,6 +19,7 @@ type User = {
   roleName: string | null;
   centerName: string | null;
   centerNameBn: string | null;
+  workflowRole: string | null;
   isActive: boolean;
 };
 
@@ -164,6 +165,7 @@ export default function CenterUsersPage() {
                     <th className="text-left py-2 font-medium">{isBn ? "ব্যবহারকারীর নাম" : "Username"}</th>
                     <th className="text-left py-2 font-medium">{isBn ? "পূর্ণ নাম" : "Full Name"}</th>
                     <th className="text-left py-2 font-medium">{isBn ? "ভূমিকা" : "Role"}</th>
+                    <th className="text-left py-2 font-medium">{isBn ? "ওয়ার্কফ্লো" : "Workflow"}</th>
                     <th className="text-left py-2 font-medium">{isBn ? "কেন্দ্র" : "Center"}</th>
                     <th className="text-right py-2 font-medium">{isBn ? "কার্যক্রম" : "Actions"}</th>
                   </tr>
@@ -174,6 +176,13 @@ export default function CenterUsersPage() {
                       <td className="py-2">{u.username}</td>
                       <td className="py-2">{u.fullName}</td>
                       <td className="py-2">{u.roleName ?? "—"}</td>
+                      <td className="py-2">
+                        {u.workflowRole ? (
+                          <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
+                            {u.workflowRole}
+                          </span>
+                        ) : "—"}
+                      </td>
                       <td className="py-2">
                         {isBn ? u.centerNameBn ?? u.centerName : u.centerName}
                       </td>
