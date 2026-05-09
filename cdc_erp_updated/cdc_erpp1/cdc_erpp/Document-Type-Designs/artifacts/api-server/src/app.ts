@@ -1,5 +1,7 @@
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import pinoHttp from "pino-http";
 import session from "express-session";
 import router from "./routes";
@@ -7,6 +9,8 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 const requestBodyLimit = "10mb";
+
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -47,13 +51,30 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24 * 7,
     sameSite: "lax",
   },
 }));
 
 app.use("/api", router);
+
+if (process.env.NODE_ENV === "production") {
+  const frontendDir = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    process.env["FRONTEND_DIST"] || "../../cdc-erp/dist/public",
+  );
+
+  app.use(express.static(frontendDir));
+
+  app.get("*", (req, res) => {
+    if (req.path.startsWith("/api")) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.sendFile(path.join(frontendDir, "index.html"));
+  });
+}
 
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   logger.error(
