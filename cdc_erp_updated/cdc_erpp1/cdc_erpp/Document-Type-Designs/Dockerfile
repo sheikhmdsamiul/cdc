@@ -22,6 +22,7 @@ COPY attached_assets ./attached_assets
 COPY artifacts/ ./artifacts/
 COPY lib/ ./lib/
 COPY scripts/ ./scripts/
+RUN pnpm install
 RUN pnpm --filter @workspace/api-server run build
 
 ENV PORT=8080
