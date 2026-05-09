@@ -351,7 +351,12 @@ export default function GuardiansList() {
                   <Button variant="outline" className="gap-2"><Plus className="h-4 w-4" /> {isBn ? "পরিদর্শন যোগ করুন" : "Log Visit"}</Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
-                  <DialogHeader><DialogTitle>{isBn ? "নতুন পরিদর্শন রেকর্ড" : "New Guardian Visit"}</DialogTitle></DialogHeader>
+                  <DialogHeader>
+                    <DialogTitle>{isBn ? "নতুন পরিদর্শন রেকর্ড" : "New Guardian Visit"}</DialogTitle>
+                    <DialogDescription>
+                      {isBn ? "অভিভাবকের পরিদর্শনের তথ্য সংগ্রহ করুন।" : "Record information about a guardian's visit."}
+                    </DialogDescription>
+                  </DialogHeader>
                   {VisitForm({})}
                 </DialogContent>
               </Dialog>
@@ -360,7 +365,12 @@ export default function GuardiansList() {
                   <Button className="gap-2 bg-[#166534] hover:bg-[#0d4427]"><Plus className="h-4 w-4" /> {isBn ? "নতুন অভিভাবক" : "New Guardian"}</Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
-                  <DialogHeader><DialogTitle>{isBn ? "নতুন অভিভাবক" : "New Guardian"}</DialogTitle></DialogHeader>
+                  <DialogHeader>
+                    <DialogTitle>{isBn ? "নতুন অভিভাবক" : "New Guardian"}</DialogTitle>
+                    <DialogDescription>
+                      {isBn ? "শিশুর জন্য নতুন অভিভাবক যুক্ত করুন।" : "Add a new guardian for the child."}
+                    </DialogDescription>
+                  </DialogHeader>
                   {GuardianForm()}
                 </DialogContent>
               </Dialog>
@@ -435,7 +445,12 @@ export default function GuardiansList() {
       {editingGuardian && (
         <Dialog open={!!editingGuardian} onOpenChange={v => { if (!v) setEditingGuardian(null); }}>
           <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{isBn ? "অভিভাবক সম্পাদনা" : "Edit Guardian"}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{isBn ? "অভিভাবক সম্পাদনা" : "Edit Guardian"}</DialogTitle>
+              <DialogDescription>
+                {isBn ? "অভিভাবকের তথ্য পরিবর্তন করুন।" : "Modify guardian information."}
+              </DialogDescription>
+            </DialogHeader>
             {GuardianForm()}
           </DialogContent>
         </Dialog>
@@ -445,7 +460,12 @@ export default function GuardiansList() {
       {editingVisit && (
         <Dialog open={!!editingVisit} onOpenChange={v => { if (!v) setEditingVisit(null); }}>
           <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{isBn ? "পরিদর্শন সম্পাদনা" : "Edit Visit"}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{isBn ? "পরিদর্শন সম্পাদনা" : "Edit Visit"}</DialogTitle>
+              <DialogDescription>
+                {isBn ? "পরিদর্শন রেকর্ড পরিবর্তন করুন।" : "Modify visit record."}
+              </DialogDescription>
+            </DialogHeader>
             {VisitForm({})}
           </DialogContent>
         </Dialog>
@@ -454,7 +474,12 @@ export default function GuardiansList() {
       {viewingVisit && (
         <Dialog open={!!viewingVisit} onOpenChange={v => { if (!v) setViewingVisit(null); }}>
           <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{isBn ? "পরিদর্শন রেকর্ড দেখুন" : "View Visit Record"}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{isBn ? "পরিদর্শন রেকর্ড দেখুন" : "View Visit Record"}</DialogTitle>
+              <DialogDescription>
+                {isBn ? "পরিদর্শন রেকর্ডের বিস্তারিত তথ্য।" : "Detailed information about the visit record."}
+              </DialogDescription>
+            </DialogHeader>
             {VisitForm({ readOnly: true })}
           </DialogContent>
         </Dialog>
@@ -464,7 +489,12 @@ export default function GuardiansList() {
       {deletingGuardian && (
         <Dialog open={!!deletingGuardian} onOpenChange={v => { if (!v) setDeletingGuardian(null); }}>
           <DialogContent className="max-w-sm">
-            <DialogHeader><DialogTitle>{isBn ? "অভিভাবক মুছুন" : "Delete Guardian"}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{isBn ? "অভিভাবক মুছুন" : "Delete Guardian"}</DialogTitle>
+              <DialogDescription>
+                {isBn ? "অভিভাবক রেকর্ড মুছে ফেলার নিশ্চিতকরণ।" : "Confirm deletion of guardian record."}
+              </DialogDescription>
+            </DialogHeader>
             <p className="text-sm text-muted-foreground">{isBn ? `"${(deletingGuardian as any).guardianName}" মুছে ফেলতে চান?` : `Delete "${(deletingGuardian as any).guardianName}"?`}</p>
             <div className="flex gap-2 mt-4">
               <Button variant="destructive" onClick={() => deleteGuardianMutation.mutate((deletingGuardian as any).id)} disabled={deleteGuardianMutation.isPending}>{isBn ? "মুছুন" : "Delete"}</Button>
@@ -478,7 +508,12 @@ export default function GuardiansList() {
       {deletingVisit && (
         <Dialog open={!!deletingVisit} onOpenChange={v => { if (!v) setDeletingVisit(null); }}>
           <DialogContent className="max-w-sm">
-            <DialogHeader><DialogTitle>{isBn ? "পরিদর্শন মুছুন" : "Delete Visit"}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{isBn ? "পরিদর্শন মুছুন" : "Delete Visit"}</DialogTitle>
+              <DialogDescription>
+                {isBn ? "পরিদর্শন রেকর্ড মুছে ফেলার নিশ্চিতকরণ।" : "Confirm deletion of visit record."}
+              </DialogDescription>
+            </DialogHeader>
             <p className="text-sm text-muted-foreground">{isBn ? `"${(deletingVisit as any).visitId}" মুছে ফেলতে চান?` : `Delete visit "${(deletingVisit as any).visitId}"?`}</p>
             <div className="flex gap-2 mt-4">
               <Button variant="destructive" onClick={() => deleteVisitMutation.mutate((deletingVisit as any).id)} disabled={deleteVisitMutation.isPending}>{isBn ? "মুছুন" : "Delete"}</Button>

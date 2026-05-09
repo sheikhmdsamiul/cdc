@@ -20,10 +20,10 @@ const EMPTY_FORM = { childId: "", releaseDate: "", releaseType: "Court Order", h
 
 const STATUS_BADGE: Record<string, { label: string; labelBn: string; className: string }> = {
   Draft:                   { label: "Draft",                   labelBn: "খসড়া",        className: "bg-gray-100 text-gray-700" },
-  "Submitted to PO":       { label: "Submitted to PO",       labelBn: "PO-এ জমা",      className: "bg-indigo-100 text-indigo-700" },
-  "Update Needed by CW":   { label: "Update Needed by CW",   labelBn: "আপডেট প্রয়োজন", className: "bg-orange-100 text-orange-800" },
-  "Submitted to SUPT":     { label: "Submitted to SUPT",     labelBn: "SUPT-এ জমা",    className: "bg-purple-100 text-purple-700" },
-  Approved:                { label: "Approved",                labelBn: "অনুমোদিত",     className: "bg-green-100 text-green-700" },
+  "Submitted to PO":       { label: "Forwarded to Probation Officer", labelBn: "প্রবেশন অফিসারের নিকট প্রেরিত", className: "bg-indigo-100 text-indigo-700" },
+  "Update Needed by CW":   { label: "Forwarded to Case Worker (Update Needed)", labelBn: "কেস ওয়ার্কারের নিকট প্রেরিত (আপডেট প্রয়োজন)", className: "bg-orange-100 text-orange-800" },
+  "Submitted to SUPT":     { label: "Forwarded to Superintendent", labelBn: "সুপারিনটেনডেন্টের নিকট প্রেরিত", className: "bg-purple-100 text-purple-700" },
+  Approved:                { label: "Approved by Superintendent", labelBn: "সুপারিনটেনডেন্ট অনুমোদিত",     className: "bg-green-100 text-green-700" },
   Rejected:                { label: "Rejected",                labelBn: "প্রত্যাখ্যাত",   className: "bg-red-100 text-red-700" },
 };
 
@@ -188,7 +188,7 @@ export default function ReleaseRecordsList() {
               {/* Approve/Forward logic is complex, better to handle in detail page for secondary reviewers */}
               {canEdit && status === "Submitted to PO" && (
                 <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1" onClick={() => actionMutation.mutate({ id: (r as any).id, action: "forward_to_supt" })}>
-                  {isBn ? "SUPT-এ পাঠান" : "Forward"}
+                  {isBn ? "তত্ত্বাবধায়কের কাছে পাঠান" : "Forward to Superintendent"}
                 </Button>
               )}
               {canApprove && status === "Submitted to SUPT" && (

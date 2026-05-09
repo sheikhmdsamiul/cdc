@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Save, Loader2, Building2, Lock, Plus, Trash2, User, Pencil, Shield } from "lucide-react";
+import { ShieldCheck, Save, Loader2, Building2, Lock, Plus, Trash2, User, Pencil, Shield, UserPlus } from "lucide-react";
 
 // ─── Module Groups ────────────────────────────────────────────────────────────
 const MODULE_GROUPS = [
@@ -110,7 +110,7 @@ export default function PermissionsPage() {
     queryKey: ["users"],
     queryFn: () => fetchJson("/api/users"),
   });
-  const users = (usersData?.users ?? []).filter((u) => u.isActive !== false);
+  const users = usersData?.users ?? [];
   const { global: globalUsers, byCenter } = groupUsersByCenter(users);
 
   const { data: rolesData } = useQuery<{ roles: Role[] }>({
@@ -170,12 +170,17 @@ export default function PermissionsPage() {
     onError: () => toast({ title: isBn ? "ত্রুটি" : "Error", variant: "destructive" }),
   });
 
-  const deleteUserMutation = useMutation({
-    mutationFn: (id: number) => fetch(`/api/users/${id}`, { method: "DELETE", credentials: "include" }).then((r) => r.json()),
-    onSuccess: () => {
-      toast({ title: isBn ? "ব্যবহারকারী নিষ্ক্রিয় করা হয়েছে" : "User deactivated" });
+  const toggleStatusMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
+      fetch(`/api/users/${id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive }),
+      }).then((r) => r.json()),
+    onSuccess: (data) => {
+      toast({ title: data.isActive ? (isBn ? "ব্যবহারকারী সক্রিয় করা হয়েছে" : "User activated") : (isBn ? "ব্যবহারকারী নিষ্ক্রিয় করা হয়েছে" : "User deactivated") });
       qc.invalidateQueries({ queryKey: ["users"] });
-      setSelectedUserId("");
     },
     onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
@@ -246,7 +251,7 @@ export default function PermissionsPage() {
                       <SelectLabel>{isBn ? "বৈশ্বিক" : "Global"}</SelectLabel>
                       {globalUsers.map((u) => (
                         <SelectItem key={u.id} value={String(u.id)}>
-                          {u.username} — {u.roleName ?? "No Role"}
+                          {u.username} — {u.roleName ?? "No Role"} {!u.isActive && (isBn ? "(নিষ্ক্রিয়)" : "(Inactive)")}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -256,7 +261,7 @@ export default function PermissionsPage() {
                       <SelectLabel>{group.label}</SelectLabel>
                       {group.users.map((u) => (
                         <SelectItem key={u.id} value={String(u.id)}>
-                          {u.username} — {u.roleName ?? "No Role"}
+                          {u.username} — {u.roleName ?? "No Role"} {!u.isActive && (isBn ? "(নিষ্ক্রিয়)" : "(Inactive)")}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -265,12 +270,25 @@ export default function PermissionsPage() {
               </Select>
               {selectedUserId && canAdmin && (
                 <Button
-                  variant="destructive" size="icon"
-                  title={isBn ? "ব্যবহারকারী নিষ্ক্রিয় করুন" : "Deactivate User"}
-                  onClick={() => { if (confirm(isBn ? "এই ব্যবহারকারীকে নিষ্ক্রিয় করবেন?" : "Deactivate this user?")) deleteUserMutation.mutate(parseInt(selectedUserId, 10)); }}
-                  disabled={deleteUserMutation.isPending}
+                  variant={selectedUser.isActive ? "destructive" : "default"}
+                  size="icon"
+                  className={!selectedUser.isActive ? "bg-green-600 hover:bg-green-700" : ""}
+                  title={selectedUser.isActive ? (isBn ? "নিষ্ক্রিয় করুন" : "Deactivate User") : (isBn ? "সক্রিয় করুন" : "Activate User")}
+                  onClick={() => {
+                    const actionStr = selectedUser.isActive ? (isBn ? "নিষ্ক্রিয়" : "deactivate") : (isBn ? "সক্রিয়" : "activate");
+                    if (confirm(isBn ? `এই ব্যবহারকারীকে ${actionStr} করবেন?` : `Are you sure you want to ${actionStr} this user?`)) {
+                      toggleStatusMutation.mutate({ id: selectedUser.id, isActive: !selectedUser.isActive });
+                    }
+                  }}
+                  disabled={toggleStatusMutation.isPending}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  {toggleStatusMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : selectedUser.isActive ? (
+                    <UserPlus className="h-4 w-4 rotate-45" />
+                  ) : (
+                    <UserPlus className="h-4 w-4" />
+                  )}
                 </Button>
               )}
             </div>
@@ -344,8 +362,8 @@ export default function PermissionsPage() {
                   </thead>
                   <tbody>
                     {MODULE_GROUPS.map((group) => (
-                      <>
-                        <tr key={group.groupEn} className="bg-muted/50">
+                      <React.Fragment key={group.groupEn}>
+                        <tr className="bg-muted/50">
                           <td colSpan={6} className="py-2 px-2 text-xs font-bold uppercase text-muted-foreground tracking-wide">
                             {isBn ? group.groupBn : group.groupEn}
                           </td>
@@ -367,7 +385,7 @@ export default function PermissionsPage() {
                             </tr>
                           );
                         })}
-                      </>
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -461,9 +479,9 @@ function AddUserDialog({ isBn, roles, centers, onCreated }: { isBn: boolean; rol
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{isBn ? "নতুন ব্যবহারকারী তৈরি করুন" : "Create New User"}</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription>
             {isBn ? "ব্যবহারকারীর তথ্য প্রদান করুন এবং ভূমিকা নির্বাচন করুন।" : "Provide user details and assign a role."}
-          </p>
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-1">
@@ -554,6 +572,7 @@ function RoleForm({
     scope: "Center",
     centerId: "",
     description: "",
+    isActive: true,
   });
   const [matrix, setMatrix] = useState<Record<string, PermRow>>({});
 
@@ -565,6 +584,7 @@ function RoleForm({
         scope: editRole.role.scope || "Center",
         centerId: editRole.role.centerId?.toString() || "",
         description: editRole.role.description || "",
+        isActive: editRole.role.isActive ?? true,
       });
       
       // Also load permissions into matrix
@@ -627,6 +647,7 @@ function RoleForm({
       scope: form.scope,
       centerId: form.centerId ? parseInt(form.centerId) : null,
       description: form.description,
+      isActive: form.isActive,
       permissions,
     });
   };
@@ -662,6 +683,14 @@ function RoleForm({
               <SelectItem value="Center">{isBn ? "কেন্দ্র ভিত্তিক (Center-based)" : "Center-based"}</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div className="space-y-1 flex items-center gap-2 pt-6">
+          <Checkbox 
+            id="role-active" 
+            checked={form.isActive} 
+            onCheckedChange={(v) => setForm({ ...form, isActive: !!v })} 
+          />
+          <Label htmlFor="role-active" className="cursor-pointer">{isBn ? "সক্রিয়" : "Active"}</Label>
         </div>
       </div>
       {form.scope === "Center" && (
@@ -839,9 +868,9 @@ function AddRoleDialog({ isBn, onCreated }: { isBn: boolean; onCreated: () => vo
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isBn ? "নতুন ভূমিকা তৈরি করুন" : "Create New Role"}</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription>
             {isBn ? "ভূমিকার তথ্য ও অনুমতি সেট করুন।" : "Set role details and permissions."}
-          </p>
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="grid grid-cols-2 gap-4">
@@ -994,9 +1023,9 @@ function EditRoleDialog({ isBn, roles, centers, onUpdated }: { isBn: boolean; ro
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isBn ? "ভূমিকা সম্পাদনা করুন" : "Edit Role"}</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription>
             {isBn ? "ভূমিকার তথ্য ও অনুমতি আপডেট করুন।" : "Update role details and permissions."}
-          </p>
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-1">

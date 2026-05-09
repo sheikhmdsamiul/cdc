@@ -218,6 +218,9 @@ export default function AddressManagementPage() {
                action?.type === "district" ? (isBn ? "নতুন জেলা যোগ করুন" : "Add New District") :
                (isBn ? "নতুন উপজেলা যোগ করুন" : "Add New Upazila")}
             </DialogTitle>
+            <DialogDescription>
+              {isBn ? "সিস্টেমে নতুন প্রশাসনিক এলাকা যুক্ত করুন।" : "Add a new administrative unit to the system."}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">

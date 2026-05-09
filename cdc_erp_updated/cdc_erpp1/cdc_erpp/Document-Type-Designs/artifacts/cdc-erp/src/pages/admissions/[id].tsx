@@ -161,7 +161,25 @@ export default function AdmissionDetail() {
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-foreground font-mono">{record.admissionId}</h1>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || "bg-gray-100 text-gray-700"}`}>
-              {status}
+              {isBn ? ({
+                "Draft": "খসড়া",
+                "Submitted to CW": "কেস ওয়ার্কারের নিকট প্রেরিত",
+                "Update Needed by CW": "কেস ওয়ার্কার আপডেট চেয়েছেন",
+                "Submitted to PO": "প্রবেশন অফিসারের নিকট প্রেরিত",
+                "Update Needed by PO": "প্রবেশন অফিসার আপডেট চেয়েছেন",
+                "Submitted to SUPT": "সুপারিনটেনডেন্টের নিকট প্রেরিত",
+                "Approved": "সুপারিনটেনডেন্ট অনুমোদিত",
+                "Rejected": "বাতিল",
+              }[status] || status) : ({
+                "Draft": "Draft",
+                "Submitted to CW": "Forwarded to Case Worker",
+                "Update Needed by CW": "Update Needed by CW",
+                "Submitted to PO": "Forwarded to Probation Officer",
+                "Update Needed by PO": "Update Needed by PO",
+                "Submitted to SUPT": "Forwarded to Superintendent",
+                "Approved": "Approved by Superintendent",
+                "Rejected": "Rejected",
+              }[status] || status)}
             </span>
           </div>
           <p className="text-muted-foreground text-sm mt-1">
@@ -183,7 +201,7 @@ export default function AdmissionDetail() {
             )}
             {canSubmit && (
               <Button size="sm" onClick={() => workflowMutation.mutate({ action: "submit_to_cw" })}>
-                {isBn ? "CW-এ জমা দিন" : "Submit to CW"}
+                {isBn ? "কেস ওয়ার্কারের কাছে পাঠান" : "Forward to Case Worker"}
               </Button>
             )}
             {canUpdateNeededCw && (
@@ -193,7 +211,7 @@ export default function AdmissionDetail() {
             )}
             {canForwardToPo && (
               <Button size="sm" onClick={() => workflowMutation.mutate({ action: "forward_to_po" })}>
-                {isBn ? "PO-এ ফরোয়ার্ড" : "Forward to PO"}
+                {isBn ? "প্রবেশন অফিসারের কাছে পাঠান" : "Forward to Probation Officer"}
               </Button>
             )}
             {canUpdateNeededPo && (
@@ -203,7 +221,7 @@ export default function AdmissionDetail() {
             )}
             {canForwardToSupt && (
               <Button size="sm" onClick={() => workflowMutation.mutate({ action: "forward_to_supt" })}>
-                {isBn ? "SUPT-এ ফরোয়ার্ড" : "Forward to SUPT"}
+                {isBn ? "তত্ত্বাবধায়কের কাছে পাঠান" : "Forward to Superintendent"}
               </Button>
             )}
             {canApprove && (

@@ -41,7 +41,7 @@ router.put("/:id", requireAuth, async (req, res) => {
     }
 
     const id = parseInt(req.params.id, 10);
-    const { roleName, scope, accessType, centerId, description, permissions } = req.body;
+    const { roleName, scope, accessType, centerId, description, isActive, permissions } = req.body;
 
     const [existing] = await db.select().from(rolesTable).where(eq(rolesTable.id, id)).limit(1);
     if (!existing) return res.status(404).json({ error: "Role not found" });
@@ -72,6 +72,7 @@ router.put("/:id", requireAuth, async (req, res) => {
     if (accessType) updates.accessType = accessType;
     if (centerId !== undefined) updates.centerId = centerId ? Number(centerId) : null;
     if (description !== undefined) updates.description = description;
+    if (isActive !== undefined) updates.isActive = isActive;
 
     const [updatedRole] = await db.update(rolesTable).set(updates).where(eq(rolesTable.id, id)).returning();
 
@@ -107,7 +108,7 @@ router.post("/", requireAuth, async (req, res) => {
       return res.status(403).json({ error: "Forbidden: only Super Admin can add roles" });
     }
 
-    const { roleName, scope = "Center", accessType = "Filtered", centerId, description = "", permissions = [] } = req.body;
+    const { roleName, scope = "Center", accessType = "Filtered", centerId, description = "", isActive = true, permissions = [] } = req.body;
     if (!roleName) return res.status(400).json({ error: "roleName is required" });
 
     if (scope === "Center" && !centerId) {
@@ -119,7 +120,8 @@ router.post("/", requireAuth, async (req, res) => {
       scope,
       accessType,
       centerId: centerId ? Number(centerId) : null,
-      description
+      description,
+      isActive
     }).returning();
 
     // Insert permissions if provided
@@ -166,12 +168,12 @@ router.delete("/:id", requireAuth, async (req, res) => {
     if (!existing) return res.status(404).json({ error: "Role not found" });
 
     if (existing.roleName === "Super Admin") {
-      return res.status(400).json({ error: "The 'Super Admin' role cannot be deleted." });
+      return res.status(400).json({ error: "The 'Super Admin' role cannot be deactivated." });
     }
 
-    const [deleted] = await db.delete(rolesTable).where(eq(rolesTable.id, id)).returning();
+    const [deleted] = await db.update(rolesTable).set({ isActive: false }).where(eq(rolesTable.id, id)).returning();
     
-    res.json({ success: true, deleted });
+    res.json({ success: true, deactivated: deleted });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete role", details: String(err) });
   }

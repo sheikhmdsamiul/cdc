@@ -72,11 +72,31 @@ export default function AdmissionsList() {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => fetch(`/api/admissions/${id}`, { method: "DELETE", credentials: "include" }).then((r) => r.json()),
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/admissions/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload?.errorBn || payload?.error || (isBn ? "মুছে ফেলা ব্যর্থ হয়েছে" : "Delete failed"));
+      }
+      return payload;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getListAdmissionsQueryKey({}) });
       setDeleting(null);
-      toast({ title: isBn ? "মুছে ফেলা হয়েছে" : "Deleted" });
+      toast({
+        title: isBn ? "সফলভাবে মুছে ফেলা হয়েছে" : "Successfully Deleted",
+        description: isBn ? "ভর্তি ও সংশ্লিষ্ট শিশুর সব তথ্য মুছে ফেলা হয়েছে।" : "Admission and all related child records were deleted.",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: isBn ? "মুছে ফেলা সম্ভব হয়নি" : "Could not delete",
+        description: err?.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -155,7 +175,16 @@ export default function AdmissionsList() {
         Approved: "সুপারিনটেনডেন্ট অনুমোদিত",
         Rejected: "বাতিল",
       }
-    : Object.fromEntries(APPROVAL_STATUSES.map((s) => [s, s]));
+    : {
+        Draft: "Draft",
+        "Submitted to CW": "Forwarded to Case Worker",
+        "Update Needed by CW": "Update Needed by CW",
+        "Submitted to PO": "Forwarded to Probation Officer",
+        "Update Needed by PO": "Update Needed by PO",
+        "Submitted to SUPT": "Forwarded to Superintendent",
+        Approved: "Approved by Superintendent",
+        Rejected: "Rejected",
+      };
 
   type Row = (typeof admissions)[number];
   const columns: ColumnDef<Row>[] = [

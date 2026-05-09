@@ -41,12 +41,12 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
   // Map status to readable labels
   const statusLabels: Record<string, { en: string; bn: string }> = {
     "Draft": { en: "Draft", bn: "খসড়া" },
-    "submitted_to_po": { en: "Submitted to PO", bn: "PO এ পাঠানো হয়েছে" },
-    "reviewed_by_po": { en: "Reviewed by PO", bn: "PO পর্যালোচনা করেছেন" },
-    "submitted_to_supt": { en: "Submitted to Supt", bn: "তত্ত্বাবধায়কের কাছে পাঠানো হয়েছে" },
-    "approved": { en: "Approved", bn: "অনুমোদিত" },
+    "submitted_to_po": { en: "Forwarded to Probation Officer", bn: "প্রবেশন অফিসারের নিকট প্রেরিত" },
+    "reviewed_by_po": { en: "Reviewed by Probation Officer", bn: "প্রবেশন অফিসার পর্যালোচনা করেছেন" },
+    "submitted_to_supt": { en: "Forwarded to Superintendent", bn: "সুপারিনটেনডেন্টের নিকট প্রেরিত" },
+    "approved": { en: "Approved by Superintendent", bn: "সুপারিনটেনডেন্ট অনুমোদিত" },
     "rejected": { en: "Rejected", bn: "প্রত্যাখ্যানিত" },
-    "sent_back_to_cw": { en: "Sent Back to CW", bn: "CW কে ফেরত পাঠানো হয়েছে" },
+    "sent_back_to_cw": { en: "Forwarded to Case Worker (Update Needed)", bn: "কেস ওয়ার্কারের নিকট প্রেরিত (আপডেট প্রয়োজন)" },
   };
 
   const currentLabel = statusLabels[currentStatus] || { en: currentStatus, bn: currentStatus };
@@ -59,8 +59,8 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
     if (!currentStatus || currentStatus === "Draft" || currentStatus === "sent_back_to_cw") {
       availableActions.push({ 
         id: "submit_to_po", 
-        labelEn: "Submit to PO", 
-        labelBn: "PO এ পাঠান", 
+        labelEn: "Forward to Probation Officer", 
+        labelBn: "প্রবেশন অফিসারের কাছে পাঠান", 
         icon: Send, 
         intent: "primary" 
       });
@@ -72,7 +72,7 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
     if (currentStatus === "submitted_to_po") {
       availableActions.push({ 
         id: "submit_to_supt", 
-        labelEn: "Forward to Supt", 
+        labelEn: "Forward to Superintendent", 
         labelBn: "তত্ত্বাবধায়কের কাছে পাঠান", 
         icon: Send, 
         intent: "primary" 
@@ -112,8 +112,8 @@ export function WorkflowActions({ recordType, recordId, currentStatus, onSuccess
     if (!currentStatus || currentStatus === "Draft" || currentStatus === "sent_back_to_cw") {
       availableActions.push({ 
         id: "submit_to_po", 
-        labelEn: "Submit to PO", 
-        labelBn: "PO এ পাঠান", 
+        labelEn: "Forward to Probation Officer", 
+        labelBn: "প্রবেশন অফিসারের কাছে পাঠান", 
         icon: Send, 
         intent: "primary" 
       });

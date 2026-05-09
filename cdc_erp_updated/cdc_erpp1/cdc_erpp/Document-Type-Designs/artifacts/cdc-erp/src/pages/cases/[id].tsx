@@ -31,13 +31,22 @@ function getTabs(isBn: boolean): { id: TabId; label: string; sub: string }[] {
 function getWorkflowLabel(state: string, isBn: boolean) {
   const w = state || "Draft";
   const labelBn: Record<string, string> = {
-    Draft: "খসড়া", submitted_to_po: "PO এ পাঠানো হয়েছে", reviewed_by_po: "PO পর্যালোচনা করেছেন",
-    sent_back_to_cw: "CW কে ফেরত", submitted_to_supt: "তত্ত্বাবধায়কের কাছে পাঠানো হয়েছে",
-    approved: "অনুমোদিত", rejected: "প্রত্যাখ্যানিত"
+    Draft: "খসড়া",
+    submitted_to_po: "প্রবেশন অফিসারের নিকট প্রেরিত",
+    reviewed_by_po: "প্রবেশন অফিসার পর্যালোচনা করেছেন",
+    sent_back_to_cw: "কেস ওয়ার্কারের নিকট প্রেরিত (আপডেট প্রয়োজন)",
+    submitted_to_supt: "সুপারিনটেনডেন্টের নিকট প্রেরিত",
+    approved: "সুপারিনটেনডেন্ট অনুমোদিত",
+    rejected: "প্রত্যাখ্যানিত"
   };
   const labelEn: Record<string, string> = {
-    Draft: "Draft", submitted_to_po: "Submitted to PO", reviewed_by_po: "Reviewed by PO",
-    sent_back_to_cw: "Sent Back to CW", submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected"
+    Draft: "Draft",
+    submitted_to_po: "Forwarded to Probation Officer",
+    reviewed_by_po: "Reviewed by Probation Officer",
+    sent_back_to_cw: "Forwarded to Case Worker (Update Needed)",
+    submitted_to_supt: "Forwarded to Superintendent",
+    approved: "Approved by Superintendent",
+    rejected: "Rejected"
   };
   return isBn ? (labelBn[w] || w) : (labelEn[w] || w);
 }

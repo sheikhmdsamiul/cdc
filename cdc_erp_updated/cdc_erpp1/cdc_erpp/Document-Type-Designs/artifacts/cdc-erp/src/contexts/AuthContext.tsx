@@ -42,7 +42,7 @@ const ALL_MODULES = [
   "dashboard", "admissions", "children", "cases", "family-socioeconomic",
   "health", "counseling", "education-skills", "guardians", "court-cases",
   "police-requisitions", "risk-assessments", "release-records", "follow-ups", "reports",
-  "measurement-surveys"
+  "measurement-surveys", "address"
 ];
 
 const VIEW_ONLY = { view: true, create: false, edit: false, delete: false };
@@ -62,11 +62,20 @@ const WORKFLOW_PERMISSIONS: Record<string, Record<string, { view: boolean; creat
     ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: VIEW_ONLY }), {}),
     "court-cases": FULL_ACCESS,
     cases: FULL_ACCESS,
+    admissions: FULL_ACCESS,
     reports: VIEW_ONLY,
   },
   SUPT: {
     ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: VIEW_ONLY }), {}),
+    admissions: FULL_ACCESS,
     reports: VIEW_ONLY,
+  },
+  "Center Admin": {
+    ...ALL_MODULES.reduce((acc, m) => ({ ...acc, [m]: VIEW_ONLY }), {}),
+    admissions: FULL_ACCESS,
+    children: FULL_ACCESS,
+    cases: FULL_ACCESS,
+    address: FULL_ACCESS,
   },
 };
 

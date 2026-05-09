@@ -93,11 +93,51 @@ function canEditAdmissionByState(user: any, state: string | null | undefined) {
 }
 
 function canDeleteAdmission(user: any) {
-  return user.roleScope === "Global" || user.roleName === "Super Admin" || user.roleName === "Head Office" || user.roleName === "Center Admin";
+  const role = user.roleName;
+  const workflowRole = user.workflowRole;
+  return (
+    role === "Super Admin" ||
+    role === "Head Office" ||
+    role === "Center Admin" ||
+    workflowRole === "DEO" ||
+    workflowRole === "CW" ||
+    workflowRole === "PO" ||
+    workflowRole === "SUPT"
+  );
 }
 
 function canBulkCascadeDeleteAdmissions(roleName: string | null | undefined) {
   return roleName === "Super Admin" || roleName === "Head Office";
+}
+
+async function cascadeDeleteChild(tx: any, childId: number) {
+  const cases = await tx
+    .select({ id: casesTable.id })
+    .from(casesTable)
+    .where(eq(casesTable.childId, childId));
+  const caseIds = cases.map((r: any) => r.id);
+
+  if (caseIds.length > 0) {
+    await tx.delete(caseAgreementsTable).where(inArray(caseAgreementsTable.caseId, caseIds));
+    await tx.delete(caseDetailAssessmentsTable).where(inArray(caseDetailAssessmentsTable.caseId, caseIds));
+    await tx.delete(caseInterventionPlansTable).where(inArray(caseInterventionPlansTable.caseId, caseIds));
+    await tx.delete(caseRiskAssessmentsTable).where(inArray(caseRiskAssessmentsTable.caseId, caseIds));
+  }
+
+  await tx.delete(guardianVisitsTable).where(eq(guardianVisitsTable.childId, childId));
+  await tx.delete(courtCasesTable).where(eq(courtCasesTable.childId, childId));
+  await tx.delete(healthAssessmentsTable).where(eq(healthAssessmentsTable.childId, childId));
+  await tx.delete(counselingSessionsTable).where(eq(counselingSessionsTable.childId, childId));
+  await tx.delete(educationPlansTable).where(eq(educationPlansTable.childId, childId));
+  await tx.delete(riskAssessmentsTable).where(eq(riskAssessmentsTable.childId, childId));
+  await tx.delete(releaseRecordsTable).where(eq(releaseRecordsTable.childId, childId));
+  await tx.delete(followUpsTable).where(eq(followUpsTable.childId, childId));
+  await tx.delete(familySocioeconomicRecordsTable).where(eq(familySocioeconomicRecordsTable.childId, childId));
+  await tx.delete(policeAcquisitionsTable).where(eq(policeAcquisitionsTable.childId, childId));
+  await tx.delete(measurementSurveysTable).where(eq(measurementSurveysTable.childId, childId));
+  await tx.delete(casesTable).where(eq(casesTable.childId, childId));
+  await tx.delete(admissionsTable).where(eq(admissionsTable.childId, childId));
+  await tx.delete(childrenTable).where(eq(childrenTable.id, childId));
 }
 
 function canAccessCenter(user: any, recordCenterId: number | null) {
@@ -442,41 +482,11 @@ router.post("/bulk-delete", async (req, res) => {
     }
 
     const result = await db.transaction(async (tx) => {
-      const cases = await tx
-        .select({ id: casesTable.id })
-        .from(casesTable)
-        .where(inArray(casesTable.childId, childIds));
-      const caseIds = cases.map((r) => r.id);
-
-      const deleted: Record<string, number> = {};
-
-      if (caseIds.length > 0) {
-        deleted.case_agreements = (await tx.delete(caseAgreementsTable).where(inArray(caseAgreementsTable.caseId, caseIds)).returning({ id: caseAgreementsTable.id })).length;
-        deleted.case_detail_assessments = (await tx.delete(caseDetailAssessmentsTable).where(inArray(caseDetailAssessmentsTable.caseId, caseIds)).returning({ id: caseDetailAssessmentsTable.id })).length;
-        deleted.case_intervention_plans = (await tx.delete(caseInterventionPlansTable).where(inArray(caseInterventionPlansTable.caseId, caseIds)).returning({ id: caseInterventionPlansTable.id })).length;
-        deleted.case_risk_assessments = (await tx.delete(caseRiskAssessmentsTable).where(inArray(caseRiskAssessmentsTable.caseId, caseIds)).returning({ id: caseRiskAssessmentsTable.id })).length;
-      } else {
-        deleted.case_agreements = 0;
-        deleted.case_detail_assessments = 0;
-        deleted.case_intervention_plans = 0;
-        deleted.case_risk_assessments = 0;
+      const deleted: Record<string, number> = { admissions: 0, children: 0 };
+      for (const childId of childIds) {
+        await cascadeDeleteChild(tx, childId);
+        deleted.children++;
       }
-
-      deleted.guardian_visits = (await tx.delete(guardianVisitsTable).where(inArray(guardianVisitsTable.childId, childIds)).returning({ id: guardianVisitsTable.id })).length;
-      deleted.court_cases = (await tx.delete(courtCasesTable).where(inArray(courtCasesTable.childId, childIds)).returning({ id: courtCasesTable.id })).length;
-      deleted.health_assessments = (await tx.delete(healthAssessmentsTable).where(inArray(healthAssessmentsTable.childId, childIds)).returning({ id: healthAssessmentsTable.id })).length;
-      deleted.counseling_sessions = (await tx.delete(counselingSessionsTable).where(inArray(counselingSessionsTable.childId, childIds)).returning({ id: counselingSessionsTable.id })).length;
-      deleted.education_plans = (await tx.delete(educationPlansTable).where(inArray(educationPlansTable.childId, childIds)).returning({ id: educationPlansTable.id })).length;
-      deleted.risk_assessments = (await tx.delete(riskAssessmentsTable).where(inArray(riskAssessmentsTable.childId, childIds)).returning({ id: riskAssessmentsTable.id })).length;
-      deleted.release_records = (await tx.delete(releaseRecordsTable).where(inArray(releaseRecordsTable.childId, childIds)).returning({ id: releaseRecordsTable.id })).length;
-      deleted.follow_ups = (await tx.delete(followUpsTable).where(inArray(followUpsTable.childId, childIds)).returning({ id: followUpsTable.id })).length;
-      deleted.family_socioeconomic_records = (await tx.delete(familySocioeconomicRecordsTable).where(inArray(familySocioeconomicRecordsTable.childId, childIds)).returning({ id: familySocioeconomicRecordsTable.id })).length;
-      deleted.police_acquisitions = (await tx.delete(policeAcquisitionsTable).where(inArray(policeAcquisitionsTable.childId, childIds)).returning({ id: policeAcquisitionsTable.id })).length;
-      deleted.measurement_surveys = (await tx.delete(measurementSurveysTable).where(inArray(measurementSurveysTable.childId, childIds)).returning({ id: measurementSurveysTable.id })).length;
-      deleted.cases = (await tx.delete(casesTable).where(inArray(casesTable.childId, childIds)).returning({ id: casesTable.id })).length;
-      deleted.admissions = (await tx.delete(admissionsTable).where(inArray(admissionsTable.childId, childIds)).returning({ id: admissionsTable.id })).length;
-      deleted.children = (await tx.delete(childrenTable).where(inArray(childrenTable.id, childIds)).returning({ id: childrenTable.id })).length;
-
       return { deleted };
     });
 
@@ -496,14 +506,18 @@ router.delete("/:id", async (req, res) => {
   try {
     const user = await getCurrentUser(req);
     if (!user) return res.status(401).json({ error: "Unauthorized" });
-    if (!canDeleteAdmission(user)) return res.status(403).json({ error: "Forbidden" });
+    if (!canDeleteAdmission(user)) return res.status(403).json({ error: "Forbidden: role cannot delete admissions" });
 
     const id = parseInt(req.params.id, 10);
     const [existing] = await db
-      .select({ childId: admissionsTable.childId })
+      .select({ 
+        childId: admissionsTable.childId,
+        approvalStatus: admissionsTable.approvalStatus 
+      })
       .from(admissionsTable)
       .where(eq(admissionsTable.id, id))
       .limit(1);
+    
     if (!existing) return res.status(404).json({ error: "Not found" });
 
     const [child] = await db
@@ -511,10 +525,28 @@ router.delete("/:id", async (req, res) => {
       .from(childrenTable)
       .where(eq(childrenTable.id, existing.childId))
       .limit(1);
-    if (!child) return res.status(404).json({ error: "Child not found" });
-    if (!canAccessCenter(user, child.centerId ?? null)) return res.status(403).json({ error: "Forbidden" });
+    
+    if (!child) return res.status(404).json({ error: "Child record not found" });
+    if (!canAccessCenter(user, child.centerId ?? null)) return res.status(403).json({ error: "Forbidden: center access mismatch" });
 
-    await db.delete(admissionsTable).where(eq(admissionsTable.id, id));
+    const role = user.roleName;
+    const isAdmin = role === "Super Admin" || role === "Head Office" || role === "Center Admin";
+
+    // Workflow roles (DEO, CW, etc.) can only delete in Draft status
+    if (!isAdmin) {
+      if (existing.approvalStatus !== ADMISSION_WORKFLOW.DRAFT && existing.approvalStatus !== "Draft") {
+        return res.status(400).json({ 
+          error: "Already processed from draft, you can't delete.",
+          errorBn: "ইতিমধ্যেই ড্রাফট থেকে পরবর্তী ধাপে চলে গেছে, আপনি এটি মুছতে পারবেন না।"
+        });
+      }
+    }
+
+    // Admins get cascading delete at any status; Workflow roles get it only in Draft (per logic above)
+    await db.transaction(async (tx) => {
+      await cascadeDeleteChild(tx, existing.childId);
+    });
+
     res.json({ ok: true });
   } catch (err) {
     req.log.error({ err }, "Failed to delete admission");

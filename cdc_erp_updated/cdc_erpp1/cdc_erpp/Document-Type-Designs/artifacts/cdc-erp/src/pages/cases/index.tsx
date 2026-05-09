@@ -20,16 +20,16 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 const WORKFLOW_LABEL: Record<string, string> = {
-  Draft: "খসড়া", submitted_to_df: "DF এ পাঠানো হয়েছে", reviewed_by_df: "DF কর্তৃক পর্যালোচিত",
-  sent_back_to_cw_by_df: "DF কর্তৃক ফেরত", submitted_to_po: "PO এ পাঠানো হয়েছে",
-  reviewed_by_po: "PO কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "PO কর্তৃক ফেরত",
-  submitted_to_supt: "তত্ত্বাবধায়কের কাছে", approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত",
+  Draft: "খসড়া", submitted_to_df: "কেস ওয়ার্কারের নিকট প্রেরিত", reviewed_by_df: "কেস ওয়ার্কার কর্তৃক পর্যালোচিত",
+  sent_back_to_cw_by_df: "কেস ওয়ার্কার কর্তৃক ফেরত", submitted_to_po: "প্রবেশন অফিসারের নিকট প্রেরিত",
+  reviewed_by_po: "প্রবেশন অফিসার কর্তৃক পর্যালোচিত", sent_back_to_cw_by_po: "প্রবেশন অফিসার কর্তৃক ফেরত",
+  submitted_to_supt: "সুপারিনটেনডেন্টের নিকট প্রেরিত", approved: "সুপারিনটেনডেন্ট অনুমোদিত", rejected: "প্রত্যাখ্যাত",
 };
 const WORKFLOW_LABEL_EN: Record<string, string> = {
-  Draft: "Draft", submitted_to_df: "Submitted to DF", reviewed_by_df: "Reviewed by DF",
-  sent_back_to_cw_by_df: "Sent Back by DF", submitted_to_po: "Submitted to PO",
-  reviewed_by_po: "Reviewed by PO", sent_back_to_cw_by_po: "Sent Back by PO",
-  submitted_to_supt: "Submitted to Supt", approved: "Approved", rejected: "Rejected",
+  Draft: "Draft", submitted_to_df: "Forwarded to Case Worker", reviewed_by_df: "Reviewed by Case Worker",
+  sent_back_to_cw_by_df: "Sent Back by Case Worker", submitted_to_po: "Forwarded to Probation Officer",
+  reviewed_by_po: "Reviewed by Probation Officer", sent_back_to_cw_by_po: "Sent Back by Probation Officer",
+  submitted_to_supt: "Forwarded to Superintendent", approved: "Approved by Superintendent", rejected: "Rejected",
 };
 const WORKFLOW_COLOR: Record<string, string> = {
   Draft: "bg-gray-100 text-gray-800",

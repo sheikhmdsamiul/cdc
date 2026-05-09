@@ -59,7 +59,7 @@ export default function CenterUsersPage() {
   });
 
   const centerUsers = (usersData?.users ?? []).filter(
-    (u) => u.centerId === currentCenterId && u.isActive !== false
+    (u) => u.centerId === currentCenterId
   );
 
   const createMutation = useMutation({
@@ -87,18 +87,26 @@ export default function CenterUsersPage() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) =>
+  const toggleStatusMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
       fetch(`/api/users/${id}`, {
-        method: "DELETE",
+        method: "PUT",
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive }),
       }).then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       }),
-    onSuccess: () => {
-      toast({ title: isBn ? "ব্যবহারকারী নিষ্ক্রিয় করা হয়েছে" : "User deactivated" });
+    onSuccess: (data) => {
+      toast({ 
+        title: data.isActive ? (isBn ? "ব্যবহারকারী সক্রিয় করা হয়েছে" : "User activated") : (isBn ? "ব্যবহারকারী নিষ্ক্রিয় করা হয়েছে" : "User deactivated") 
+      });
       qc.invalidateQueries({ queryKey: ["center-users"] });
+      qc.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     },
   });
 
@@ -164,6 +172,7 @@ export default function CenterUsersPage() {
                   <tr className="border-b">
                     <th className="text-left py-2 font-medium">{isBn ? "ব্যবহারকারীর নাম" : "Username"}</th>
                     <th className="text-left py-2 font-medium">{isBn ? "পূর্ণ নাম" : "Full Name"}</th>
+                    <th className="text-left py-2 font-medium">{isBn ? "অবস্থা" : "Status"}</th>
                     <th className="text-left py-2 font-medium">{isBn ? "ভূমিকা" : "Role"}</th>
                     <th className="text-left py-2 font-medium">{isBn ? "ওয়ার্কফ্লো" : "Workflow"}</th>
                     <th className="text-left py-2 font-medium">{isBn ? "কেন্দ্র" : "Center"}</th>
@@ -175,6 +184,17 @@ export default function CenterUsersPage() {
                     <tr key={u.id} className="border-b hover:bg-muted/30">
                       <td className="py-2">{u.username}</td>
                       <td className="py-2">{u.fullName}</td>
+                      <td className="py-2">
+                        {u.isActive ? (
+                          <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase">
+                            {isBn ? "সক্রিয়" : "Active"}
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase">
+                            {isBn ? "নিষ্ক্রিয়" : "Inactive"}
+                          </span>
+                        )}
+                      </td>
                       <td className="py-2">{u.roleName ?? "—"}</td>
                       <td className="py-2">
                         {u.workflowRole ? (
@@ -190,18 +210,21 @@ export default function CenterUsersPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-red-500 hover:text-red-600"
+                          className={`h-8 w-8 ${u.isActive ? "text-red-500 hover:text-red-600" : "text-green-600 hover:text-green-700"}`}
                           onClick={() => {
-                            if (confirm(isBn ? "নিষ্ক্রিয় করবেন?" : "Deactivate?")) {
-                              deleteMutation.mutate(u.id);
+                            const actionStr = u.isActive ? (isBn ? "নিষ্ক্রিয়" : "deactivate") : (isBn ? "সক্রিয়" : "activate");
+                            if (confirm(isBn ? `${actionStr} করবেন?` : `Are you sure you want to ${actionStr} this user?`)) {
+                              toggleStatusMutation.mutate({ id: u.id, isActive: !u.isActive });
                             }
                           }}
-                          disabled={deleteMutation.isPending}
+                          disabled={toggleStatusMutation.isPending}
                         >
-                          {deleteMutation.isPending ? (
+                          {toggleStatusMutation.isPending ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
+                          ) : u.isActive ? (
                             <UserPlus className="h-4 w-4 rotate-45" />
+                          ) : (
+                            <UserPlus className="h-4 w-4" />
                           )}
                         </Button>
                       </td>
