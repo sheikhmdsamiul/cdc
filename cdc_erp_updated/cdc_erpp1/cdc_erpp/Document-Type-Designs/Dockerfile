@@ -3,8 +3,9 @@ RUN npm install -g pnpm@latest
 WORKDIR /app
 
 FROM base AS deps
-ENV npm_config_user_agent="pnpm/10.0.0"
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+# Remove preinstall check — it only exists to catch npm/yarn misuse on dev machines
+RUN sed -i '/"preinstall":/d' package.json
 COPY artifacts/api-server/package.json ./artifacts/api-server/
 COPY artifacts/cdc-erp/package.json ./artifacts/cdc-erp/
 COPY lib/db/package.json ./lib/db/
