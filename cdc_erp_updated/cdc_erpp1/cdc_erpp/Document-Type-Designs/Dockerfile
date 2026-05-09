@@ -4,8 +4,9 @@ WORKDIR /app
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-# Remove preinstall check — it only exists to catch npm/yarn misuse on dev machines
-RUN sed -i '/"preinstall":/d' package.json
+# Remove preinstall check and add onlyBuiltDependencies so esbuild can build
+RUN sed -i '/"preinstall":/d' package.json && \
+    sed -i '/"private": true/a\  "pnpm": {\n    "onlyBuiltDependencies": ["@swc/core", "esbuild", "msw", "unrs-resolver"]\n  },' package.json
 COPY artifacts/api-server/package.json ./artifacts/api-server/
 COPY artifacts/cdc-erp/package.json ./artifacts/cdc-erp/
 COPY lib/db/package.json ./lib/db/
