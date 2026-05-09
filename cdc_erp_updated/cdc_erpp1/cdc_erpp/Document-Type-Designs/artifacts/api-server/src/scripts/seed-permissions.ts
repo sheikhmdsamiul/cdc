@@ -5,7 +5,7 @@
  */
 
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { pool } from "@workspace/db";
 import { rolePermissionsTable, rolesTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -15,7 +15,6 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const pool = new Pool({ connectionString: DATABASE_URL });
 const db = drizzle(pool);
 
 // ─── Modules ────────────────────────────────────────────────────────────────

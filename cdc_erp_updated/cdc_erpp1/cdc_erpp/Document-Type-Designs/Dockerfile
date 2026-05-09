@@ -2,17 +2,6 @@ FROM node:24-alpine AS base
 RUN npm install -g pnpm@9
 WORKDIR /app
 
-FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN sed -i '/"preinstall":/d' package.json
-COPY artifacts/api-server/package.json ./artifacts/api-server/
-COPY artifacts/cdc-erp/package.json ./artifacts/cdc-erp/
-COPY lib/db/package.json ./lib/db/
-COPY lib/api-zod/package.json ./lib/api-zod/
-COPY lib/api-client-react/package.json ./lib/api-client-react/
-COPY scripts/package.json ./scripts/
-RUN pnpm install
-
 FROM base AS builder
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN sed -i '/"preinstall":/d' package.json
@@ -36,8 +25,15 @@ RUN pnpm --filter @workspace/cdc-erp run build
 
 FROM base AS runner
 RUN apk add --no-cache tini netcat-openbsd
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+RUN sed -i '/"preinstall":/d' package.json
+COPY artifacts/api-server/package.json ./artifacts/api-server/
+COPY artifacts/cdc-erp/package.json ./artifacts/cdc-erp/
+COPY lib/db/package.json ./lib/db/
+COPY lib/api-zod/package.json ./lib/api-zod/
+COPY lib/api-client-react/package.json ./lib/api-client-react/
+COPY scripts/package.json ./scripts/
+RUN pnpm install --prod
 COPY --from=builder /app/artifacts/api-server/dist ./artifacts/api-server/dist
 COPY --from=builder /app/artifacts/cdc-erp/dist ./artifacts/cdc-erp/dist
 COPY lib/db/drizzle.config.ts lib/db/package.json ./lib/db/
