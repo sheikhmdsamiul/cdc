@@ -36,6 +36,8 @@ RUN pnpm --filter @workspace/cdc-erp run build
 
 FROM base AS runner
 RUN apk add --no-cache tini netcat-openbsd
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/artifacts/api-server/dist ./artifacts/api-server/dist
 COPY --from=builder /app/artifacts/cdc-erp/dist ./artifacts/cdc-erp/dist
 COPY lib/db/drizzle.config.ts lib/db/package.json ./lib/db/
