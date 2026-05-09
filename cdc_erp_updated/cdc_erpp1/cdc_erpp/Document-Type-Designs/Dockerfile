@@ -14,7 +14,7 @@ COPY lib/db/package.json ./lib/db/
 COPY lib/api-zod/package.json ./lib/api-zod/
 COPY lib/api-client-react/package.json ./lib/api-client-react/
 COPY scripts/package.json ./scripts/
-RUN pnpm install
+RUN pnpm install && pnpm approve-builds
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
