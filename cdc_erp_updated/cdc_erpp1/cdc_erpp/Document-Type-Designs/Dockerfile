@@ -3,6 +3,7 @@ RUN npm install -g pnpm@latest
 WORKDIR /app
 
 FROM base AS deps
+ENV npm_config_user_agent="pnpm/10.0.0"
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY artifacts/api-server/package.json ./artifacts/api-server/
 COPY artifacts/cdc-erp/package.json ./artifacts/cdc-erp/
