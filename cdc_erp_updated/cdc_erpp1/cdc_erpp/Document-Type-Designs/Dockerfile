@@ -12,7 +12,7 @@ COPY lib/db/package.json ./lib/db/
 COPY lib/api-zod/package.json ./lib/api-zod/
 COPY lib/api-client-react/package.json ./lib/api-client-react/
 COPY scripts/package.json ./scripts/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
