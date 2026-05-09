@@ -5,7 +5,7 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 # Create .npmrc with onlyBuiltDependencies so esbuild can build
-RUN printf 'auto-install-peers=false\nstrict-peer-dependencies=false\nonlyBuiltDependencies[]=@swc/core\nonlyBuiltDependencies[]=esbuild\nonlyBuiltDependencies[]=msw\nonlyBuiltDependencies[]=unrs-resolver\n' > .npmrc
+RUN printf 'auto-install-peers=false\nstrict-peer-dependencies=false\nignore-scripts=false\n' > .npmrc
 # Remove preinstall check — it only exists to catch npm/yarn misuse on dev machines
 RUN sed -i '/"preinstall":/d' package.json
 COPY artifacts/api-server/package.json ./artifacts/api-server/
