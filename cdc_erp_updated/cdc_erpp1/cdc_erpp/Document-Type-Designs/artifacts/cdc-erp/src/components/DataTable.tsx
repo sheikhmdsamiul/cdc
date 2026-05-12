@@ -163,76 +163,78 @@ export function DataTable<T extends { id: number | string }>({
   return (
     <div className="space-y-3">
       {/* ── Toolbar ── */}
-      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* External search (if parent provides) */}
-          {onSearchChange !== undefined && (
-            <div className="relative w-56">
-              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                className="pl-8 h-9 text-sm"
-                placeholder={isBn ? (searchPlaceholderBn ?? "অনুসন্ধান...") : (searchPlaceholder ?? "Search...")}
-                value={searchValue ?? ""}
-                onChange={e => onSearchChange(e.target.value)}
-              />
-            </div>
-          )}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* External search (if parent provides) */}
+            {onSearchChange !== undefined && (
+              <div className="relative w-full sm:w-56">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  className="pl-8 h-9 text-sm w-full"
+                  placeholder={isBn ? (searchPlaceholderBn ?? "অনুসন্ধান...") : (searchPlaceholder ?? "Search...")}
+                  value={searchValue ?? ""}
+                  onChange={e => onSearchChange(e.target.value)}
+                />
+              </div>
+            )}
 
-          {/* Column filter toggle */}
-          {filterableColumns.length > 0 && (
+            {/* Column filter toggle */}
+            {filterableColumns.length > 0 && (
+              <Button
+                variant="outline" size="sm"
+                className={`gap-1.5 h-9 ${showFilters ? "bg-teal-50 border-teal-300 text-teal-700" : ""}`}
+                onClick={() => setShowFilters(v => !v)}
+              >
+                <Filter className="h-3.5 w-3.5" />
+                {isBn ? "ফিল্টার" : "Filter"}
+                {activeFilterCount > 0 && (
+                  <Badge className="h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-teal-600 text-white rounded-full">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+                {showFilters ? <ChevronUp className="h-3 w-3 ml-0.5" /> : <ChevronDown className="h-3 w-3 ml-0.5" />}
+              </Button>
+            )}
+
+            {activeFilterCount > 0 && (
+              <Button variant="ghost" size="sm" className="h-9 text-muted-foreground gap-1" onClick={clearFilters}>
+                <X className="h-3.5 w-3.5" />
+                {isBn ? "ফিল্টার মুছুন" : "Clear filters"}
+              </Button>
+            )}
+          </div>
+
+          {/* Export controls */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <Button
-              variant="outline" size="sm"
-              className={`gap-1.5 h-9 ${showFilters ? "bg-teal-50 border-teal-300 text-teal-700" : ""}`}
-              onClick={() => setShowFilters(v => !v)}
+              variant="outline" size="sm" className="h-9 gap-1.5 border-green-200 text-green-700 hover:bg-green-50"
+              onClick={() => exportToExcel(filteredData, columns, title, isBn)}
             >
-              <Filter className="h-3.5 w-3.5" />
-              {isBn ? "ফিল্টার" : "Filter"}
-              {activeFilterCount > 0 && (
-                <Badge className="h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-teal-600 text-white rounded-full">
-                  {activeFilterCount}
-                </Badge>
-              )}
-              {showFilters ? <ChevronUp className="h-3 w-3 ml-0.5" /> : <ChevronDown className="h-3 w-3 ml-0.5" />}
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              <span className="hidden xs:inline">Excel</span>
             </Button>
-          )}
-
-          {activeFilterCount > 0 && (
-            <Button variant="ghost" size="sm" className="h-9 text-muted-foreground gap-1" onClick={clearFilters}>
-              <X className="h-3.5 w-3.5" />
-              {isBn ? "ফিল্টার মুছুন" : "Clear filters"}
+            <Button
+              variant="outline" size="sm" className="h-9 gap-1.5 border-blue-200 text-blue-700 hover:bg-blue-50"
+              onClick={() => exportToPrint(filteredData, columns, title, isBn, true)}
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span className="hidden xs:inline">PDF</span>
             </Button>
-          )}
-        </div>
-
-        {/* Export controls */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline" size="sm" className="h-9 gap-1.5 border-green-200 text-green-700 hover:bg-green-50"
-            onClick={() => exportToExcel(filteredData, columns, title, isBn)}
-          >
-            <FileSpreadsheet className="h-3.5 w-3.5" />
-            Excel
-          </Button>
-          <Button
-            variant="outline" size="sm" className="h-9 gap-1.5 border-blue-200 text-blue-700 hover:bg-blue-50"
-            onClick={() => exportToPrint(filteredData, columns, title, isBn, true)}
-          >
-            <FileText className="h-3.5 w-3.5" />
-            PDF
-          </Button>
-          <Button
-            variant="outline" size="sm" className="h-9 gap-1.5 border-amber-200 text-amber-700 hover:bg-amber-50"
-            onClick={() => exportToPrint(filteredData, columns, title, isBn, false)}
-          >
-            <Printer className="h-3.5 w-3.5" />
-            {isBn ? "মুদ্রণ" : "Print"}
-          </Button>
+            <Button
+              variant="outline" size="sm" className="h-9 gap-1.5 border-amber-200 text-amber-700 hover:bg-amber-50"
+              onClick={() => exportToPrint(filteredData, columns, title, isBn, false)}
+            >
+              <Printer className="h-3.5 w-3.5" />
+              <span className="hidden xs:inline">{isBn ? "মুদ্রণ" : "Print"}</span>
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* ── Column filter panel ── */}
       {showFilters && filterableColumns.length > 0 && (
-        <div className="bg-muted/30 border border-border/60 rounded-lg p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="bg-muted/30 border border-border/60 rounded-lg p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {filterableColumns.map(col => {
             const label = isBn && col.labelBn ? col.labelBn : col.label;
             const val = columnFilters[col.key] ?? "";

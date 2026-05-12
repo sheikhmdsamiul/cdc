@@ -30,11 +30,12 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       variant="outline"
       size="sm"
       onClick={toggle}
-      className="text-xs font-medium h-8 gap-1.5"
+      className="text-xs font-medium h-8 gap-1.5 flex-shrink-0"
       title={isBn ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
     >
-      <Globe className="h-3.5 w-3.5" />
-      {isBn ? "বাংলা → English" : "English → বাংলা"}
+      <Globe className="h-3.5 w-3.5 flex-shrink-0" />
+      <span className="hidden sm:inline">{isBn ? "বাংলা → English" : "English → বাংলা"}</span>
+      <span className="sm:hidden">{isBn ? "EN" : "বাং"}</span>
     </Button>
   );
 }
